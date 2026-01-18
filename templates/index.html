@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome to FlatLand & Interior{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        min-height: 78vh;
+        display: flex;
+        align-items: center;
+        position: relative;
+        padding: 110px 0 80px;
+        overflow: hidden;
+    }
+
+    .hero-section::before {
+        content: "";
+        position: absolute;
+        width: 420px;
+        height: 420px;
+        top: -120px;
+        right: -120px;
+        background: radial-gradient(circle, rgba(243, 107, 78, 0.2), transparent 60%);
+        filter: blur(4px);
+        z-index: 0;
+    }
+
+    .hero-section::after {
+        content: "";
+        position: absolute;
+        width: 320px;
+        height: 320px;
+        bottom: -120px;
+        left: -120px;
+        background: radial-gradient(circle, rgba(16, 105, 96, 0.18), transparent 60%);
+        z-index: 0;
+    }
+
+    .hero-section .container {
+        position: relative;
+        z-index: 1;
+    }
+
+    .hero-title {
+        font-size: 4rem;
+        font-weight: 800;
+        line-height: 1.1;
+        margin-bottom: 24px;
+    }
+
+    .text-gradient {
+        background: linear-gradient(135deg, var(--accent-gold), var(--accent-warm), #f6d7a7);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .service-selection {
+        margin-top: -80px;
+        position: relative;
+        z-index: 10;
+    }
+
+    .selection-card {
+        padding: 40px;
+        text-align: center;
+        background: var(--surface);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        box-shadow: var(--shadow-soft);
+        transition: all 0.4s ease;
+    }
+
+    .selection-card:hover {
+        transform: translateY(-10px);
+        border-color: rgba(243, 107, 78, 0.4);
+        box-shadow: var(--shadow-strong);
+    }
+
+    .selection-icon {
+        font-size: 3rem;
+        color: var(--accent-gold);
+        margin-bottom: 20px;
+    }
+
+    .section-title {
+        font-weight: 700;
+        margin-bottom: 40px;
+        position: relative;
+        display: inline-block;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 60px;
+        height: 4px;
+        background: var(--accent-gold);
+        border-radius: 2px;
+    }
+
+    .hero-media {
+        animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .hero-media {
+            animation: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-7">
+                <h1 class="hero-title reveal">Find Your <span class="text-gradient">Dream Space</span> & Design It.</h1>
+                <p class="lead mb-4 mb-md-5 text-muted reveal delay-1" style="max-width: 600px;">Experience the best-in-class flat trading platform integrated with professional interior design services. All-in-one destination for your home.</p>
+                <div class="d-flex flex-column flex-sm-row gap-3 reveal delay-2">
+                    <a href="{{ url_for('flats') }}" class="btn btn-gold btn-lg py-3 px-4">Explore Flats</a>
+                    <a href="{{ url_for('interior') }}" class="btn btn-outline-light btn-lg py-3 px-4" style="border-radius: 8px;">Interior Services</a>
+                </div>
+            </div>
+            <div class="col-lg-5 d-none d-lg-block">
+                <div class="glass-card p-4 text-center reveal delay-2">
+                    <img src="https://images.unsplash.com/photo-1600585154340-be6199fbfd1e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Modern House" class="img-fluid rounded-4 shadow-lg mb-4 img-expand hero-media" loading="lazy" decoding="async" width="800" height="600">
+                    <div class="d-flex justify-content-around">
+                        <div>
+                            <h4 class="mb-0">500+</h4>
+                            <small class="text-muted">Listings</small>
+                        </div>
+                        <div>
+                            <h4 class="mb-0">120+</h4>
+                            <small class="text-muted">Designers</small>
+                        </div>
+                        <div>
+                            <h4 class="mb-0">2k+</h4>
+                            <small class="text-muted">Happy Clients</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="service-selection">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="selection-card reveal">
+                    <div class="selection-icon"><i class="fas fa-home"></i></div>
+                    <h3>Property Hub</h3>
+                    <p class="text-muted">Buy or sell luxury flats with verified listings and seamless communication with owners.</p>
+                    <a href="{{ url_for('flats') }}" class="btn btn-link text-gold text-decoration-none fw-bold">Browse Listings <i class="fas fa-arrow-right ms-2"></i></a>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="selection-card reveal delay-1">
+                    <div class="selection-icon"><i class="fas fa-couch"></i></div>
+                    <h3>Interior Design</h3>
+                    <p class="text-muted">Transform your space with our premium interior services. Hire top-tier designers for your project.</p>
+                    <a href="{{ url_for('interior') }}" class="btn btn-link text-gold text-decoration-none fw-bold">See Portfolios <i class="fas fa-arrow-right ms-2"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 mt-5">
+    <div class="container py-5">
+        <h2 class="section-title reveal">Why Choose Us?</h2>
+        <div class="row g-4 mt-2">
+            <div class="col-md-4">
+                <div class="p-4 rounded-4 reveal" style="background: rgba(255, 255, 255, 0.7); border: 1px solid var(--glass-border); box-shadow: var(--shadow-soft);">
+                    <div class="mb-3 text-gold fs-3"><i class="fas fa-shield-alt"></i></div>
+                    <h5>Verified Listings</h5>
+                    <p class="text-secondary">Every flat listing on our platform undergoes a strict verification process for your safety.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4 rounded-4 reveal delay-1" style="background: rgba(255, 255, 255, 0.7); border: 1px solid var(--glass-border); box-shadow: var(--shadow-soft);">
+                    <div class="mb-3 text-gold fs-3"><i class="fas fa-magic"></i></div>
+                    <h5>Expert Designers</h5>
+                    <p class="text-secondary">Explore portfolios of the most creative interior designers in the industry.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4 rounded-4 reveal delay-2" style="background: rgba(255, 255, 255, 0.7); border: 1px solid var(--glass-border); box-shadow: var(--shadow-soft);">
+                    <div class="mb-3 text-gold fs-3"><i class="fas fa-comments"></i></div>
+                    <h5>Direct Contact</h5>
+                    <p class="text-secondary">No middlemen. Chat directly with property owners and service providers.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

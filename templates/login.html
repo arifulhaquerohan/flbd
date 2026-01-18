@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Login - FlatLand BD{% endblock %}
+
+{% block extra_css %}
+<style>
+    .login-container {
+        max-width: 450px;
+        margin: 100px auto;
+        padding: 40px;
+        background: var(--surface);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        box-shadow: var(--shadow-soft);
+    }
+    .form-control {
+        background: rgba(255, 255, 255, 0.9) !important;
+        border: 1px solid var(--glass-border) !important;
+        color: var(--primary-dark) !important;
+        padding: 12px;
+        border-radius: 10px;
+    }
+    .form-control:focus {
+        border-color: var(--accent-gold) !important;
+        box-shadow: 0 0 10px rgba(243, 107, 78, 0.12);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="login-container reveal">
+        <h2 class="text-center mb-4 fw-bold">Welcome <span class="text-gold" style="color: var(--accent-gold);">Back</span></h2>
+        
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-warning py-2 mb-3 small">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form action="/login" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="mb-3">
+                <label class="form-label small text-muted">Email Address</label>
+                <input type="email" name="email" class="form-control" placeholder="arifulhaquerohan@gmail.com" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label small text-muted">Password</label>
+                <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+            </div>
+            <div class="mb-4 d-flex justify-content-between align-items-center">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="remember" id="remember" style="background: rgba(255,255,255,0.1); border-color: var(--glass-border);">
+                    <label class="form-check-label small text-muted" for="remember">
+                        Remember Me
+                    </label>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-gold w-100 py-3 fw-bold">Login</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}{{ service.provider_name }} - Interior Design - FlatLand BD{% endblock %}
+
+{% block extra_css %}
+<style>
+    .interior-hero {
+        padding: 100px 0;
+        background: linear-gradient(120deg, rgba(248, 242, 234, 0.9), rgba(255, 248, 239, 0.7)),
+                    url('{{ service.image_url or "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1600" }}');
+        background-size: cover;
+        background-position: center;
+    }
+    .portfolio-img {
+        height: 300px;
+        object-fit: cover;
+        border-radius: 16px;
+        transition: transform 0.3s ease;
+    }
+    .portfolio-img:hover {
+        transform: scale(1.03);
+    }
+    .booking-card {
+        background: var(--surface);
+        border: 1px solid var(--accent-gold);
+        border-radius: 24px;
+        padding: 40px;
+        box-shadow: var(--shadow-soft);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="interior-hero">
+    <div class="container text-center">
+        <span class="badge badge-premium mb-3" style="background: var(--accent-gold); color: var(--primary-dark);">{{ service.service_type }}</span>
+        <h1 class="display-3 fw-bold mb-4 reveal">{{ service.provider_name }}</h1>
+        <p class="lead text-muted mx-auto reveal delay-1" style="max-width: 700px;">{{ service.description }}</p>
+    </div>
+</section>
+
+<div class="container py-5">
+    <div class="row g-5">
+        <div class="col-lg-8">
+            <h3 class="fw-bold mb-4 reveal">Portfolio Gallery</h3>
+            <div class="row g-4 mb-5">
+                <div class="col-md-6">
+                    <img src="{{ service.image_url or 'https://images.unsplash.com/photo-1616489953149-75577aaf9d55?auto=format&fit=crop&w=800' }}" class="portfolio-img w-100 reveal" alt="Work 1" loading="lazy" decoding="async" width="800" height="600">
+                </div>
+                <div class="col-md-6">
+                    <img src="https://images.unsplash.com/photo-1617806118233-18e1db207032?auto=format&fit=crop&w=800" class="portfolio-img w-100 reveal delay-1" alt="Work 2" loading="lazy" decoding="async" width="800" height="600">
+                </div>
+                <div class="col-md-12">
+                    <img src="https://images.unsplash.com/photo-1616137466211-f939a420be84?auto=format&fit=crop&w=1200" class="portfolio-img w-100 reveal delay-2" style="height: 400px;" alt="Work 3" loading="lazy" decoding="async" width="1200" height="800">
+                </div>
+            </div>
+
+            <h3 class="fw-bold mb-4 reveal">Service Details</h3>
+            <div class="p-4 rounded-4 bg-secondary bg-opacity-10 mb-5 reveal delay-1">
+                <p class="lh-lg mb-0 text-secondary">Our team at {{ service.provider_name }} specializes in creating bespoke living environments. We handle everything from concept visualization to final structural adjustments. Whether you're looking for a modular kitchen or a full penthouse renovation, our expert designers are ready to help.</p>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="booking-card sticky-top reveal delay-1" style="top: 100px;">
+                <h4 class="fw-bold mb-2">Request Service</h4>
+                <div class="fs-2 fw-bold text-gold mb-4">৳ {{ service.starting_price }} <small class="fs-6 text-muted fw-normal">Starting price</small></div>
+                
+                <form>
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">Property Type</label>
+                        <select class="form-select">
+                            <option>Apartment</option>
+                            <option>Duplex</option>
+                            <option>Office</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label small text-muted">Estimated Area (Sqft)</label>
+                        <input type="number" class="form-control" placeholder="e.g. 1500">
+                    </div>
+                    <button type="button" class="btn btn-gold w-100 py-3 fw-bold mb-3">Book Consultation</button>
+                    <a href="{{ service.portfolio_url or '#' }}" target="_blank" class="btn btn-outline-light w-100 py-3 d-flex align-items-center justify-content-center">
+                        <i class="fas fa-external-link-alt me-2"></i> External Portfolio
+                    </a>
+                </form>
+                
+                <hr class="bg-secondary my-4">
+                <div class="text-center">
+                    <small class="text-muted">Average response time: 2-4 hours</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

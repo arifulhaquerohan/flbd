@@ -1,0 +1,291 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - FlatLand BD{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-sidebar {
+        background: rgba(255, 255, 255, 0.75);
+        border-right: 1px solid var(--glass-border);
+        min-height: calc(100vh - 76px);
+        padding: 2rem 1rem;
+        box-shadow: var(--shadow-soft);
+    }
+    .stat-card {
+        background: var(--surface);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 24px;
+        transition: transform 0.3s ease;
+        box-shadow: var(--shadow-soft);
+        height: 100%;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(243, 107, 78, 0.4);
+    }
+    .table-dark-custom {
+        background: var(--surface);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: var(--shadow-soft);
+    }
+    .table-dark-custom th {
+        background: rgba(15, 46, 42, 0.06);
+        border: none;
+        color: var(--primary-dark);
+        padding: 15px;
+    }
+    .table-dark-custom td {
+        border-color: var(--glass-border);
+        padding: 15px;
+        vertical-align: middle;
+        color: var(--primary-dark);
+    }
+
+    .admin-toolbar {
+        background: var(--surface);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 14px;
+        box-shadow: var(--shadow-soft);
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .admin-toolbar .input-group-text {
+        background: rgba(15, 46, 42, 0.06);
+        border: 1px solid var(--glass-border);
+        color: var(--primary-dark);
+    }
+
+    .admin-table {
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+
+    .admin-table thead th {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+    }
+
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border-radius: 999px;
+        padding: 4px 10px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .status-pill.pending {
+        background: rgba(243, 107, 78, 0.18);
+        color: #9c3d2a;
+    }
+
+    .status-pill.active {
+        background: rgba(16, 105, 96, 0.16);
+        color: #0f534a;
+    }
+
+    .admin-sidebar .nav-link.active {
+        background: var(--accent-gold);
+        color: var(--primary-dark) !important;
+    }
+
+    .stat-link {
+        color: var(--accent-gold);
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .stat-link:hover {
+        color: var(--primary-dark);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar / Navigation -->
+        <div class="col-md-2 admin-sidebar">
+            <div class="nav flex-column nav-pills d-none d-md-flex">
+                <a class="nav-link {% if active_tab == 'dashboard' %}active{% else %}text-dark{% endif %} mb-2" href="{{ url_for('admin_dashboard', tab='dashboard') }}"><i class="fas fa-chart-line me-2"></i> Dashboard</a>
+                <a class="nav-link {% if active_tab == 'flats' %}active{% else %}text-dark{% endif %} mb-2" href="{{ url_for('admin_dashboard', tab='flats') }}"><i class="fas fa-building me-2"></i> Manage Flats</a>
+                <a class="nav-link {% if active_tab == 'services' %}active{% else %}text-dark{% endif %} mb-2" href="{{ url_for('admin_dashboard', tab='services') }}"><i class="fas fa-palette me-2"></i> Interior Services</a>
+                <hr class="bg-secondary">
+                <a class="nav-link text-danger" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
+            </div>
+            <!-- Mobile nav -->
+            <div class="d-md-none overflow-x-auto">
+                <div class="d-flex gap-2 pb-2" style="white-space: nowrap;">
+                    <a class="btn btn-sm {% if active_tab == 'dashboard' %}btn-gold{% else %}btn-outline-light{% endif %}" href="{{ url_for('admin_dashboard', tab='dashboard') }}">Dashboard</a>
+                    <a class="btn btn-sm {% if active_tab == 'flats' %}btn-gold{% else %}btn-outline-light{% endif %}" href="{{ url_for('admin_dashboard', tab='flats') }}">Flats</a>
+                    <a class="btn btn-sm {% if active_tab == 'services' %}btn-gold{% else %}btn-outline-light{% endif %}" href="{{ url_for('admin_dashboard', tab='services') }}">Interior</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-10 p-4 p-md-5">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+                <div>
+                    <h2 class="fw-bold mb-1">Admin <span class="text-gold" style="color: var(--accent-gold);">
+                    {% if active_tab == 'flats' %}Property Management
+                    {% elif active_tab == 'services' %}Interior Management
+                    {% else %}Dashboard{% endif %}
+                    </span></h2>
+                    <p class="text-muted mb-0">Moderate listings, review approvals, and keep the marketplace clean.</p>
+                </div>
+                
+                {% if active_tab != 'dashboard' %}
+                    <a href="{{ url_for('post_listing') }}" class="btn btn-gold px-4 py-2 fw-bold">
+                        <i class="fas fa-plus me-2"></i> Add New 
+                        {% if active_tab == 'flats' %}Property{% else %}Service{% endif %}
+                    </a>
+                {% endif %}
+            </div>
+
+            <form class="admin-toolbar mb-4" method="get" action="{{ url_for('admin_dashboard') }}">
+                <input type="hidden" name="tab" value="{{ active_tab }}">
+                <div class="flex-grow-1" style="min-width: 220px;">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" name="q" class="form-control" placeholder="Search title, location, provider..." value="{{ admin_filters.q or '' }}">
+                    </div>
+                </div>
+                <div style="min-width: 180px;">
+                    <select class="form-select" name="status">
+                        <option value="all" {% if admin_filters.status == 'all' or not admin_filters.status %}selected{% endif %}>All Status</option>
+                        <option value="pending" {% if admin_filters.status == 'pending' %}selected{% endif %}>Pending</option>
+                        <option value="approved" {% if admin_filters.status == 'approved' %}selected{% endif %}>Approved</option>
+                    </select>
+                </div>
+                <button class="btn btn-gold px-4" type="submit">Apply</button>
+                {% if filters_applied %}
+                <a class="btn btn-outline-light" href="{{ url_for('admin_dashboard', tab=active_tab) }}">Reset</a>
+                {% endif %}
+            </form>
+            
+            {% if active_tab == 'dashboard' %}
+            <div class="row g-3 g-md-4 mb-5">
+                <div class="col-6 col-md-3">
+                    <div class="stat-card">
+                        <small class="text-muted d-block mb-1">Pending Flats</small>
+                        <h4 class="fw-bold mb-2">{{ stats.pending_flats }}</h4>
+                        <a class="stat-link" href="{{ url_for('admin_dashboard', tab='flats', status='pending') }}">Review now</a>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-card">
+                        <small class="text-muted d-block mb-1">Pending Services</small>
+                        <h4 class="fw-bold mb-2">{{ stats.pending_services }}</h4>
+                        <a class="stat-link" href="{{ url_for('admin_dashboard', tab='services', status='pending') }}">Review now</a>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-card">
+                        <small class="text-muted d-block mb-1">Total Flats</small>
+                        <h4 class="fw-bold mb-0">{{ stats.total_flats }}</h4>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-card">
+                        <small class="text-muted d-block mb-1">Total Services</small>
+                        <h4 class="fw-bold mb-0">{{ stats.total_services }}</h4>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="table-dark-custom shadow-lg">
+                <div class="table-responsive admin-table">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Title</th>
+                                <th class="d-none d-lg-table-cell">Type</th>
+                                {% if active_tab == 'dashboard' %}<th class="d-none d-md-table-cell">Posted By</th>{% endif %}
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if active_tab == 'dashboard' or active_tab == 'flats' %}
+                            {% for flat in flats %}
+                            <tr>
+                                <td>#F{{ flat.id }}</td>
+                                <td class="text-truncate" style="max-width: 150px;">{{ flat.title }}</td>
+                                <td class="d-none d-lg-table-cell">Flat</td>
+                                {% if active_tab == 'dashboard' %}<td class="d-none d-md-table-cell">{{ flat.owner.username }}</td>{% endif %}
+                                <td>
+                                    {% if flat.status == 'approved' %}
+                                        <span class="status-pill active"><i class="fas fa-check-circle"></i> Active</span>
+                                    {% else %}
+                                        <span class="status-pill pending"><i class="fas fa-clock"></i> Pending</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-1">
+                                        {% if flat.status != 'approved' %}
+                                        <a href="{{ url_for('approve_listing', type='flat', id=flat.id) }}" class="btn btn-xs btn-gold py-1 px-2" style="font-size: 0.75rem;">Approve</a>
+                                        {% endif %}
+                                        <a href="{{ url_for('delete_listing', type='flat', id=flat.id) }}" class="btn btn-xs btn-outline-danger py-1 px-2" style="font-size: 0.75rem;" onclick="return confirm('Delete this listing?')"><i class="fas fa-trash"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            {% endif %}
+                            
+                            {% if active_tab == 'dashboard' or active_tab == 'services' %}
+                            {% for service in services %}
+                            <tr>
+                                <td>#I{{ service.id }}</td>
+                                <td class="text-truncate" style="max-width: 150px;">{{ service.provider_name }}</td>
+                                <td class="d-none d-lg-table-cell">Interior</td>
+                                {% if active_tab == 'dashboard' %}<td class="d-none d-md-table-cell">{{ service.provider.username }}</td>{% endif %}
+                                <td>
+                                    {% if service.status == 'approved' %}
+                                        <span class="status-pill active"><i class="fas fa-check-circle"></i> Active</span>
+                                    {% else %}
+                                        <span class="status-pill pending"><i class="fas fa-clock"></i> Pending</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-1">
+                                        {% if service.status != 'approved' %}
+                                        <a href="{{ url_for('approve_listing', type='interior', id=service.id) }}" class="btn btn-xs btn-gold py-1 px-2" style="font-size: 0.75rem;">Approve</a>
+                                        {% endif %}
+                                        <a href="{{ url_for('delete_listing', type='interior', id=service.id) }}" class="btn btn-xs btn-outline-danger py-1 px-2" style="font-size: 0.75rem;" onclick="return confirm('Delete this listing?')"><i class="fas fa-trash"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            {% endif %}
+                            
+                            {% if not flats and active_tab != 'services' %}
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-5">No flats found in the database.</td>
+                            </tr>
+                            {% endif %}
+                            {% if not services and active_tab == 'services' %}
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-5">No interior services found in the database.</td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

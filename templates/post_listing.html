@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}Post Your Listing - FlatLand BD{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        max-width: 800px;
+        margin: 50px auto;
+        padding: 40px;
+        background: var(--surface);
+        border: 1px solid var(--glass-border);
+        border-radius: 30px;
+        box-shadow: var(--shadow-soft);
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: var(--accent-gold);
+        margin-bottom: 10px;
+    }
+
+    .custom-input {
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid var(--glass-border);
+        color: var(--primary-dark);
+        padding: 12px 20px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .custom-input:focus {
+        background: rgba(255, 255, 255, 0.98);
+        border-color: var(--accent-gold);
+        color: var(--primary-dark);
+        box-shadow: 0 0 15px rgba(243, 107, 78, 0.15);
+    }
+
+    .nav-pills .nav-link {
+        color: var(--primary-dark);
+        border-radius: 12px;
+        padding: 12px 30px;
+        margin-right: 15px;
+        border: 1px solid var(--glass-border);
+    }
+
+    .nav-pills .nav-link.active {
+        background-color: var(--accent-gold);
+        color: var(--primary-dark);
+        border-color: var(--accent-gold);
+        font-weight: 700;
+    }
+
+    .upload-box {
+        border: 2px dashed var(--glass-border);
+        border-radius: 20px;
+        padding: 40px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .upload-box:hover {
+        border-color: var(--accent-gold);
+        background: rgba(251, 191, 36, 0.05);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h2 class="display-5 fw-bold reveal">Post Your <span class="text-gold" style="color: var(--accent-gold);">Listing</span></h2>
+        <p class="text-muted reveal delay-1">Reach thousands of potential buyers and clients instantly.</p>
+    </div>
+
+    <div class="form-container reveal delay-1">
+        <ul class="nav nav-pills mb-5 justify-content-center" id="pills-tab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="pills-flat-tab" data-bs-toggle="pill" data-bs-target="#pills-flat" type="button" role="tab">Flat for Sale</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="pills-interior-tab" data-bs-toggle="pill" data-bs-target="#pills-interior" type="button" role="tab">Interior Service</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="pills-tabContent">
+            <!-- Flat Form -->
+            <div class="tab-pane fade show active" id="pills-flat" role="tabpanel">
+                <form action="{{ url_for('post_listing') }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="form_type" value="flat">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label class="form-label">Property Title</label>
+                            <input type="text" name="title" class="form-control custom-input" placeholder="e.g. Luxurious 3BHK in Gulshan" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Location</label>
+                            <input type="text" name="location" class="form-control custom-input" placeholder="Area, City" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Price (BDT)</label>
+                            <input type="number" name="price" step="any" class="form-control custom-input" placeholder="Amount" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">BHK</label>
+                            <select name="bhk" class="form-select custom-input">
+                                <option value="1">1 BHK</option>
+                                <option value="2">2 BHK</option>
+                                <option value="3">3 BHK</option>
+                                <option value="4">4+ BHK</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Area (Sqft)</label>
+                            <input type="number" name="area" class="form-control custom-input" placeholder="Total area">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Floor</label>
+                            <input type="text" name="floor" class="form-control custom-input" placeholder="e.g. 5th">
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Description</label>
+                            <textarea name="description" class="form-control custom-input" rows="4" placeholder="Tell us more about the property..."></textarea>
+                        </div>
+                        <div class="col-md-12 mb-4">
+                            <label class="form-label">Upload Images (URL for now)</label>
+                            <input type="text" name="image_url" class="form-control custom-input" placeholder="Paste an image URL">
+                        </div>
+                        <div class="col-md-12">
+                            <button type="submit" class="btn btn-gold w-100 py-3 mt-3">Publish Property Listing</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Interior Form -->
+            <div class="tab-pane fade" id="pills-interior" role="tabpanel">
+                <form action="{{ url_for('post_listing') }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="form_type" value="interior">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label class="form-label">Company/Designer Name</label>
+                            <input type="text" name="provider_name" class="form-control custom-input" placeholder="Your brand name" required>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">Service Type</label>
+                            <input type="text" name="service_type" class="form-control custom-input" placeholder="e.g. Residential Interior, Kitchen Specialist" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Starting Price (BDT)</label>
+                            <input type="number" name="starting_price" step="any" class="form-control custom-input" placeholder="Minimum budget">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Portfolio Link</label>
+                            <input type="url" name="portfolio_url" class="form-control custom-input" placeholder="External link (optional)">
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label">About Your Services</label>
+                            <textarea name="description" class="form-control custom-input" rows="4" placeholder="Describe your expertise and process..."></textarea>
+                        </div>
+                        <div class="col-md-12 mb-4">
+                            <label class="form-label">Portfolio Image URL</label>
+                            <input type="text" name="image_url" class="form-control custom-input" placeholder="Paste an image URL">
+                        </div>
+                        <div class="col-md-12">
+                            <button type="submit" class="btn btn-gold w-100 py-3 mt-3">Register Interior Service</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
