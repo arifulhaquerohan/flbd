@@ -1,95 +1,165 @@
 {% extends "base.html" %}
 
-{% block title %}Property Listings - FlatLand BD{% endblock %}
+{% block title %}Property Listings - FlatlandBD{% endblock %}
+
+{% block preload %}
+<link rel="preload" as="image" href="https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=75">
+{% endblock %}
 
 {% block extra_css %}
 <style>
-    .page-header {
-        padding: 90px 0 70px;
-        background: linear-gradient(120deg, rgba(248, 242, 234, 0.92), rgba(255, 248, 239, 0.72)),
-                    url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80');
+    .listing-hero {
+        padding: 120px 0 90px;
+        background:
+            linear-gradient(120deg, rgba(255, 255, 255, 0.9), rgba(247, 249, 252, 0.85)),
+            url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=75');
         background-size: cover;
         background-position: center;
-        border-radius: 0 0 48px 48px;
-        margin-bottom: 50px;
+        border-radius: 0 0 32px 32px;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 60px;
     }
 
-    .filter-bar {
-        background: var(--glass-bg);
+    .listing-hero::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image:
+            radial-gradient(circle at 20% 30%, rgba(213, 123, 76, 0.18), transparent 55%),
+            linear-gradient(rgba(29, 37, 51, 0.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(29, 37, 51, 0.04) 1px, transparent 1px);
+        background-size: auto, 64px 64px, 64px 64px;
+        opacity: 0.7;
+        pointer-events: none;
+    }
+
+    .listing-hero .container {
+        position: relative;
+        z-index: 1;
+    }
+
+    .listing-title {
+        font-size: clamp(2.4rem, 3.5vw, 3.6rem);
+        font-weight: 700;
+        margin-bottom: 16px;
+    }
+
+    .listing-subtitle {
+        max-width: 560px;
+    }
+
+    .filter-panel {
+        background: var(--surface-strong);
         border: 1px solid var(--glass-border);
-        padding: 20px;
-        border-radius: 20px;
+        padding: 22px;
+        border-radius: var(--radius-lg);
         margin-top: -50px;
         box-shadow: var(--shadow-soft);
+        position: relative;
+        z-index: 2;
     }
 
-    .property-card {
-        background: var(--surface);
-        border: 1px solid var(--glass-border);
-        border-radius: 20px;
-        overflow: hidden;
-        transition: all 0.3s ease;
-        box-shadow: var(--shadow-soft);
+    .filter-panel::before {
+        content: "";
+        position: absolute;
+        left: 16px;
+        right: 16px;
+        top: 0;
+        height: 3px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, var(--accent-gold), var(--accent-warm));
     }
 
-    .property-card:hover {
-        transform: translateY(-10px);
-        border-color: rgba(243, 107, 78, 0.4);
-    }
-
-    .property-img {
-        height: 220px;
-        object-fit: cover;
-        width: 100%;
-    }
-
-    .property-price {
-        color: var(--accent-gold);
-        font-size: 1.4rem;
-        font-weight: 700;
-    }
-
-    .badge-premium {
-        background: linear-gradient(135deg, var(--accent-gold), var(--accent-warm));
-        color: var(--primary-dark);
-        border: none;
-        padding: 6px 12px;
-        font-weight: 600;
-    }
-
-    .search-input {
-        background: rgba(255, 255, 255, 0.8);
+    .filter-input {
+        background: rgba(255, 255, 255, 0.96);
         border: 1px solid var(--glass-border);
         color: var(--primary-dark);
         border-radius: 10px;
         padding: 12px;
     }
 
-    .search-input:focus {
-        background: rgba(255, 255, 255, 0.95);
+    .filter-input:focus {
+        background: rgba(255, 255, 255, 0.98);
         border-color: var(--accent-gold);
         color: var(--primary-dark);
-        box-shadow: none;
+        box-shadow: 0 0 0 0.15rem rgba(213, 123, 76, 0.18);
+    }
+
+    .listing-card {
+        background: var(--surface-strong);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: var(--shadow-soft);
+        height: 100%;
+    }
+
+    .listing-card:hover {
+        transform: translateY(-6px);
+        border-color: rgba(213, 123, 76, 0.3);
+        box-shadow: var(--shadow-strong);
+    }
+
+    .listing-img {
+        height: 230px;
+        object-fit: cover;
+        width: 100%;
+    }
+
+    .listing-body {
+        padding: 22px 24px;
+        border-top: 1px solid var(--glass-border);
+        background: #ffffff;
+    }
+
+    .listing-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        color: rgba(29, 37, 51, 0.7);
+        font-size: 0.9rem;
+    }
+
+    .listing-loc {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: rgba(29, 37, 51, 0.7);
+        font-size: 0.9rem;
+    }
+
+    .listing-price {
+        color: var(--accent-gold);
+        font-size: 1.35rem;
+        font-weight: 700;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<header class="page-header">
-    <div class="container text-center">
-        <h1 class="display-4 fw-bold reveal">Available <span class="text-gold" style="color: var(--accent-gold);">Properties</span></h1>
-        <p class="lead reveal delay-1">Find the perfect home that fits your lifestyle and budget.</p>
+<header class="listing-hero">
+    <div class="container">
+        <p class="section-kicker reveal">Buy + sell flats</p>
+        <h1 class="listing-title reveal">Find the right flat with clarity.</h1>
+        <p class="lead text-muted reveal delay-1 listing-subtitle">Filter by location, price, size, and features, then connect fast with sellers.</p>
+        <div class="hero-details reveal delay-2 mt-4">
+            <span class="metric-pill">Advanced filters</span>
+            <span class="metric-pill">Detailed listings</span>
+            <span class="metric-pill">Fast contact</span>
+        </div>
     </div>
 </header>
 
 <div class="container">
-    <div class="filter-bar mb-5 reveal delay-1">
+    <div class="filter-panel mb-5 reveal delay-1">
         <form class="row g-3 align-items-center" method="get" action="{{ url_for('flats') }}">
             <div class="col-lg-4 col-md-6">
-                <input type="text" name="search" class="form-control search-input" placeholder="Search location, area..." value="{{ filters.search or '' }}">
+                <input type="text" name="search" class="form-control filter-input" placeholder="Search location, area..." value="{{ filters.search or '' }}">
             </div>
             <div class="col-lg-2 col-md-6">
-                <select class="form-select search-input" name="bhk">
+                <select class="form-select filter-input" name="bhk">
                     <option value="all" {% if filters.bhk == 'all' or not filters.bhk %}selected{% endif %}>All BHK</option>
                     <option value="1" {% if filters.bhk == '1' %}selected{% endif %}>1 BHK</option>
                     <option value="2" {% if filters.bhk == '2' %}selected{% endif %}>2 BHK</option>
@@ -98,10 +168,10 @@
                 </select>
             </div>
             <div class="col-lg-2 col-md-6">
-                <input type="number" min="0" step="any" inputmode="numeric" name="min_price" class="form-control search-input" placeholder="Min Budget (BDT)" value="{{ filters.min_price or '' }}">
+                <input type="number" min="0" step="any" inputmode="numeric" name="min_price" class="form-control filter-input" placeholder="Min Budget (BDT)" value="{{ filters.min_price or '' }}">
             </div>
             <div class="col-lg-2 col-md-6">
-                <input type="number" min="0" step="any" inputmode="numeric" name="max_price" class="form-control search-input" placeholder="Max Budget (BDT)" value="{{ filters.max_price or '' }}">
+                <input type="number" min="0" step="any" inputmode="numeric" name="max_price" class="form-control filter-input" placeholder="Max Budget (BDT)" value="{{ filters.max_price or '' }}">
             </div>
             <div class="col-lg-2 col-md-6">
                 <button class="btn btn-gold w-100 py-2" type="submit">Search</button>
@@ -113,25 +183,25 @@
         {% if flats %}
             {% for flat in flats %}
         <div class="col-md-4">
-            <div class="property-card h-100 reveal">
-                    <img src="{{ flat.image_url or 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800' }}" alt="Property" class="property-img img-expand" loading="lazy" decoding="async" width="800" height="600">
-                <div class="p-4">
-                    <div class="d-flex justify-content-between mb-2">
+            <div class="listing-card defer-card h-100 reveal">
+                <img src="{{ flat.image_url or 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800' }}" alt="Property" class="listing-img img-expand" loading="lazy" decoding="async" width="800" height="600">
+                <div class="listing-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="badge badge-premium">Premium</span>
-                            <span class="text-muted"><i class="fas fa-map-marker-alt me-1"></i> {{ flat.location }}</span>
-                        </div>
-                        <h5 class="mb-3">{{ flat.title }}</h5>
-                        <div class="d-flex gap-3 mb-3 text-secondary">
-                            <span><i class="fas fa-bed me-1"></i> {{ flat.bhk }} BHK</span>
-                            <span><i class="fas fa-vector-square me-1"></i> {{ flat.area_sqft }} sqft</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="property-price">৳ {{ flat.price }}</div>
-                            <a href="{{ url_for('flat_detail', id=flat.id) }}" class="btn btn-outline-light btn-sm px-3">Details</a>
-                        </div>
+                        <span class="listing-loc"><i class="fas fa-map-marker-alt"></i> {{ flat.location }}</span>
+                    </div>
+                    <h5 class="mb-3">{{ flat.title }}</h5>
+                    <div class="listing-meta mb-3">
+                        <span><i class="fas fa-bed me-1"></i> {{ flat.bhk }} BHK</span>
+                        <span><i class="fas fa-vector-square me-1"></i> {{ flat.area_sqft }} sqft</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="listing-price">৳ {{ flat.price }}</div>
+                        <a href="{{ url_for('flat_detail', id=flat.id) }}" class="btn btn-outline-light btn-sm px-3">Details</a>
                     </div>
                 </div>
             </div>
+        </div>
             {% endfor %}
         {% else %}
         {% if filters_applied %}
@@ -145,60 +215,60 @@
         {% else %}
         <!-- Demo Content if database is empty -->
         <div class="col-md-4">
-            <div class="property-card h-100 reveal">
-                <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800" alt="Property" class="property-img img-expand" loading="lazy" decoding="async" width="800" height="600">
-                <div class="p-4">
-                    <div class="d-flex justify-content-between mb-2">
+            <div class="listing-card defer-card h-100 reveal">
+                <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800" alt="Property" class="listing-img img-expand" loading="lazy" decoding="async" width="800" height="600">
+                <div class="listing-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="badge badge-premium">Verified</span>
-                        <span class="text-muted"><i class="fas fa-map-marker-alt me-1"></i> Gulshan, Dhaka</span>
+                        <span class="listing-loc"><i class="fas fa-map-marker-alt"></i> Gulshan, Dhaka</span>
                     </div>
                     <h5 class="mb-3">Luxurious 3BHK Apartment</h5>
-                    <div class="d-flex gap-3 mb-3 text-secondary">
+                    <div class="listing-meta mb-3">
                         <span><i class="fas fa-bed me-1"></i> 3 BHK</span>
                         <span><i class="fas fa-vector-square me-1"></i> 1850 sqft</span>
                     </div>
                     <div class="d-flex justify-content-between align-items-center">
-                        <div class="property-price">৳ 1.5 Cr</div>
+                        <div class="listing-price">৳ 1.5 Cr</div>
                         <a href="#" class="btn btn-outline-light btn-sm px-3">Details</a>
                     </div>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="property-card h-100 reveal delay-1">
-                <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800" alt="Property" class="property-img img-expand" loading="lazy" decoding="async" width="800" height="600">
-                <div class="p-4">
-                    <div class="d-flex justify-content-between mb-2">
+            <div class="listing-card defer-card h-100 reveal delay-1">
+                <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800" alt="Property" class="listing-img img-expand" loading="lazy" decoding="async" width="800" height="600">
+                <div class="listing-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="badge badge-premium">Ready</span>
-                        <span class="text-muted"><i class="fas fa-map-marker-alt me-1"></i> Bashundhara R/A</span>
+                        <span class="listing-loc"><i class="fas fa-map-marker-alt"></i> Bashundhara R/A</span>
                     </div>
                     <h5 class="mb-3">Modern Penthouse Suite</h5>
-                    <div class="d-flex gap-3 mb-3 text-secondary">
+                    <div class="listing-meta mb-3">
                         <span><i class="fas fa-bed me-1"></i> 2 BHK</span>
                         <span><i class="fas fa-vector-square me-1"></i> 1200 sqft</span>
                     </div>
                     <div class="d-flex justify-content-between align-items-center">
-                        <div class="property-price">৳ 85 Lac</div>
+                        <div class="listing-price">৳ 85 Lac</div>
                         <a href="#" class="btn btn-outline-light btn-sm px-3">Details</a>
                     </div>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="property-card h-100 reveal delay-2">
-                <img src="https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=800" alt="Property" class="property-img img-expand" loading="lazy" decoding="async" width="800" height="600">
-                <div class="p-4">
-                    <div class="d-flex justify-content-between mb-2">
+            <div class="listing-card defer-card h-100 reveal delay-2">
+                <img src="https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=800" alt="Property" class="listing-img img-expand" loading="lazy" decoding="async" width="800" height="600">
+                <div class="listing-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="badge badge-premium">New</span>
-                        <span class="text-muted"><i class="fas fa-map-marker-alt me-1"></i> Uttara</span>
+                        <span class="listing-loc"><i class="fas fa-map-marker-alt"></i> Uttara</span>
                     </div>
                     <h5 class="mb-3">Elegant Family Condo</h5>
-                    <div class="d-flex gap-3 mb-3 text-secondary">
+                    <div class="listing-meta mb-3">
                         <span><i class="fas fa-bed me-1"></i> 4 BHK</span>
                         <span><i class="fas fa-vector-square me-1"></i> 2200 sqft</span>
                     </div>
                     <div class="d-flex justify-content-between align-items-center">
-                        <div class="property-price">৳ 2.2 Cr</div>
+                        <div class="listing-price">৳ 2.2 Cr</div>
                         <a href="#" class="btn btn-outline-light btn-sm px-3">Details</a>
                     </div>
                 </div>
@@ -207,5 +277,21 @@
         {% endif %}
         {% endif %}
     </div>
+
+    {% if has_prev or has_next %}
+    <nav class="my-5" aria-label="Listings pagination">
+        <ul class="pagination justify-content-center">
+            <li class="page-item {% if not has_prev %}disabled{% endif %}">
+                <a class="page-link" href="{{ prev_url or '#' }}" tabindex="{% if not has_prev %}-1{% else %}0{% endif %}">Previous</a>
+            </li>
+            <li class="page-item disabled">
+                <span class="page-link">Page {{ page }}</span>
+            </li>
+            <li class="page-item {% if not has_next %}disabled{% endif %}">
+                <a class="page-link" href="{{ next_url or '#' }}" tabindex="{% if not has_next %}-1{% else %}0{% endif %}">Next</a>
+            </li>
+        </ul>
+    </nav>
+    {% endif %}
 </div>
 {% endblock %}

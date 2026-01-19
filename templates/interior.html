@@ -1,35 +1,91 @@
 {% extends "base.html" %}
 
-{% block title %}Interior Design Services - FlatLand BD{% endblock %}
+{% block title %}Interior Design Services - FlatlandBD{% endblock %}
+
+{% block preload %}
+<link rel="preload" as="image" href="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=75">
+<link rel="preload" as="image" href="https://images.unsplash.com/photo-1505691938895-1758d7feb511?ixlib=rb-4.0.3&auto=format&fit=crop&w=900&q=80" imagesrcset="https://images.unsplash.com/photo-1505691938895-1758d7feb511?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80 500w, https://images.unsplash.com/photo-1505691938895-1758d7feb511?ixlib=rb-4.0.3&auto=format&fit=crop&w=900&q=80 900w, https://images.unsplash.com/photo-1505691938895-1758d7feb511?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80 1200w" imagesizes="(max-width: 576px) 92vw, (max-width: 992px) 70vw, 48vw" fetchpriority="high">
+{% endblock %}
 
 {% block extra_css %}
 <style>
     .interior-hero {
-        padding: 100px 0;
-        background: linear-gradient(to right, rgba(248, 242, 234, 0.92) 45%, rgba(255, 248, 239, 0.3)),
-                    url('https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80');
+        padding: 120px 0 90px;
+        background: linear-gradient(120deg, rgba(255, 255, 255, 0.9) 50%, rgba(247, 249, 252, 0.6)),
+                    url('https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=75');
         background-size: cover;
         background-position: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .interior-hero::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(29, 37, 51, 0.06) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(29, 37, 51, 0.06) 1px, transparent 1px);
+        background-size: 34px 34px;
+        opacity: 0.35;
+        pointer-events: none;
+    }
+
+    .interior-hero .container {
+        position: relative;
+        z-index: 1;
+    }
+
+    .interior-hero-card {
+        background: rgba(255, 255, 255, 0.88);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-lg);
+        padding: 24px;
+        box-shadow: var(--shadow-strong);
+        backdrop-filter: blur(6px);
+    }
+
+    .interior-hero-card img {
+        width: 100%;
+        height: 230px;
+        object-fit: cover;
+        border-radius: var(--radius-md);
+    }
+
+    .interior-hero-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 16px;
     }
 
     .designer-card {
-        background: var(--surface);
+        background: var(--surface-strong);
         border: 1px solid var(--glass-border);
-        border-radius: 20px;
+        border-radius: var(--radius-lg);
         overflow: hidden;
-        transition: all 0.4s ease;
+        transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
         box-shadow: var(--shadow-soft);
     }
 
     .designer-card:hover {
-        transform: scale(1.02);
+        transform: translateY(-6px);
         box-shadow: var(--shadow-strong);
+        border-color: rgba(213, 123, 76, 0.3);
     }
 
     .portfolio-overlay {
         position: relative;
-        height: 250px;
+        height: 240px;
         overflow: hidden;
+    }
+
+    .portfolio-overlay::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(29, 37, 51, 0) 40%, rgba(29, 37, 51, 0.35) 100%);
+        pointer-events: none;
     }
 
     .portfolio-overlay img {
@@ -44,15 +100,26 @@
     }
 
     .designer-info {
-        padding: 30px;
+        padding: 26px;
+    }
+
+    .designer-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 18px 0 24px;
+    }
+
+    .designer-meta .metric-pill {
+        background: rgba(29, 37, 51, 0.06);
     }
 
     .service-tag {
-        background: rgba(243, 107, 78, 0.12);
-        color: var(--accent-gold);
-        border: 1px solid rgba(243, 107, 78, 0.35);
+        background: rgba(213, 123, 76, 0.14);
+        color: var(--primary-dark);
+        border: 1px solid rgba(213, 123, 76, 0.35);
         padding: 4px 12px;
-        border-radius: 20px;
+        border-radius: 10px;
         font-size: 0.8rem;
         margin-right: 5px;
     }
@@ -62,59 +129,249 @@
         background: linear-gradient(to right, var(--accent-gold), transparent);
         margin: 40px 0;
     }
+
+    .interior-gallery-header {
+        gap: 18px;
+        flex-wrap: wrap;
+    }
+
+    .focus-card {
+        background: var(--surface-strong);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-md);
+        padding: 20px;
+        height: 100%;
+        box-shadow: var(--shadow-soft);
+        transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+
+    .focus-card:hover {
+        transform: translateY(-6px);
+        border-color: rgba(213, 123, 76, 0.35);
+        box-shadow: var(--shadow-strong);
+    }
+
+    .focus-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, rgba(213, 123, 76, 0.9), rgba(242, 181, 123, 0.9));
+        color: #ffffff;
+        font-size: 1.1rem;
+        margin-bottom: 12px;
+        box-shadow: 0 10px 20px rgba(213, 123, 76, 0.22);
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <section class="interior-hero">
     <div class="container">
-        <div class="row">
+        <div class="row align-items-center g-5">
             <div class="col-lg-6">
-                <span class="text-gold fw-bold mb-3 d-block reveal" style="color: var(--accent-gold); letter-spacing: 2px;">PREMIUM INTERIORS</span>
-                <h1 class="display-3 fw-bold mb-4 reveal delay-1">Elevate Your <br><span class="text-gradient">Living Experience</span></h1>
-                <p class="lead text-muted mb-5 reveal delay-2">Connect with top-tier interior designers to transform your flat into a masterpiece of modern design.</p>
+                <span class="section-kicker mb-3 d-block reveal">Premium interiors</span>
+                <h1 class="display-3 fw-bold mb-4 reveal delay-1">Studio-grade interiors for <br><span class="text-gradient">refined living</span></h1>
+                <p class="lead text-muted mb-5 reveal delay-2">Work with expert designers and explore projects that include clear scope, materials, and deliverables.</p>
                 <div class="d-flex gap-3 reveal delay-3">
-                    <button class="btn btn-gold btn-lg">Request Consultation</button>
+                    <a href="#packages" class="btn btn-gold btn-lg">Request Consultation</a>
                     <a href="#gallery" class="btn btn-outline-light btn-lg px-4">View Gallery</a>
+                </div>
+                <div class="hero-details reveal delay-4 mt-4">
+                    <span class="metric-pill">Project briefs</span>
+                    <span class="metric-pill">Material palettes</span>
+                    <span class="metric-pill">On-site guidance</span>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="interior-hero-card reveal delay-2">
+                    <p class="section-kicker mb-2">Current spotlight</p>
+                    <h4 class="mb-3">Banani Residence</h4>
+                    <img src="https://images.unsplash.com/photo-1505691938895-1758d7feb511?ixlib=rb-4.0.3&auto=format&fit=crop&w=900&q=80" srcset="https://images.unsplash.com/photo-1505691938895-1758d7feb511?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80 500w, https://images.unsplash.com/photo-1505691938895-1758d7feb511?ixlib=rb-4.0.3&auto=format&fit=crop&w=900&q=80 900w, https://images.unsplash.com/photo-1505691938895-1758d7feb511?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80 1200w" sizes="(max-width: 576px) 92vw, (max-width: 992px) 70vw, 48vw" alt="Signature interior" loading="eager" fetchpriority="high" decoding="async" width="900" height="650">
+                    <div class="interior-hero-meta">
+                        <span class="metric-pill">3D visualisation</span>
+                        <span class="metric-pill">12-week delivery</span>
+                        <span class="metric-pill">Custom joinery</span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<div class="container py-5" id="gallery">
-    <div class="d-flex justify-content-between align-items-end mb-5">
-        <div>
-            <h2 class="fw-bold reveal">Top Designers & Services</h2>
-            <p class="text-muted">Handpicked professionals for your unique needs.</p>
+<section class="py-5 defer-render" id="features">
+    <div class="container">
+        <div class="row align-items-end mb-4">
+            <div class="col-lg-6">
+                <p class="section-kicker reveal">Interior features</p>
+                <h2 class="fw-bold reveal">Full service interiors with clear deliverables.</h2>
+            </div>
+            <div class="col-lg-6">
+                <p class="text-muted reveal delay-1">We combine planning, sourcing, and on-site coordination so every stage is transparent and easy to approve.</p>
+            </div>
         </div>
-        <div class="btn-group">
-            <button class="btn btn-outline-secondary active">All</button>
-            <button class="btn btn-outline-secondary">Residential</button>
-            <button class="btn btn-outline-secondary">Commercial</button>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="interior-feature-card defer-card reveal">
+                    <div class="interior-feature-icon" aria-hidden="true"><i class="fas fa-pencil-ruler"></i></div>
+                    <h5>Space planning + 3D</h5>
+                    <p class="text-muted small mb-0">Layout, lighting, and visuals to validate the concept early.</p>
+                    <ul class="interior-feature-list">
+                        <li><i class="fas fa-check text-gold"></i><span>Site measurements + zoning</span></li>
+                        <li><i class="fas fa-check text-gold"></i><span>Furniture layout and circulation</span></li>
+                        <li><i class="fas fa-check text-gold"></i><span>3D renders for approvals</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="interior-feature-card defer-card reveal delay-1">
+                    <div class="interior-feature-icon" aria-hidden="true"><i class="fas fa-swatchbook"></i></div>
+                    <h5>Materials + sourcing</h5>
+                    <p class="text-muted small mb-0">Finish palettes and cost clarity before execution begins.</p>
+                    <ul class="interior-feature-list">
+                        <li><i class="fas fa-check text-gold"></i><span>Material palette + samples</span></li>
+                        <li><i class="fas fa-check text-gold"></i><span>BOQ and vendor shortlist</span></li>
+                        <li><i class="fas fa-check text-gold"></i><span>Cost control and alternates</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="interior-feature-card defer-card reveal delay-2">
+                    <div class="interior-feature-icon" aria-hidden="true"><i class="fas fa-hard-hat"></i></div>
+                    <h5>Execution support</h5>
+                    <p class="text-muted small mb-0">On-site coordination to deliver on time and on spec.</p>
+                    <ul class="interior-feature-list">
+                        <li><i class="fas fa-check text-gold"></i><span>Site supervision + checklists</span></li>
+                        <li><i class="fas fa-check text-gold"></i><span>Vendor coordination and QA</span></li>
+                        <li><i class="fas fa-check text-gold"></i><span>Final styling + handover</span></li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
+</section>
+
+<section class="py-5 defer-render">
+    <div class="container">
+        <div class="row align-items-end mb-4">
+            <div class="col-lg-6">
+                <p class="section-kicker reveal">Spaces + add-ons</p>
+                <h2 class="fw-bold reveal">Design support for every room.</h2>
+            </div>
+            <div class="col-lg-6">
+                <p class="text-muted reveal delay-1">Choose full-home or room-by-room upgrades. We tailor scope and finishes to your lifestyle.</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="focus-card defer-card reveal">
+                            <div class="focus-icon" aria-hidden="true"><i class="fas fa-couch"></i></div>
+                            <h6 class="fw-bold">Living room</h6>
+                            <p class="text-muted small mb-0">Layered lighting, TV wall, and seating layout.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="focus-card defer-card reveal delay-1">
+                            <div class="focus-icon" aria-hidden="true"><i class="fas fa-bed"></i></div>
+                            <h6 class="fw-bold">Bedroom</h6>
+                            <p class="text-muted small mb-0">Wardrobes, headboards, and cozy palettes.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="focus-card defer-card reveal delay-2">
+                            <div class="focus-icon" aria-hidden="true"><i class="fas fa-utensils"></i></div>
+                            <h6 class="fw-bold">Kitchen</h6>
+                            <p class="text-muted small mb-0">Modular storage, countertops, and appliances.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="focus-card defer-card reveal">
+                            <div class="focus-icon" aria-hidden="true"><i class="fas fa-bath"></i></div>
+                            <h6 class="fw-bold">Bathroom</h6>
+                            <p class="text-muted small mb-0">Fixtures, tiles, and moisture-safe finishes.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="focus-card defer-card reveal delay-1">
+                            <div class="focus-icon" aria-hidden="true"><i class="fas fa-briefcase"></i></div>
+                            <h6 class="fw-bold">Home office</h6>
+                            <p class="text-muted small mb-0">Productive layouts, storage, and acoustic care.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="focus-card defer-card reveal delay-2">
+                            <div class="focus-icon" aria-hidden="true"><i class="fas fa-building"></i></div>
+                            <h6 class="fw-bold">Commercial</h6>
+                            <p class="text-muted small mb-0">Retail, studio, and hospitality interiors.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="glass-card p-4 reveal delay-2">
+                    <p class="section-kicker mb-2">Material board</p>
+                    <h5 class="fw-bold mb-3">Curated finishes for modern homes.</h5>
+                    <p class="text-muted small mb-3">We recommend combinations that balance durability, cost, and aesthetics.</p>
+                    <div>
+                        <span class="material-chip">Laminate + veneer</span>
+                        <span class="material-chip">Quartz tops</span>
+                        <span class="material-chip">Matte paint</span>
+                        <span class="material-chip">Warm lighting</span>
+                        <span class="material-chip">Acoustic panels</span>
+                    </div>
+                    <a href="#packages" class="btn btn-outline-secondary btn-sm mt-3">See Packages</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container py-5 defer-render" id="gallery">
+        <div class="row align-items-end mb-4 interior-gallery-header">
+            <div class="col-lg-6">
+                <p class="section-kicker reveal">Designer roster</p>
+                <h2 class="fw-bold reveal">Top designers & studios</h2>
+                <p class="text-muted reveal delay-1">Handpicked professionals for your unique needs.</p>
+            </div>
+            <div class="col-lg-6">
+                <div class="d-flex flex-wrap gap-2 justify-content-lg-end" role="group" id="filterGroup">
+                    <button class="btn btn-outline-secondary active" data-filter="all">All</button>
+                    <button class="btn btn-outline-secondary" data-filter="Residential">Residential</button>
+                    <button class="btn btn-outline-secondary" data-filter="Kitchen">Kitchen</button>
+                    <button class="btn btn-outline-secondary" data-filter="Commercial">Commercial</button>
+                </div>
+            </div>
+        </div>
 
     <div class="row g-4">
         {% if services %}
             {% for service in services %}
             <div class="col-lg-4 col-md-6">
-                <div class="designer-card reveal">
+                <div class="designer-card defer-card reveal">
                     <div class="portfolio-overlay">
-                        <img src="{{ service.image_url or 'https://images.unsplash.com/photo-1616489953149-75577aaf9d55?auto=format&fit=crop&w=800' }}" alt="Portfolio" loading="lazy" decoding="async" width="800" height="600" class="img-expand">
+                        <img src="{{ service.image_url or 'https://images.unsplash.com/photo-1505691938895-1758d7feb511?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' }}" alt="Portfolio" loading="lazy" decoding="async" width="800" height="600" class="img-expand">
                     </div>
                     <div class="designer-info">
                         <div class="mb-3">
                             <span class="service-tag">{{ service.service_type }}</span>
                         </div>
                         <h4>{{ service.provider_name }}</h4>
-                        <p class="text-muted small mb-4">{{ service.description }}</p>
+                        <p class="text-muted small mb-4">{{ service.description | truncate(160, True, '...') }}</p>
+                        <div class="designer-meta">
+                            <span class="metric-pill"><i class="fas fa-layer-group me-1"></i> Full-service</span>
+                            <span class="metric-pill"><i class="fas fa-stopwatch me-1"></i> 6-12 weeks</span>
+                            <span class="metric-pill"><i class="fas fa-palette me-1"></i> {{ service.service_type }}</span>
+                        </div>
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <small class="text-muted d-block">Starting from</small>
                                 <span class="fw-bold text-gold">৳ {{ service.starting_price }}</span>
                             </div>
-                        <a href="{{ url_for('interior_detail', id=service.id) }}" class="btn btn-gold">View Details</a>
+                        <a href="{{ url_for('interior_detail', id=service.id) }}" class="btn btn-gold">Project Details</a>
                         </div>
                     </div>
                 </div>
@@ -123,9 +380,9 @@
         {% else %}
             <!-- Demo Designers -->
             <div class="col-lg-4 col-md-6">
-                <div class="designer-card reveal">
+                <div class="designer-card defer-card reveal">
                     <div class="portfolio-overlay">
-                        <img src="https://images.unsplash.com/photo-1616489953149-75577aaf9d55?auto=format&fit=crop&w=800" alt="Portfolio" class="img-expand" loading="lazy" decoding="async" width="800" height="600">
+                        <img src="https://images.unsplash.com/photo-1505691938895-1758d7feb511?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Portfolio" class="img-expand" loading="lazy" decoding="async" width="800" height="600">
                     </div>
                     <div class="designer-info">
                         <div class="mb-3">
@@ -133,21 +390,26 @@
                         </div>
                         <h4>Elegant Spaces Ltd. (Demo)</h4>
                         <p class="text-muted small mb-4">Specializing in minimalism and modern luxury aesthetic for high-end apartments.</p>
+                        <div class="designer-meta">
+                            <span class="metric-pill"><i class="fas fa-layer-group me-1"></i> Full-service</span>
+                            <span class="metric-pill"><i class="fas fa-stopwatch me-1"></i> 8-12 weeks</span>
+                            <span class="metric-pill"><i class="fas fa-palette me-1"></i> Minimal luxury</span>
+                        </div>
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <small class="text-muted d-block">Starting from</small>
                                 <span class="fw-bold text-gold">৳ 2.5 Lac</span>
                             </div>
-                        <a href="#" class="btn btn-gold">View Details</a>
+                        <a href="#" class="btn btn-gold">Project Details</a>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="col-lg-4 col-md-6">
-                <div class="designer-card reveal delay-1">
+                <div class="designer-card defer-card reveal delay-1">
                     <div class="portfolio-overlay">
-                        <img src="https://images.unsplash.com/photo-1617806118233-18e1db207032?auto=format&fit=crop&w=800" alt="Portfolio" class="img-expand" loading="lazy" decoding="async" width="800" height="600">
+                        <img src="https://images.unsplash.com/photo-1501045661006-fcebe0257c3f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Portfolio" class="img-expand" loading="lazy" decoding="async" width="800" height="600">
                     </div>
                     <div class="designer-info">
                         <div class="mb-3">
@@ -155,18 +417,23 @@
                         </div>
                         <h4>ArchiTech Interiors (Demo)</h4>
                         <p class="text-muted small mb-4">Smart modular kitchen solutions and space-saving interior designs.</p>
+                        <div class="designer-meta">
+                            <span class="metric-pill"><i class="fas fa-layer-group me-1"></i> Modular kitchen</span>
+                            <span class="metric-pill"><i class="fas fa-stopwatch me-1"></i> 4-6 weeks</span>
+                            <span class="metric-pill"><i class="fas fa-palette me-1"></i> Smart storage</span>
+                        </div>
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <small class="text-muted d-block">Starting from</small>
                                 <span class="fw-bold text-gold">৳ 80,000</span>
                             </div>
-                        <a href="#" class="btn btn-gold">View Details</a>
+                        <a href="#" class="btn btn-gold">Project Details</a>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col-lg-4 col-md-6">
-                <div class="designer-card reveal delay-2">
+                <div class="designer-card defer-card reveal delay-2">
                     <div class="portfolio-overlay">
                         <img src="https://images.unsplash.com/photo-1616137466211-f939a420be84?auto=format&fit=crop&w=800" alt="Portfolio" class="img-expand" loading="lazy" decoding="async" width="800" height="600">
                     </div>
@@ -176,12 +443,17 @@
                         </div>
                         <h4>Heritage Designers (Demo)</h4>
                         <p class="text-muted small mb-4">Bringing back classic royal aesthetics with a touch of contemporary elegance.</p>
+                        <div class="designer-meta">
+                            <span class="metric-pill"><i class="fas fa-layer-group me-1"></i> Classic interiors</span>
+                            <span class="metric-pill"><i class="fas fa-stopwatch me-1"></i> 10-14 weeks</span>
+                            <span class="metric-pill"><i class="fas fa-palette me-1"></i> Heritage style</span>
+                        </div>
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <small class="text-muted d-block">Starting from</small>
                                 <span class="fw-bold text-gold">৳ 5.0 Lac</span>
                             </div>
-                        <a href="#" class="btn btn-gold">View Details</a>
+                        <a href="#" class="btn btn-gold">Project Details</a>
                         </div>
                     </div>
                 </div>
@@ -189,4 +461,209 @@
         {% endif %}
     </div>
 </div>
+
+{% if has_prev or has_next %}
+<nav class="container my-5" aria-label="Designer pagination">
+    <ul class="pagination justify-content-center">
+        <li class="page-item {% if not has_prev %}disabled{% endif %}">
+            <a class="page-link" href="{{ prev_url or '#' }}" tabindex="{% if not has_prev %}-1{% else %}0{% endif %}">Previous</a>
+        </li>
+        <li class="page-item disabled">
+            <span class="page-link">Page {{ page }}</span>
+        </li>
+        <li class="page-item {% if not has_next %}disabled{% endif %}">
+            <a class="page-link" href="{{ next_url or '#' }}" tabindex="{% if not has_next %}-1{% else %}0{% endif %}">Next</a>
+        </li>
+    </ul>
+</nav>
+{% endif %}
+
+<section class="py-5 defer-render" id="packages">
+    <div class="container">
+        <div class="row align-items-end mb-4">
+            <div class="col-lg-6">
+                <p class="section-kicker reveal">Studio workflow</p>
+                <h2 class="fw-bold reveal">A professional process from brief to build.</h2>
+            </div>
+            <div class="col-lg-6">
+                <p class="text-muted reveal delay-1">Every project follows a clear sequence so clients and designers stay aligned on scope, schedule, and finish level.</p>
+            </div>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-3">
+                <div class="process-card defer-card reveal">
+                    <div class="process-step">01</div>
+                    <h6 class="fw-bold">Discovery brief</h6>
+                    <p class="text-muted small mb-0">Site survey, lifestyle interview, budget alignment.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="process-card defer-card reveal delay-1">
+                    <div class="process-step">02</div>
+                    <h6 class="fw-bold">Concept + visuals</h6>
+                    <p class="text-muted small mb-0">Moodboards, layouts, and 3D renders for approval.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="process-card defer-card reveal delay-2">
+                    <div class="process-step">03</div>
+                    <h6 class="fw-bold">Execution</h6>
+                    <p class="text-muted small mb-0">Vendor coordination, site supervision, quality checks.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="process-card defer-card reveal delay-3">
+                    <div class="process-step">04</div>
+                    <h6 class="fw-bold">Styling handover</h6>
+                    <p class="text-muted small mb-0">Final staging, punch list, and post-handover support.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 defer-render">
+    <div class="container">
+        <div class="text-center mb-5">
+            <p class="section-kicker reveal">Packages</p>
+            <h2 class="fw-bold reveal">Choose a package that fits your space.</h2>
+            <p class="text-muted reveal delay-1">Flexible scopes for apartments, duplexes, and commercial interiors.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="package-card defer-card reveal">
+                    <h5 class="fw-bold">Essential</h5>
+                    <p class="text-muted small mb-3">Best for single rooms or small upgrades.</p>
+                    <div class="package-price">৳ 1.2 - 2.0 Lac</div>
+                    <ul class="package-list">
+                        <li><i class="fas fa-check text-gold"></i><span>Layout plan + 2 revisions</span></li>
+                        <li><i class="fas fa-check text-gold"></i><span>Material palette for core areas</span></li>
+                        <li><i class="fas fa-check text-gold"></i><span>Vendor shortlist and BOQ</span></li>
+                    </ul>
+                    <a href="tel:+8801712458794" class="btn btn-outline-secondary w-100 mt-4">Request Consultation</a>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="package-card featured defer-card reveal delay-1">
+                    <span class="badge badge-premium">Most popular</span>
+                    <h5 class="fw-bold">Signature</h5>
+                    <p class="text-muted small mb-3">Full home design with curated finishes.</p>
+                    <div class="package-price">৳ 2.5 - 4.5 Lac</div>
+                    <ul class="package-list">
+                        <li><i class="fas fa-check text-gold"></i><span>Concept + 3D for all rooms</span></li>
+                        <li><i class="fas fa-check text-gold"></i><span>Material sourcing and BOQ</span></li>
+                        <li><i class="fas fa-check text-gold"></i><span>On-site supervision and QA</span></li>
+                    </ul>
+                    <a href="tel:+8801712458794" class="btn btn-gold w-100 mt-4">Start a Project</a>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="package-card defer-card reveal delay-2">
+                    <h5 class="fw-bold">Luxe</h5>
+                    <p class="text-muted small mb-3">Premium finishes with custom detailing.</p>
+                    <div class="package-price">৳ 5.0 Lac +</div>
+                    <ul class="package-list">
+                        <li><i class="fas fa-check text-gold"></i><span>Custom joinery and lighting plan</span></li>
+                        <li><i class="fas fa-check text-gold"></i><span>Procurement and vendor management</span></li>
+                        <li><i class="fas fa-check text-gold"></i><span>Styling and handover support</span></li>
+                    </ul>
+                    <a href="tel:+8801712458794" class="btn btn-outline-secondary w-100 mt-4">Schedule a Call</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 interior-faq defer-render">
+    <div class="container">
+        <div class="row align-items-end mb-4">
+            <div class="col-lg-6">
+                <p class="section-kicker reveal">FAQ</p>
+                <h2 class="fw-bold reveal">Answers to common interior questions.</h2>
+            </div>
+            <div class="col-lg-6">
+                <p class="text-muted reveal delay-1">Clear expectations help you plan faster and avoid surprises.</p>
+            </div>
+        </div>
+        <div class="accordion" id="interiorFaq">
+            <div class="accordion-item reveal">
+                <h2 class="accordion-header" id="faqOne">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapseOne" aria-expanded="true" aria-controls="faqCollapseOne">
+                        How long does a full interior project take?
+                    </button>
+                </h2>
+                <div id="faqCollapseOne" class="accordion-collapse collapse show" aria-labelledby="faqOne" data-bs-parent="#interiorFaq">
+                    <div class="accordion-body">
+                        Most apartments complete in 6-12 weeks depending on scope, approvals, and material lead times.
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item reveal delay-1">
+                <h2 class="accordion-header" id="faqTwo">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapseTwo" aria-expanded="false" aria-controls="faqCollapseTwo">
+                        What is included in the starting price?
+                    </button>
+                </h2>
+                <div id="faqCollapseTwo" class="accordion-collapse collapse" aria-labelledby="faqTwo" data-bs-parent="#interiorFaq">
+                    <div class="accordion-body">
+                        The starting price covers concept planning, visuals, and base finishes. Final quotes depend on materials and custom work.
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item reveal delay-2">
+                <h2 class="accordion-header" id="faqThree">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapseThree" aria-expanded="false" aria-controls="faqCollapseThree">
+                        Do you provide on-site supervision?
+                    </button>
+                </h2>
+                <div id="faqCollapseThree" class="accordion-collapse collapse" aria-labelledby="faqThree" data-bs-parent="#interiorFaq">
+                    <div class="accordion-body">
+                        Yes. We manage vendor coordination, quality checks, and progress updates through every execution phase.
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item reveal delay-3">
+                <h2 class="accordion-header" id="faqFour">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapseFour" aria-expanded="false" aria-controls="faqCollapseFour">
+                        Can I use my own vendors or materials?
+                    </button>
+                </h2>
+                <div id="faqCollapseFour" class="accordion-collapse collapse" aria-labelledby="faqFour" data-bs-parent="#interiorFaq">
+                    <div class="accordion-body">
+                        Absolutely. We can integrate your preferred vendors and still provide guidance on quality and coordination.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterButtons = document.querySelectorAll('#filterGroup [data-filter]');
+        const serviceCards = document.querySelectorAll('.designer-card');
+
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Update active state
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+
+                const filter = button.getAttribute('data-filter');
+
+                serviceCards.forEach(card => {
+                    const tag = card.querySelector('.service-tag').textContent;
+                    if (filter === 'all' || tag.toLowerCase().includes(filter.toLowerCase())) {
+                        card.parentElement.style.display = 'block';
+                    } else {
+                        card.parentElement.style.display = 'none';
+                    }
+                });
+            });
+        });
+    });
+</script>
 {% endblock %}

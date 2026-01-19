@@ -48,3 +48,13 @@ class InteriorService(db.Model):
     status = db.Column(db.String(20), default='pending') # pending, approved, rejected
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+class Lead(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), nullable=False)
+    phone = db.Column(db.String(40))
+    email = db.Column(db.String(120))
+    interest = db.Column(db.String(40))
+    message = db.Column(db.Text, nullable=False)
+    status = db.Column(db.String(20), default='new') # new, contacted, closed
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)

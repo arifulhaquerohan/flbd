@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Post Your Listing - FlatLand BD{% endblock %}
+{% block title %}Post Your Listing - FlatlandBD{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -34,7 +34,7 @@
         background: rgba(255, 255, 255, 0.98);
         border-color: var(--accent-gold);
         color: var(--primary-dark);
-        box-shadow: 0 0 15px rgba(243, 107, 78, 0.15);
+        box-shadow: 0 0 15px rgba(213, 123, 76, 0.15);
     }
 
     .nav-pills .nav-link {
@@ -65,6 +65,28 @@
         border-color: var(--accent-gold);
         background: rgba(251, 191, 36, 0.05);
     }
+
+    @media (max-width: 768px) {
+        .form-container {
+            margin: 30px 0;
+            padding: 24px;
+            border-radius: 22px;
+        }
+
+        .nav-pills {
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .nav-pills .nav-link {
+            width: 100%;
+            margin-right: 0;
+        }
+
+        .custom-input {
+            margin-bottom: 16px;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -73,6 +95,9 @@
     <div class="text-center mb-5">
         <h2 class="display-5 fw-bold reveal">Post Your <span class="text-gold" style="color: var(--accent-gold);">Listing</span></h2>
         <p class="text-muted reveal delay-1">Reach thousands of potential buyers and clients instantly.</p>
+        <div class="alert alert-info d-inline-block mt-3 reveal delay-1" role="alert">
+            <i class="fas fa-info-circle me-2"></i> Listings posted here show up in the admin panel for review.
+        </div>
     </div>
 
     <div class="form-container reveal delay-1">
@@ -88,7 +113,7 @@
         <div class="tab-content" id="pills-tabContent">
             <!-- Flat Form -->
             <div class="tab-pane fade show active" id="pills-flat" role="tabpanel">
-                <form action="{{ url_for('post_listing') }}" method="POST">
+                <form action="{{ url_for('post_listing') }}" method="POST" enctype="multipart/form-data">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="form_type" value="flat">
                     <div class="row">
@@ -129,6 +154,11 @@
                             <label class="form-label">Upload Images (URL for now)</label>
                             <input type="text" name="image_url" class="form-control custom-input" placeholder="Paste an image URL">
                         </div>
+                        <div class="col-md-12 mb-4">
+                            <label class="form-label">Upload Image File</label>
+                            <input type="file" name="image_file" class="form-control custom-input" accept="image/png,image/jpeg,image/webp">
+                            <small class="text-muted d-block">Uploading a file will override the URL field.</small>
+                        </div>
                         <div class="col-md-12">
                             <button type="submit" class="btn btn-gold w-100 py-3 mt-3">Publish Property Listing</button>
                         </div>
@@ -138,7 +168,7 @@
 
             <!-- Interior Form -->
             <div class="tab-pane fade" id="pills-interior" role="tabpanel">
-                <form action="{{ url_for('post_listing') }}" method="POST">
+                <form action="{{ url_for('post_listing') }}" method="POST" enctype="multipart/form-data">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="form_type" value="interior">
                     <div class="row">
@@ -165,6 +195,11 @@
                         <div class="col-md-12 mb-4">
                             <label class="form-label">Portfolio Image URL</label>
                             <input type="text" name="image_url" class="form-control custom-input" placeholder="Paste an image URL">
+                        </div>
+                        <div class="col-md-12 mb-4">
+                            <label class="form-label">Upload Image File</label>
+                            <input type="file" name="image_file" class="form-control custom-input" accept="image/png,image/jpeg,image/webp">
+                            <small class="text-muted d-block">Uploading a file will override the URL field.</small>
                         </div>
                         <div class="col-md-12">
                             <button type="submit" class="btn btn-gold w-100 py-3 mt-3">Register Interior Service</button>

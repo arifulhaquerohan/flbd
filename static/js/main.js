@@ -1,5 +1,19 @@
 // Main JavaScript
 document.addEventListener('DOMContentLoaded', function() {
+    const runEnhancements = () => {
+        initReveal();
+        initLightbox();
+    };
+
+    // Defer non-critical UI work until the browser is idle.
+    if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(runEnhancements, { timeout: 1500 });
+    } else {
+        window.setTimeout(runEnhancements, 1);
+    }
+});
+
+function initReveal() {
     const revealElements = document.querySelectorAll('.reveal');
     if (!revealElements.length) {
         return;
@@ -23,4 +37,27 @@ document.addEventListener('DOMContentLoaded', function() {
     );
 
     revealElements.forEach((el) => observer.observe(el));
-});
+}
+
+function initLightbox() {
+    const lightbox = document.getElementById('imageLightbox');
+    const lightboxImg = document.getElementById('lightboxImage');
+    if (!lightbox || !lightboxImg || !window.bootstrap || !bootstrap.Modal) {
+        return;
+    }
+
+    const modal = bootstrap.Modal.getOrCreateInstance(lightbox);
+    document.addEventListener('click', function(e) {
+        const target = e.target.closest('.img-expand');
+        if (!target) {
+            return;
+        }
+        const src = target.getAttribute('src');
+        if (!src) {
+            return;
+        }
+        lightboxImg.setAttribute('src', src);
+        lightboxImg.setAttribute('alt', target.getAttribute('alt') || 'Enlarged view');
+        modal.show();
+    });
+}

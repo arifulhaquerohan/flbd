@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Login - FlatLand BD{% endblock %}
+{% block title %}Login - FlatlandBD{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -22,7 +22,7 @@
     }
     .form-control:focus {
         border-color: var(--accent-gold) !important;
-        box-shadow: 0 0 10px rgba(243, 107, 78, 0.12);
+        box-shadow: 0 0 10px rgba(213, 123, 76, 0.18);
     }
 </style>
 {% endblock %}
@@ -30,18 +30,11 @@
 {% block content %}
 <div class="container">
     <div class="login-container reveal">
-        <h2 class="text-center mb-4 fw-bold">Welcome <span class="text-gold" style="color: var(--accent-gold);">Back</span></h2>
+        <h2 class="text-center mb-4 fw-bold">Admin <span class="text-gold">Login</span></h2>
         
-        {% with messages = get_flashed_messages() %}
-          {% if messages %}
-            {% for message in messages %}
-              <div class="alert alert-warning py-2 mb-3 small">{{ message }}</div>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
-
-        <form action="/login" method="POST">
+        <form action="{{ url_for('login', next=request.args.get('next')) }}" method="POST">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
             <div class="mb-3">
                 <label class="form-label small text-muted">Email Address</label>
                 <input type="email" name="email" class="form-control" placeholder="arifulhaquerohan@gmail.com" required>
@@ -52,14 +45,21 @@
             </div>
             <div class="mb-4 d-flex justify-content-between align-items-center">
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="remember" id="remember" style="background: rgba(255,255,255,0.1); border-color: var(--glass-border);">
+                    <input class="form-check-input" type="checkbox" name="remember" id="remember">
                     <label class="form-check-label small text-muted" for="remember">
                         Remember Me
                     </label>
                 </div>
             </div>
-            <button type="submit" class="btn btn-gold w-100 py-3 fw-bold">Login</button>
+
+            <button type="submit" class="btn btn-gold w-100 py-3 fw-bold">
+                Login
+            </button>
         </form>
+        
+        <div class="mt-4 text-center">
+            <p class="small text-muted mb-0">Admin access only.</p>
+        </div>
     </div>
 </div>
 {% endblock %}

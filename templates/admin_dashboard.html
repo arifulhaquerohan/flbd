@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Admin Dashboard - FlatLand BD{% endblock %}
+{% block title %}Admin Dashboard - FlatlandBD{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -8,6 +8,7 @@
         background: rgba(255, 255, 255, 0.75);
         border-right: 1px solid var(--glass-border);
         min-height: calc(100vh - 76px);
+        min-height: calc(100svh - 76px);
         padding: 2rem 1rem;
         box-shadow: var(--shadow-soft);
     }
@@ -22,7 +23,7 @@
     }
     .stat-card:hover {
         transform: translateY(-5px);
-        border-color: rgba(243, 107, 78, 0.4);
+        border-color: rgba(213, 123, 76, 0.4);
     }
     .table-dark-custom {
         background: var(--surface);
@@ -32,7 +33,7 @@
         box-shadow: var(--shadow-soft);
     }
     .table-dark-custom th {
-        background: rgba(15, 46, 42, 0.06);
+        background: rgba(29, 37, 51, 0.06);
         border: none;
         color: var(--primary-dark);
         padding: 15px;
@@ -57,13 +58,14 @@
     }
 
     .admin-toolbar .input-group-text {
-        background: rgba(15, 46, 42, 0.06);
+        background: rgba(29, 37, 51, 0.06);
         border: 1px solid var(--glass-border);
         color: var(--primary-dark);
     }
 
     .admin-table {
         max-height: 70vh;
+        max-height: 70svh;
         overflow-y: auto;
     }
 
@@ -84,13 +86,33 @@
     }
 
     .status-pill.pending {
-        background: rgba(243, 107, 78, 0.18);
+        background: rgba(213, 123, 76, 0.18);
         color: #9c3d2a;
     }
 
     .status-pill.active {
-        background: rgba(16, 105, 96, 0.16);
+        background: rgba(29, 37, 51, 0.16);
         color: #0f534a;
+    }
+
+    .status-pill.rejected {
+        background: rgba(185, 28, 28, 0.12);
+        color: #b91c1c;
+    }
+
+    .status-pill.new {
+        background: rgba(59, 130, 246, 0.12);
+        color: #1d4ed8;
+    }
+
+    .status-pill.contacted {
+        background: rgba(16, 185, 129, 0.12);
+        color: #0f766e;
+    }
+
+    .status-pill.closed {
+        background: rgba(107, 114, 128, 0.12);
+        color: #374151;
     }
 
     .admin-sidebar .nav-link.active {
@@ -108,6 +130,44 @@
     .stat-link:hover {
         color: var(--primary-dark);
     }
+
+    @media (max-width: 768px) {
+        .admin-sidebar {
+            min-height: auto;
+        }
+
+        .admin-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .admin-toolbar > * {
+            width: 100%;
+            min-width: 0 !important;
+        }
+
+        .admin-toolbar .input-group {
+            width: 100%;
+        }
+
+        .admin-table {
+            max-height: none;
+            overflow-y: visible;
+        }
+
+        .table-dark-custom table {
+            font-size: 0.88rem;
+        }
+
+        .table-dark-custom th,
+        .table-dark-custom td {
+            padding: 12px;
+        }
+
+        .table-dark-custom .btn {
+            font-size: 0.72rem;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -120,6 +180,7 @@
                 <a class="nav-link {% if active_tab == 'dashboard' %}active{% else %}text-dark{% endif %} mb-2" href="{{ url_for('admin_dashboard', tab='dashboard') }}"><i class="fas fa-chart-line me-2"></i> Dashboard</a>
                 <a class="nav-link {% if active_tab == 'flats' %}active{% else %}text-dark{% endif %} mb-2" href="{{ url_for('admin_dashboard', tab='flats') }}"><i class="fas fa-building me-2"></i> Manage Flats</a>
                 <a class="nav-link {% if active_tab == 'services' %}active{% else %}text-dark{% endif %} mb-2" href="{{ url_for('admin_dashboard', tab='services') }}"><i class="fas fa-palette me-2"></i> Interior Services</a>
+                <a class="nav-link {% if active_tab == 'leads' %}active{% else %}text-dark{% endif %} mb-2" href="{{ url_for('admin_dashboard', tab='leads') }}"><i class="fas fa-inbox me-2"></i> Leads</a>
                 <hr class="bg-secondary">
                 <a class="nav-link text-danger" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
             </div>
@@ -129,6 +190,7 @@
                     <a class="btn btn-sm {% if active_tab == 'dashboard' %}btn-gold{% else %}btn-outline-light{% endif %}" href="{{ url_for('admin_dashboard', tab='dashboard') }}">Dashboard</a>
                     <a class="btn btn-sm {% if active_tab == 'flats' %}btn-gold{% else %}btn-outline-light{% endif %}" href="{{ url_for('admin_dashboard', tab='flats') }}">Flats</a>
                     <a class="btn btn-sm {% if active_tab == 'services' %}btn-gold{% else %}btn-outline-light{% endif %}" href="{{ url_for('admin_dashboard', tab='services') }}">Interior</a>
+                    <a class="btn btn-sm {% if active_tab == 'leads' %}btn-gold{% else %}btn-outline-light{% endif %}" href="{{ url_for('admin_dashboard', tab='leads') }}">Leads</a>
                 </div>
             </div>
         </div>
@@ -140,12 +202,19 @@
                     <h2 class="fw-bold mb-1">Admin <span class="text-gold" style="color: var(--accent-gold);">
                     {% if active_tab == 'flats' %}Property Management
                     {% elif active_tab == 'services' %}Interior Management
+                    {% elif active_tab == 'leads' %}Lead Management
                     {% else %}Dashboard{% endif %}
                     </span></h2>
-                    <p class="text-muted mb-0">Moderate listings, review approvals, and keep the marketplace clean.</p>
+                    <p class="text-muted mb-0">
+                        {% if active_tab == 'leads' %}
+                            Track contact requests and update their status.
+                        {% else %}
+                            Moderate listings, review approvals, and keep the marketplace clean.
+                        {% endif %}
+                    </p>
                 </div>
                 
-                {% if active_tab != 'dashboard' %}
+                {% if active_tab != 'dashboard' and active_tab != 'leads' %}
                     <a href="{{ url_for('post_listing') }}" class="btn btn-gold px-4 py-2 fw-bold">
                         <i class="fas fa-plus me-2"></i> Add New 
                         {% if active_tab == 'flats' %}Property{% else %}Service{% endif %}
@@ -163,9 +232,9 @@
                 </div>
                 <div style="min-width: 180px;">
                     <select class="form-select" name="status">
-                        <option value="all" {% if admin_filters.status == 'all' or not admin_filters.status %}selected{% endif %}>All Status</option>
-                        <option value="pending" {% if admin_filters.status == 'pending' %}selected{% endif %}>Pending</option>
-                        <option value="approved" {% if admin_filters.status == 'approved' %}selected{% endif %}>Approved</option>
+                        {% for value, label in status_options %}
+                        <option value="{{ value }}" {% if admin_filters.status == value or (value == 'all' and not admin_filters.status) %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 <button class="btn btn-gold px-4" type="submit">Apply</button>
@@ -202,6 +271,19 @@
                         <h4 class="fw-bold mb-0">{{ stats.total_services }}</h4>
                     </div>
                 </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-card">
+                        <small class="text-muted d-block mb-1">New Leads</small>
+                        <h4 class="fw-bold mb-2">{{ stats.new_leads }}</h4>
+                        <a class="stat-link" href="{{ url_for('admin_dashboard', tab='leads', status='new') }}">Review leads</a>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-card">
+                        <small class="text-muted d-block mb-1">Total Leads</small>
+                        <h4 class="fw-bold mb-0">{{ stats.total_leads }}</h4>
+                    </div>
+                </div>
             </div>
             {% endif %}
 
@@ -210,15 +292,86 @@
                     <table class="table table-hover mb-0">
                         <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>Title</th>
-                                <th class="d-none d-lg-table-cell">Type</th>
-                                {% if active_tab == 'dashboard' %}<th class="d-none d-md-table-cell">Posted By</th>{% endif %}
-                                <th>Status</th>
-                                <th>Actions</th>
+                                {% if active_tab == 'leads' %}
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th class="d-none d-lg-table-cell">Contact</th>
+                                    <th class="d-none d-lg-table-cell">Interest</th>
+                                    <th class="d-none d-xl-table-cell">Message</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                {% else %}
+                                    <th>ID</th>
+                                    <th>Title</th>
+                                    <th class="d-none d-lg-table-cell">Type</th>
+                                    {% if active_tab == 'dashboard' %}<th class="d-none d-md-table-cell">Posted By</th>{% endif %}
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                {% endif %}
                             </tr>
                         </thead>
                         <tbody>
+                            {% if active_tab == 'leads' %}
+                            {% for lead in leads %}
+                            <tr>
+                                <td>#L{{ lead.id }}</td>
+                                <td>
+                                    <div class="fw-semibold">{{ lead.name }}</div>
+                                    <small class="text-muted d-block">{{ lead.created_at.strftime('%b %d, %Y') }}</small>
+                                </td>
+                                <td class="d-none d-lg-table-cell">
+                                    {% if lead.phone %}
+                                    <div><a class="text-decoration-none" href="tel:{{ lead.phone }}">{{ lead.phone }}</a></div>
+                                    {% endif %}
+                                    {% if lead.email %}
+                                    <div><a class="text-decoration-none" href="mailto:{{ lead.email }}">{{ lead.email }}</a></div>
+                                    {% endif %}
+                                </td>
+                                <td class="d-none d-lg-table-cell">{{ lead.interest or 'General' }}</td>
+                                <td class="d-none d-xl-table-cell">{{ lead.message | truncate(80, True, '...') }}</td>
+                                <td>
+                                    {% if lead.status == 'new' %}
+                                        <span class="status-pill new"><i class="fas fa-bolt"></i> New</span>
+                                    {% elif lead.status == 'contacted' %}
+                                        <span class="status-pill contacted"><i class="fas fa-phone"></i> Contacted</span>
+                                    {% else %}
+                                        <span class="status-pill closed"><i class="fas fa-check-circle"></i> Closed</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-1 flex-wrap">
+                                        {% if lead.status != 'contacted' %}
+                                        <form method="post" action="{{ url_for('update_lead_status', id=lead.id) }}">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <input type="hidden" name="status" value="contacted">
+                                            <button type="submit" class="btn btn-xs btn-outline-secondary py-1 px-2" style="font-size: 0.75rem;">Contacted</button>
+                                        </form>
+                                        {% endif %}
+                                        {% if lead.status != 'closed' %}
+                                        <form method="post" action="{{ url_for('update_lead_status', id=lead.id) }}">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <input type="hidden" name="status" value="closed">
+                                            <button type="submit" class="btn btn-xs btn-outline-success py-1 px-2" style="font-size: 0.75rem;">Close</button>
+                                        </form>
+                                        {% endif %}
+                                        {% if lead.status != 'new' %}
+                                        <form method="post" action="{{ url_for('update_lead_status', id=lead.id) }}">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <input type="hidden" name="status" value="new">
+                                            <button type="submit" class="btn btn-xs btn-outline-warning py-1 px-2" style="font-size: 0.75rem;">Reopen</button>
+                                        </form>
+                                        {% endif %}
+                                        <form method="post" action="{{ url_for('delete_lead', id=lead.id) }}" onsubmit="return confirm('Delete this lead?')">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <button type="submit" class="btn btn-xs btn-outline-danger py-1 px-2" style="font-size: 0.75rem;">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            {% endif %}
                             {% if active_tab == 'dashboard' or active_tab == 'flats' %}
                             {% for flat in flats %}
                             <tr>
@@ -229,16 +382,43 @@
                                 <td>
                                     {% if flat.status == 'approved' %}
                                         <span class="status-pill active"><i class="fas fa-check-circle"></i> Active</span>
+                                    {% elif flat.status == 'rejected' %}
+                                        <span class="status-pill rejected"><i class="fas fa-times-circle"></i> Rejected</span>
                                     {% else %}
                                         <span class="status-pill pending"><i class="fas fa-clock"></i> Pending</span>
                                     {% endif %}
                                 </td>
                                 <td>
                                     <div class="d-flex gap-1">
+                                        <a href="{{ url_for('flat_detail', id=flat.id) }}" class="btn btn-xs btn-outline-light py-1 px-2" style="font-size: 0.75rem;" target="_blank" rel="noopener">View</a>
+                                        <a href="{{ url_for('edit_listing', item_type='flat', id=flat.id) }}" class="btn btn-xs btn-outline-secondary py-1 px-2" style="font-size: 0.75rem;">Edit</a>
                                         {% if flat.status != 'approved' %}
-                                        <a href="{{ url_for('approve_listing', type='flat', id=flat.id) }}" class="btn btn-xs btn-gold py-1 px-2" style="font-size: 0.75rem;">Approve</a>
+                                        <form method="post" action="{{ url_for('update_listing_status', item_type='flat', id=flat.id) }}">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <input type="hidden" name="status" value="approved">
+                                            <button type="submit" class="btn btn-xs btn-gold py-1 px-2" style="font-size: 0.75rem;">Approve</button>
+                                        </form>
                                         {% endif %}
-                                        <a href="{{ url_for('delete_listing', type='flat', id=flat.id) }}" class="btn btn-xs btn-outline-danger py-1 px-2" style="font-size: 0.75rem;" onclick="return confirm('Delete this listing?')"><i class="fas fa-trash"></i></a>
+                                        {% if flat.status != 'rejected' %}
+                                        <form method="post" action="{{ url_for('update_listing_status', item_type='flat', id=flat.id) }}">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <input type="hidden" name="status" value="rejected">
+                                            <button type="submit" class="btn btn-xs btn-outline-warning py-1 px-2" style="font-size: 0.75rem;">Reject</button>
+                                        </form>
+                                        {% endif %}
+                                        {% if flat.status == 'approved' %}
+                                        <form method="post" action="{{ url_for('update_listing_status', item_type='flat', id=flat.id) }}">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <input type="hidden" name="status" value="pending">
+                                            <button type="submit" class="btn btn-xs btn-outline-secondary py-1 px-2" style="font-size: 0.75rem;">Unpublish</button>
+                                        </form>
+                                        {% endif %}
+                                        <form method="post" action="{{ url_for('delete_listing', item_type='flat', id=flat.id) }}" onsubmit="return confirm('Delete this listing?')">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <button type="submit" class="btn btn-xs btn-outline-danger py-1 px-2" style="font-size: 0.75rem;">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
                                     </div>
                                 </td>
                             </tr>
@@ -255,23 +435,50 @@
                                 <td>
                                     {% if service.status == 'approved' %}
                                         <span class="status-pill active"><i class="fas fa-check-circle"></i> Active</span>
+                                    {% elif service.status == 'rejected' %}
+                                        <span class="status-pill rejected"><i class="fas fa-times-circle"></i> Rejected</span>
                                     {% else %}
                                         <span class="status-pill pending"><i class="fas fa-clock"></i> Pending</span>
                                     {% endif %}
                                 </td>
                                 <td>
                                     <div class="d-flex gap-1">
+                                        <a href="{{ url_for('interior_detail', id=service.id) }}" class="btn btn-xs btn-outline-light py-1 px-2" style="font-size: 0.75rem;" target="_blank" rel="noopener">View</a>
+                                        <a href="{{ url_for('edit_listing', item_type='interior', id=service.id) }}" class="btn btn-xs btn-outline-secondary py-1 px-2" style="font-size: 0.75rem;">Edit</a>
                                         {% if service.status != 'approved' %}
-                                        <a href="{{ url_for('approve_listing', type='interior', id=service.id) }}" class="btn btn-xs btn-gold py-1 px-2" style="font-size: 0.75rem;">Approve</a>
+                                        <form method="post" action="{{ url_for('update_listing_status', item_type='interior', id=service.id) }}">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <input type="hidden" name="status" value="approved">
+                                            <button type="submit" class="btn btn-xs btn-gold py-1 px-2" style="font-size: 0.75rem;">Approve</button>
+                                        </form>
                                         {% endif %}
-                                        <a href="{{ url_for('delete_listing', type='interior', id=service.id) }}" class="btn btn-xs btn-outline-danger py-1 px-2" style="font-size: 0.75rem;" onclick="return confirm('Delete this listing?')"><i class="fas fa-trash"></i></a>
+                                        {% if service.status != 'rejected' %}
+                                        <form method="post" action="{{ url_for('update_listing_status', item_type='interior', id=service.id) }}">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <input type="hidden" name="status" value="rejected">
+                                            <button type="submit" class="btn btn-xs btn-outline-warning py-1 px-2" style="font-size: 0.75rem;">Reject</button>
+                                        </form>
+                                        {% endif %}
+                                        {% if service.status == 'approved' %}
+                                        <form method="post" action="{{ url_for('update_listing_status', item_type='interior', id=service.id) }}">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <input type="hidden" name="status" value="pending">
+                                            <button type="submit" class="btn btn-xs btn-outline-secondary py-1 px-2" style="font-size: 0.75rem;">Unpublish</button>
+                                        </form>
+                                        {% endif %}
+                                        <form method="post" action="{{ url_for('delete_listing', item_type='interior', id=service.id) }}" onsubmit="return confirm('Delete this listing?')">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <button type="submit" class="btn btn-xs btn-outline-danger py-1 px-2" style="font-size: 0.75rem;">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
                                     </div>
                                 </td>
                             </tr>
                             {% endfor %}
                             {% endif %}
                             
-                            {% if not flats and active_tab != 'services' %}
+                            {% if not flats and active_tab != 'services' and active_tab != 'leads' %}
                             <tr>
                                 <td colspan="6" class="text-center text-muted py-5">No flats found in the database.</td>
                             </tr>
@@ -279,6 +486,11 @@
                             {% if not services and active_tab == 'services' %}
                             <tr>
                                 <td colspan="6" class="text-center text-muted py-5">No interior services found in the database.</td>
+                            </tr>
+                            {% endif %}
+                            {% if not leads and active_tab == 'leads' %}
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-5">No leads found yet.</td>
                             </tr>
                             {% endif %}
                         </tbody>

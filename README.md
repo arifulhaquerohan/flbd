@@ -44,6 +44,12 @@ python app.py
 ```
 Open `http://localhost:5000` in your browser.
 
+## Security checklist
+- Set `SECRET_KEY` to a long random value in `.env`.
+- Use a non-guessable `ADMIN_PATH` and set `ADMIN_EMAIL` / `ADMIN_PASSWORD`.
+- In production, set `SESSION_COOKIE_SECURE=1` and serve over HTTPS.
+- If deploying behind a proxy (nginx, load balancer), set `TRUST_PROXY=1`.
+
 ## Project Structure
 - `app.py`: Main application logic and routes.
 - `models.py`: Database models for Users, Flats, and Interior Services.

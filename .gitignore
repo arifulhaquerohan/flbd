@@ -4,3 +4,7 @@ instance/
 *.pyc
 .env
 .env
+venv/
+__pycache__/
+instance/
+*.pyc

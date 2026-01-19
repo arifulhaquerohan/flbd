@@ -1,31 +1,59 @@
 {% extends "base.html" %}
 
-{% block title %}{{ service.provider_name }} - Interior Design - FlatLand BD{% endblock %}
+{% block title %}{{ service.provider_name }} - Interior Design - FlatlandBD{% endblock %}
 
 {% block extra_css %}
 <style>
     .interior-hero {
-        padding: 100px 0;
-        background: linear-gradient(120deg, rgba(248, 242, 234, 0.9), rgba(255, 248, 239, 0.7)),
+        padding: 120px 0 90px;
+        background: linear-gradient(120deg, rgba(255, 255, 255, 0.9), rgba(247, 249, 252, 0.85)),
                     url('{{ service.image_url or "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1600" }}');
         background-size: cover;
         background-position: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .interior-hero::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(29, 37, 51, 0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(29, 37, 51, 0.05) 1px, transparent 1px);
+        background-size: 64px 64px;
+        opacity: 0.35;
+        pointer-events: none;
+    }
+
+    .interior-hero .container {
+        position: relative;
+        z-index: 1;
     }
     .portfolio-img {
         height: 300px;
         object-fit: cover;
-        border-radius: 16px;
+        border-radius: var(--radius-lg);
         transition: transform 0.3s ease;
+        box-shadow: var(--shadow-soft);
     }
     .portfolio-img:hover {
         transform: scale(1.03);
     }
     .booking-card {
-        background: var(--surface);
-        border: 1px solid var(--accent-gold);
-        border-radius: 24px;
+        background: var(--surface-strong);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-lg);
         padding: 40px;
         box-shadow: var(--shadow-soft);
+        top: 100px;
+    }
+
+    .booking-meta {
+        background: rgba(255, 255, 255, 0.8);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-md);
+        padding: 16px;
     }
 </style>
 {% endblock %}
@@ -33,38 +61,142 @@
 {% block content %}
 <section class="interior-hero">
     <div class="container text-center">
-        <span class="badge badge-premium mb-3" style="background: var(--accent-gold); color: var(--primary-dark);">{{ service.service_type }}</span>
+        <p class="section-kicker mb-3 reveal">Designer dossier</p>
+        <span class="badge badge-premium mb-3">{{ service.service_type }}</span>
         <h1 class="display-3 fw-bold mb-4 reveal">{{ service.provider_name }}</h1>
         <p class="lead text-muted mx-auto reveal delay-1" style="max-width: 700px;">{{ service.description }}</p>
+        <div class="hero-details justify-content-center mt-4 reveal delay-2">
+            <span class="metric-pill">Full-service</span>
+            <span class="metric-pill">On-site supervision</span>
+            <span class="metric-pill">Material sourcing</span>
+        </div>
     </div>
 </section>
 
 <div class="container py-5">
     <div class="row g-5">
         <div class="col-lg-8">
+            <div class="editorial-card p-4 surface-grid mb-5 reveal">
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+                    <div>
+                        <p class="section-kicker mb-2">Project dossier</p>
+                        <h3 class="fw-bold mb-1">Project essentials</h3>
+                        <p class="text-muted small mb-0">Everything a senior designer needs to scope the work.</p>
+                    </div>
+                    <span class="badge badge-premium">Verified</span>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="spec-card">
+                            <small>Scope</small>
+                            <h6>{{ service.service_type }}</h6>
+                            <p>Layout planning, lighting, custom joinery, styling.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="spec-card">
+                            <small>Budget</small>
+                            <h6>Starting at ৳ {{ service.starting_price }}</h6>
+                            <p>Transparent, milestone-based payments.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="spec-card">
+                            <small>Timeline</small>
+                            <h6>8-12 weeks</h6>
+                            <p>Concept to handover with weekly check-ins.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="spec-card">
+                            <small>Deliverables</small>
+                            <h6>Plans + 3D renders</h6>
+                            <p>Material schedule, vendor list, site notes.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <span class="material-chip">Oak veneer</span>
+                    <span class="material-chip">Limestone</span>
+                    <span class="material-chip">Brushed brass</span>
+                    <span class="material-chip">Textured linen</span>
+                </div>
+            </div>
             <h3 class="fw-bold mb-4 reveal">Portfolio Gallery</h3>
             <div class="row g-4 mb-5">
                 <div class="col-md-6">
-                    <img src="{{ service.image_url or 'https://images.unsplash.com/photo-1616489953149-75577aaf9d55?auto=format&fit=crop&w=800' }}" class="portfolio-img w-100 reveal" alt="Work 1" loading="lazy" decoding="async" width="800" height="600">
+                    <img src="{{ service.image_url or 'https://images.unsplash.com/photo-1505691938895-1758d7feb511?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' }}" class="portfolio-img w-100 reveal" alt="Work 1" loading="lazy" decoding="async" width="800" height="600">
                 </div>
                 <div class="col-md-6">
-                    <img src="https://images.unsplash.com/photo-1617806118233-18e1db207032?auto=format&fit=crop&w=800" class="portfolio-img w-100 reveal delay-1" alt="Work 2" loading="lazy" decoding="async" width="800" height="600">
+                    <img src="https://images.unsplash.com/photo-1501045661006-fcebe0257c3f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="portfolio-img w-100 reveal delay-1" alt="Work 2" loading="lazy" decoding="async" width="800" height="600">
                 </div>
                 <div class="col-md-12">
-                    <img src="https://images.unsplash.com/photo-1616137466211-f939a420be84?auto=format&fit=crop&w=1200" class="portfolio-img w-100 reveal delay-2" style="height: 400px;" alt="Work 3" loading="lazy" decoding="async" width="1200" height="800">
+                    <img src="https://images.unsplash.com/photo-1616137466211-f939a420be84?auto=format&fit=crop&w=1200&q=80" class="portfolio-img portfolio-img-wide w-100 reveal delay-2" alt="Work 3" loading="lazy" decoding="async" width="1200" height="800">
                 </div>
             </div>
 
             <h3 class="fw-bold mb-4 reveal">Service Details</h3>
-            <div class="p-4 rounded-4 bg-secondary bg-opacity-10 mb-5 reveal delay-1">
-                <p class="lh-lg mb-0 text-secondary">Our team at {{ service.provider_name }} specializes in creating bespoke living environments. We handle everything from concept visualization to final structural adjustments. Whether you're looking for a modular kitchen or a full penthouse renovation, our expert designers are ready to help.</p>
+            <div class="p-4 rounded-4 bg-secondary bg-opacity-10 mb-4 reveal delay-1">
+                <p class="lh-lg mb-0 text-secondary">Our team at {{ service.provider_name }} creates bespoke living environments with a focus on craft and clarity. From concept visualization to final detailing, every phase is documented so you can approve with confidence.</p>
+                <ul class="detail-list mt-4">
+                    <li><i class="fas fa-check text-gold"></i><span>Concept + spatial planning with defined revision rounds.</span></li>
+                    <li><i class="fas fa-check text-gold"></i><span>Material specifications, BOQ, and vendor list.</span></li>
+                    <li><i class="fas fa-check text-gold"></i><span>On-site supervision, coordination, and quality checks.</span></li>
+                    <li><i class="fas fa-check text-gold"></i><span>Final styling, punch list, and post-handover support.</span></li>
+                </ul>
+            </div>
+
+            <h3 class="fw-bold mb-4 reveal">Design Process</h3>
+            <div class="row g-3 mb-5">
+                <div class="col-md-6">
+                    <div class="process-card reveal">
+                        <div class="process-step">01</div>
+                        <h6 class="fw-bold">Discovery</h6>
+                        <p class="text-muted small mb-0">Site visit, measurements, and lifestyle mapping.</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="process-card reveal delay-1">
+                        <div class="process-step">02</div>
+                        <h6 class="fw-bold">Concept</h6>
+                        <p class="text-muted small mb-0">Moodboards, layouts, and 3D visuals.</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="process-card reveal delay-2">
+                        <div class="process-step">03</div>
+                        <h6 class="fw-bold">Execution</h6>
+                        <p class="text-muted small mb-0">Vendor coordination and site supervision.</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="process-card reveal delay-3">
+                        <div class="process-step">04</div>
+                        <h6 class="fw-bold">Handover</h6>
+                        <p class="text-muted small mb-0">Final styling and quality walkthrough.</p>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="col-lg-4">
-            <div class="booking-card sticky-top reveal delay-1" style="top: 100px;">
+            <div class="booking-card sticky-top reveal delay-1">
                 <h4 class="fw-bold mb-2">Request Service</h4>
                 <div class="fs-2 fw-bold text-gold mb-4">৳ {{ service.starting_price }} <small class="fs-6 text-muted fw-normal">Starting price</small></div>
+                <div class="booking-meta mb-4">
+                    <div class="d-flex justify-content-between small text-muted">
+                        <span>Typical timeline</span>
+                        <span>8-12 weeks</span>
+                    </div>
+                    <div class="d-flex justify-content-between small text-muted mt-2">
+                        <span>Revisions</span>
+                        <span>2 included</span>
+                    </div>
+                    <div class="d-flex justify-content-between small text-muted mt-2">
+                        <span>Site supervision</span>
+                        <span>Included</span>
+                    </div>
+                </div>
                 
                 <form>
                     <div class="mb-3">
@@ -80,7 +212,7 @@
                         <input type="number" class="form-control" placeholder="e.g. 1500">
                     </div>
                     <button type="button" class="btn btn-gold w-100 py-3 fw-bold mb-3">Book Consultation</button>
-                    <a href="{{ service.portfolio_url or '#' }}" target="_blank" class="btn btn-outline-light w-100 py-3 d-flex align-items-center justify-content-center">
+                    <a href="{{ service.portfolio_url or '#' }}" target="_blank" rel="noopener" class="btn btn-outline-light w-100 py-3 d-flex align-items-center justify-content-center">
                         <i class="fas fa-external-link-alt me-2"></i> External Portfolio
                     </a>
                 </form>

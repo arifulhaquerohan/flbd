@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 140" aria-label="FlatlandBD Logo" role="img">
+  <defs>
+    <style>
+      .wordmark {
+        font-family: "Sora", "Segoe UI", Arial, sans-serif;
+        font-weight: 700;
+        letter-spacing: 1px;
+        fill: #1f2722;
+      }
+      .wordmark-accent {
+        fill: #d57b4c;
+      }
+    </style>
+  </defs>
+
+  <g transform="translate(10 10)">
+    <path d="M16 58 L60 20 L104 58" stroke="#1f2722" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <path d="M28 58 V96 H92 V58" stroke="#1f2722" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <rect x="36" y="70" width="48" height="18" rx="8" fill="#d57b4c"/>
+    <rect x="40" y="60" width="40" height="12" rx="6" fill="#f2b57b"/>
+    <line x1="36" y1="104" x2="84" y2="104" stroke="#1f2722" stroke-width="8" stroke-linecap="round"/>
+  </g>
+
+  <text x="150" y="86" class="wordmark" font-size="60">
+    FlatLand <tspan class="wordmark-accent">BD</tspan>
+  </text>
+</svg>
