@@ -235,8 +235,10 @@ def build_youtube_watch(url):
 def ensure_schema_updates():
     table_name = Flat.__tablename__
     inspector = db.inspect(db.engine)
+    if not inspector.has_table(table_name):
+        return
     columns = [col['name'] for col in inspector.get_columns(table_name)]
-    
+
     if 'video_url' not in columns:
         try:
             with db.engine.begin() as conn:
