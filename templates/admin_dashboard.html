@@ -2,184 +2,6 @@
 
 {% block title %}Admin Dashboard - FlatlandBD{% endblock %}
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-{% block extra_css %}
-<style>
-    .admin-sidebar {
-        background: rgba(255, 255, 255, 0.75);
-        border-right: 1px solid var(--glass-border);
-        min-height: calc(100vh - 76px);
-        min-height: calc(100svh - 76px);
-        min-height: calc((var(--app-vh, 1vh) * 100) - 76px);
-        padding: 2rem 1rem;
-        box-shadow: var(--shadow-soft);
-    }
-    .stat-card {
-        background: var(--surface);
-        border: 1px solid var(--glass-border);
-        border-radius: 16px;
-        padding: 24px;
-        transition: transform 0.3s ease;
-        box-shadow: var(--shadow-soft);
-        height: 100%;
-    }
-    .stat-card:hover {
-        transform: translateY(-5px);
-        border-color: rgba(213, 123, 76, 0.4);
-    }
-    .table-dark-custom {
-        background: var(--surface);
-        border: 1px solid var(--glass-border);
-        border-radius: 16px;
-        overflow: hidden;
-        box-shadow: var(--shadow-soft);
-    }
-    .table-dark-custom th {
-        background: rgba(29, 37, 51, 0.06);
-        border: none;
-        color: var(--primary-dark);
-        padding: 15px;
-    }
-    .table-dark-custom td {
-        border-color: var(--glass-border);
-        padding: 15px;
-        vertical-align: middle;
-        color: var(--primary-dark);
-    }
-
-    .admin-toolbar {
-        background: var(--surface);
-        border: 1px solid var(--glass-border);
-        border-radius: 16px;
-        padding: 14px;
-        box-shadow: var(--shadow-soft);
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-        align-items: center;
-    }
-
-    .admin-toolbar .input-group-text {
-        background: rgba(29, 37, 51, 0.06);
-        border: 1px solid var(--glass-border);
-        color: var(--primary-dark);
-    }
-
-    .admin-table {
-        max-height: 70vh;
-        max-height: 70svh;
-        max-height: calc(var(--app-vh, 1vh) * 70);
-        overflow-y: auto;
-    }
-
-    .admin-table thead th {
-        position: sticky;
-        top: 0;
-        z-index: 2;
-    }
-
-    .status-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        border-radius: 999px;
-        padding: 4px 10px;
-        font-size: 0.75rem;
-        font-weight: 600;
-    }
-
-    .status-pill.pending {
-        background: rgba(213, 123, 76, 0.18);
-        color: #9c3d2a;
-    }
-
-    .status-pill.active {
-        background: rgba(29, 37, 51, 0.16);
-        color: #0f534a;
-    }
-
-    .status-pill.rejected {
-        background: rgba(185, 28, 28, 0.12);
-        color: #b91c1c;
-    }
-
-    .status-pill.new {
-        background: rgba(59, 130, 246, 0.12);
-        color: #1d4ed8;
-    }
-
-    .status-pill.contacted {
-        background: rgba(16, 185, 129, 0.12);
-        color: #0f766e;
-    }
-
-    .status-pill.closed {
-        background: rgba(107, 114, 128, 0.12);
-        color: #374151;
-    }
-
-    .admin-sidebar .nav-link.active {
-        background: var(--accent-gold);
-        color: var(--primary-dark) !important;
-    }
-
-    .stat-link {
-        color: var(--accent-gold);
-        font-size: 0.8rem;
-        font-weight: 600;
-        text-decoration: none;
-    }
-
-    .stat-link:hover {
-        color: var(--primary-dark);
-    }
-
-    @media (max-width: 768px) {
-        .admin-sidebar {
-            min-height: auto;
-        }
-
-        .admin-toolbar {
-            flex-direction: column;
-            align-items: stretch;
-        }
-
-        .admin-toolbar > * {
-            width: 100%;
-            min-width: 0 !important;
-        }
-
-        .admin-toolbar .input-group {
-            width: 100%;
-        }
-
-        .admin-table {
-            max-height: none;
-            overflow-y: visible;
-        }
-
-        .table-dark-custom table {
-            font-size: 0.88rem;
-        }
-
-        .table-dark-custom th,
-        .table-dark-custom td {
-            padding: 12px;
-        }
-
-        .table-dark-custom .btn {
-            font-size: 0.72rem;
-        }
-    }
-</style>
-=======
-{% block extra_js %}
->>>>>>> 028daaa (major update)
-{% endblock %}
-
->>>>>>> 2ecb584 ( update)
 {% block extra_js %}
 {% endblock %}
 
@@ -463,60 +285,17 @@
                            value="{{ admin_filters.q or '' }}">
                 </form>
             </div>
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-
-            <form class="admin-toolbar mb-4" method="get" action="{{ url_for('admin_dashboard') }}">
-                <input type="hidden" name="tab" value="{{ active_tab }}">
-                <div class="flex-grow-1" style="min-width: 220px;">
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fas fa-search"></i></span>
-                        <input type="text" name="q" class="form-control" placeholder="{% if active_tab == 'leads' %}Search name, phone, email...{% elif active_tab == 'services' %}Search provider or service...{% else %}Search title, location...{% endif %}" value="{{ admin_filters.q or '' }}">
-                    </div>
-                </div>
-                <div style="min-width: 180px;">
-                    <select class="form-select" name="status">
-=======
->>>>>>> 2ecb584 ( update)
             
             <div class="flex flex-wrap items-center gap-4">
                 <form method="get" action="{{ url_for('admin_dashboard') }}" class="flex items-center gap-3">
                     <input type="hidden" name="tab" value="{{ active_tab }}">
                     <select name="status" onchange="this.form.submit()"
                             class="pl-6 pr-10 py-4 rounded-2xl bg-white border border-slate-200 text-sm font-bold text-slate-600 focus:border-brand-gold outline-none appearance-none cursor-pointer">
-<<<<<<< HEAD
-=======
->>>>>>> 028daaa (major update)
->>>>>>> 2ecb584 ( update)
                         {% for value, label in status_options %}
                         <option value="{{ value }}" {% if admin_filters.status == value or (value == 'all' and not admin_filters.status) %}selected{% endif %}>{{ label }}</option>
                         {% endfor %}
                     </select>
                 </form>
-<<<<<<< HEAD
-=======
-
-                {% if filters_applied %}
-                <a href="{{ url_for('admin_dashboard', tab=active_tab) }}" 
-                   class="px-6 py-4 rounded-2xl bg-slate-100 text-slate-600 text-sm font-bold hover:bg-slate-200 transition-all">Reset</a>
-                {% endif %}
-<<<<<<< HEAD
-                {% if active_tab == 'flats' %}
-                <a class="btn btn-outline-secondary" href="{{ url_for('export_data', item_type='flats', status=admin_filters.status or 'all', q=admin_filters.q or '') }}">
-                    <i class="fas fa-file-export me-2"></i>Export Flats
-                </a>
-                {% elif active_tab == 'services' %}
-                <a class="btn btn-outline-secondary" href="{{ url_for('export_data', item_type='services', status=admin_filters.status or 'all', q=admin_filters.q or '') }}">
-                    <i class="fas fa-file-export me-2"></i>Export Services
-                </a>
-                {% elif active_tab == 'leads' %}
-                <a class="btn btn-outline-secondary" href="{{ url_for('export_data', item_type='leads', status=admin_filters.status or 'all', q=admin_filters.q or '') }}">
-                    <i class="fas fa-file-export me-2"></i>Export Leads
-                </a>
-                {% endif %}
-            </form>
->>>>>>> 2ecb584 ( update)
 
                 {% if filters_applied %}
                 <a href="{{ url_for('admin_dashboard', tab=active_tab) }}" 
@@ -564,76 +343,6 @@
                     <i class="fas fa-times"></i>
                 </button>
             </form>
-<<<<<<< HEAD
-=======
-            {% elif active_tab == 'leads' %}
-            <form class="admin-toolbar mb-4" method="post" action="{{ url_for('bulk_update_leads') }}" id="bulkFormLeads" data-bulk-select>
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <div style="min-width: 220px;">
-                    <select class="form-select" name="action" required>
-                        <option value="">Bulk actions</option>
-                        <option value="new">Mark New</option>
-                        <option value="contacted">Mark Contacted</option>
-                        <option value="closed">Mark Closed</option>
-                        <option value="delete">Delete</option>
-                    </select>
-                </div>
-                <button class="btn btn-outline-secondary px-4" type="submit">Apply to Selected</button>
-                <div class="text-muted small">Select rows below to enable bulk actions.</div>
-            </form>
-            {% endif %}
-            
-            {% if active_tab == 'dashboard' %}
-            <div class="row g-3 g-md-4 mb-5">
-                <div class="col-6 col-md-3">
-                    <div class="stat-card">
-                        <small class="text-muted d-block mb-1">Pending Flats</small>
-                        <h4 class="fw-bold mb-2">{{ stats.pending_flats }}</h4>
-                        <a class="stat-link" href="{{ url_for('admin_dashboard', tab='flats', status='pending') }}">Review now</a>
-=======
-            </div>
-        </div>
-
-        <!-- Bulk Actions -->
-        <div x-show="selectedIds.length > 0" x-transition
-             class="mb-6 p-4 rounded-2xl bg-brand-dark text-white flex flex-col md:flex-row items-center justify-between gap-4 shadow-xl">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-lg bg-brand-gold flex items-center justify-center text-brand-dark">
-                    <i class="fas fa-check-double text-xs"></i>
-                </div>
-                <span class="text-sm font-bold"><span x-text="selectedIds.length"></span> items selected</span>
-            </div>
-
-            <form class="flex flex-wrap items-center gap-3" method="post" 
-                  :action="active_tab === 'leads' ? '{{ url_for('bulk_update_leads') }}' : '{{ url_for('bulk_update_listings', item_type='flat' if active_tab == 'flats' else 'interior') }}'">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <template x-for="id in selectedIds" :key="id">
-                    <input type="hidden" name="ids" :value="id">
-                </template>
-                
-                <select name="action" required
-                        class="px-4 py-2 rounded-xl bg-white/10 border border-white/10 text-xs font-bold text-white focus:border-brand-gold outline-none cursor-pointer">
-                    <option value="" class="text-brand-dark">Bulk Actions</option>
-                    {% if active_tab == 'leads' %}
-                        <option value="new" class="text-brand-dark">Mark New</option>
-                        <option value="contacted" class="text-brand-dark">Mark Contacted</option>
-                        <option value="closed" class="text-brand-dark">Mark Closed</option>
-                    {% else %}
-                        <option value="approved" class="text-brand-dark">Approve</option>
-                        <option value="pending" class="text-brand-dark">Set Pending</option>
-                        <option value="rejected" class="text-brand-dark">Reject</option>
-                    {% endif %}
-                    <option value="delete" class="text-brand-dark text-rose-500">Delete Permanently</option>
-                </select>
-                
-                <button type="submit" class="px-6 py-2 rounded-xl bg-brand-gold text-brand-dark text-xs font-bold hover:bg-brand-warm transition-all">
-                    Apply to Selected
-                </button>
-                <button type="button" @click="selectedIds = []; selectAll = false" class="text-white/40 hover:text-white transition-colors">
-                    <i class="fas fa-times"></i>
-                </button>
-            </form>
->>>>>>> 2ecb584 ( update)
         </div>
 
         <!-- Table Card -->
@@ -653,10 +362,6 @@
                             {% endif %}
                         </h3>
                         <p class="text-[10px] font-bold text-brand-dark/40 uppercase tracking-widest mt-0.5">Live Database</p>
-<<<<<<< HEAD
-=======
->>>>>>> 028daaa (major update)
->>>>>>> 2ecb584 ( update)
                     </div>
                 </div>
                 
@@ -675,82 +380,6 @@
                     </div>
                 </div>
             </div>
-<<<<<<< HEAD
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-brand-dark/5 text-[10px] font-bold text-brand-dark/40 uppercase tracking-widest border-b border-white/10">
-                            <th class="px-8 py-5">
-                                <label class="flex items-center gap-3 cursor-pointer group">
-                                    <input type="checkbox" @click="toggleAll()" :checked="selectAll" class="w-4 h-4 rounded border-brand-dark/20 text-brand-gold focus:ring-brand-gold bg-transparent transition-all">
-                                    <span class="group-hover:text-brand-gold transition-colors">ID</span>
-                                </label>
-                            </th>
-                            <th class="px-6 py-5">{% if active_tab == 'leads' %}Client Name{% else %}Title / Provider{% endif %}</th>
-                            <th class="px-6 py-5 hidden lg:table-cell">{% if active_tab == 'leads' %}Contact Details{% else %}Category{% endif %}</th>
-                            {% if active_tab == 'dashboard' %}<th class="px-6 py-5 hidden md:table-cell">Posted By</th>{% endif %}
-                            <th class="px-6 py-5">Status</th>
-                            <th class="px-8 py-5 text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-white/10">
-                        {% if active_tab == 'leads' %}
-=======
-<<<<<<< HEAD
-            {% endif %}
-
-            <div class="table-dark-custom shadow-lg">
-                <div class="table-responsive admin-table">
-                    <table class="table table-hover mb-0">
-                        <thead>
-                            <tr>
-                                {% if active_tab == 'leads' %}
-                                    <th>
-                                        <input class="form-check-input" type="checkbox" data-select-all data-select-form="bulkFormLeads" aria-label="Select all rows">
-                                        <span class="ms-2">ID</span>
-                                    </th>
-                                    <th>Name</th>
-                                    <th class="d-none d-lg-table-cell">Contact</th>
-                                    <th class="d-none d-lg-table-cell">Interest</th>
-                                    <th class="d-none d-xl-table-cell">Message</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                {% else %}
-                                    <th>
-                                        {% if active_tab in ['flats', 'services'] %}
-                                        <input class="form-check-input" type="checkbox" data-select-all data-select-form="bulkFormListings" aria-label="Select all rows">
-                                        {% endif %}
-                                        <span class="{% if active_tab in ['flats', 'services'] %}ms-2{% endif %}">ID</span>
-                                    </th>
-                                    <th>Title</th>
-                                    <th class="d-none d-lg-table-cell">Type</th>
-                                    {% if active_tab == 'dashboard' %}<th class="d-none d-md-table-cell">Posted By</th>{% endif %}
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                {% endif %}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% if active_tab == 'leads' %}
->>>>>>> 2ecb584 ( update)
-                            {% for lead in leads %}
-                            <tr class="group hover:bg-white/40 transition-colors">
-                                <td class="px-8 py-6">
-                                    <label class="flex items-center gap-3 cursor-pointer">
-                                        <input type="checkbox" name="ids" value="{{ lead.id }}" x-model="selectedIds" class="w-4 h-4 rounded border-brand-dark/20 text-brand-gold focus:ring-brand-gold bg-transparent">
-                                        <span class="text-xs font-bold text-brand-dark/40 font-mono">#L{{ lead.id }}</span>
-                                    </label>
-                                </td>
-<<<<<<< HEAD
-                                <td class="px-6 py-6">
-                                    <div class="font-display font-bold text-brand-dark text-lg">{{ lead.name }}</div>
-                                    <div class="text-[10px] font-bold text-brand-dark/40 uppercase tracking-widest mt-1">{{ lead.created_at.strftime('%b %d, %Y • %I:%M %p') }}</div>
-                                </td>
-=======
-                                <td>
-                                    <div class="fw-semibold">{{ lead.name }}</div>
-                                    <small class="text-muted d-block">{{ lead.created_at.strftime('%b %d, %Y') }}</small>
-=======
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
@@ -777,13 +406,11 @@
                                         <input type="checkbox" name="ids" value="{{ lead.id }}" x-model="selectedIds" class="w-4 h-4 rounded border-brand-dark/20 text-brand-gold focus:ring-brand-gold bg-transparent">
                                         <span class="text-xs font-bold text-brand-dark/40 font-mono">#L{{ lead.id }}</span>
                                     </label>
->>>>>>> 028daaa (major update)
                                 </td>
                                 <td class="px-6 py-6">
                                     <div class="font-display font-bold text-brand-dark text-lg">{{ lead.name }}</div>
                                     <div class="text-[10px] font-bold text-brand-dark/40 uppercase tracking-widest mt-1">{{ lead.created_at.strftime('%b %d, %Y • %I:%M %p') }}</div>
                                 </td>
->>>>>>> 2ecb584 ( update)
                                 <td class="px-6 py-6 hidden lg:table-cell">
                                     <div class="text-sm font-medium">
                                         {% if lead.phone %}
@@ -858,7 +485,6 @@
 
                         {% if active_tab == 'dashboard' or active_tab == 'flats' %}
                             {% for flat in flats %}
-<<<<<<< HEAD
                             <tr class="group hover:bg-white/40 transition-colors">
                                 <td class="px-8 py-6">
                                     <label class="flex items-center gap-3 cursor-pointer">
@@ -866,28 +492,6 @@
                                         <span class="text-xs font-bold text-brand-dark/40 font-mono">#F{{ flat.id }}</span>
                                     </label>
                                 </td>
-=======
-<<<<<<< HEAD
-                            <tr>
-                                <td>
-                                    {% if active_tab == 'flats' %}
-                                    <input class="form-check-input" type="checkbox" name="ids" value="{{ flat.id }}" form="bulkFormListings">
-                                    {% endif %}
-                                    <span class="ms-2">#F{{ flat.id }}</span>
-                                </td>
-                                <td class="text-truncate" style="max-width: 150px;">{{ flat.title }}</td>
-                                <td class="d-none d-lg-table-cell">Flat</td>
-                                {% if active_tab == 'dashboard' %}<td class="d-none d-md-table-cell">{{ flat.owner.username }}</td>{% endif %}
-                                <td>
-=======
-                            <tr class="group hover:bg-white/40 transition-colors">
-                                <td class="px-8 py-6">
-                                    <label class="flex items-center gap-3 cursor-pointer">
-                                        <input type="checkbox" name="ids" value="{{ flat.id }}" x-model="selectedIds" class="w-4 h-4 rounded border-brand-dark/20 text-brand-gold focus:ring-brand-gold bg-transparent">
-                                        <span class="text-xs font-bold text-brand-dark/40 font-mono">#F{{ flat.id }}</span>
-                                    </label>
-                                </td>
->>>>>>> 2ecb584 ( update)
                                 <td class="px-6 py-6">
                                     <div class="flex items-center gap-4">
                                         {% if flat.image_url %}
@@ -917,10 +521,6 @@
                                 </td>
                                 {% endif %}
                                 <td class="px-6 py-6">
-<<<<<<< HEAD
-=======
->>>>>>> 028daaa (major update)
->>>>>>> 2ecb584 ( update)
                                     {% if flat.status == 'approved' %}
                                         <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-600 text-[10px] font-bold uppercase tracking-widest border border-emerald-500/20">
                                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Active
@@ -964,7 +564,6 @@
 
                         {% if active_tab == 'dashboard' or active_tab == 'services' %}
                             {% for service in services %}
-<<<<<<< HEAD
                             <tr class="group hover:bg-white/40 transition-colors">
                                 <td class="px-8 py-6">
                                     <label class="flex items-center gap-3 cursor-pointer">
@@ -972,28 +571,6 @@
                                         <span class="text-xs font-bold text-brand-dark/40 font-mono">#I{{ service.id }}</span>
                                     </label>
                                 </td>
-=======
-<<<<<<< HEAD
-                            <tr>
-                                <td>
-                                    {% if active_tab == 'services' %}
-                                    <input class="form-check-input" type="checkbox" name="ids" value="{{ service.id }}" form="bulkFormListings">
-                                    {% endif %}
-                                    <span class="ms-2">#I{{ service.id }}</span>
-                                </td>
-                                <td class="text-truncate" style="max-width: 150px;">{{ service.provider_name }}</td>
-                                <td class="d-none d-lg-table-cell">Interior</td>
-                                {% if active_tab == 'dashboard' %}<td class="d-none d-md-table-cell">{{ service.provider.username }}</td>{% endif %}
-                                <td>
-=======
-                            <tr class="group hover:bg-white/40 transition-colors">
-                                <td class="px-8 py-6">
-                                    <label class="flex items-center gap-3 cursor-pointer">
-                                        <input type="checkbox" name="ids" value="{{ service.id }}" x-model="selectedIds" class="w-4 h-4 rounded border-brand-dark/20 text-brand-gold focus:ring-brand-gold bg-transparent">
-                                        <span class="text-xs font-bold text-brand-dark/40 font-mono">#I{{ service.id }}</span>
-                                    </label>
-                                </td>
->>>>>>> 2ecb584 ( update)
                                 <td class="px-6 py-6">
                                     <div class="flex items-center gap-4">
                                         {% if service.image_url %}
@@ -1023,10 +600,6 @@
                                 </td>
                                 {% endif %}
                                 <td class="px-6 py-6">
-<<<<<<< HEAD
-=======
->>>>>>> 028daaa (major update)
->>>>>>> 2ecb584 ( update)
                                     {% if service.status == 'approved' %}
                                         <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-600 text-[10px] font-bold uppercase tracking-widest border border-emerald-500/20">
                                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Active

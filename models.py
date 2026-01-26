@@ -36,14 +36,7 @@ class Flat(db.Model):
     area_sqft = db.Column(db.Integer)
     bhk = db.Column(db.Integer, index=True)
     image_url = db.Column(db.String(500))
-<<<<<<< HEAD
     video_url = db.Column(db.String(500))
-=======
-<<<<<<< HEAD
-=======
-    video_url = db.Column(db.String(500))
->>>>>>> 028daaa (major update)
->>>>>>> 2ecb584 ( update)
     status = db.Column(db.String(20), default='pending', index=True) # pending, approved, rejected
     created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
