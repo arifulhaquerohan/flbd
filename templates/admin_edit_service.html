@@ -1,111 +1,112 @@
 {% extends "base.html" %}
 
-{% block title %}Edit Interior Service - FlatlandBD{% endblock %}
+{% block title %}Edit Studio - Admin - FlatlandBD{% endblock %}
 
 {% block extra_css %}
-<style>
-    .form-container {
-        max-width: 820px;
-        margin: 50px auto;
-        padding: 40px;
-        background: var(--surface);
-        border: 1px solid var(--glass-border);
-        border-radius: 30px;
-        box-shadow: var(--shadow-soft);
-    }
-
-    .form-label {
-        font-weight: 600;
-        color: var(--accent-gold);
-        margin-bottom: 10px;
-    }
-
-    .custom-input {
-        background: rgba(255, 255, 255, 0.9);
-        border: 1px solid var(--glass-border);
-        color: var(--primary-dark);
-        padding: 12px 20px;
-        border-radius: 12px;
-        margin-bottom: 18px;
-    }
-
-    .custom-input:focus {
-        background: rgba(255, 255, 255, 0.98);
-        border-color: var(--accent-gold);
-        color: var(--primary-dark);
-        box-shadow: 0 0 15px rgba(213, 123, 76, 0.15);
-    }
-
-    @media (max-width: 768px) {
-        .form-container {
-            margin: 30px 0;
-            padding: 24px;
-            border-radius: 22px;
-        }
-
-        .custom-input {
-            margin-bottom: 14px;
-        }
-    }
-</style>
 {% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="form-container reveal">
-        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+<div class="py-24 bg-brand-soft min-h-screen">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <header class="flex flex-col md:flex-row items-center justify-between gap-6 mb-12">
             <div>
-                <h2 class="fw-bold mb-1">Edit Interior Service</h2>
-                <p class="text-muted mb-0">Update studio details and status.</p>
+                <span class="inline-block px-4 py-1.5 rounded-full bg-brand-gold/10 text-brand-gold text-[10px] font-bold uppercase tracking-widest mb-4">Admin Portal</span>
+                <h1 class="text-3xl font-display font-bold text-brand-dark">Edit <span class="text-brand-gold">Studio</span></h1>
+                <p class="text-brand-dark/40 text-sm font-bold uppercase tracking-widest mt-1">Ref: #I{{ item.id }}</p>
             </div>
-            <a href="{{ url_for('admin_dashboard', tab='services') }}" class="btn btn-outline-light">Back to Admin</a>
-        </div>
+            <a href="{{ url_for('admin_dashboard', tab='services') }}" class="px-6 py-3 rounded-xl bg-white border border-glass-border text-brand-dark text-sm font-bold hover:bg-slate-50 transition-all flex items-center gap-2">
+                <i class="fas fa-arrow-left text-[10px]"></i> Back to Dashboard
+            </a>
+        </header>
 
-        <form method="POST" enctype="multipart/form-data">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <div class="row">
-                <div class="col-md-12">
-                    <label class="form-label">Company/Designer Name</label>
-                    <input type="text" name="provider_name" class="form-control custom-input" value="{{ item.provider_name }}" required>
+        <div class="bg-white/80 backdrop-blur-xl rounded-[3rem] p-8 md:p-14 border border-glass-border shadow-strong">
+            <form method="POST" enctype="multipart/form-data" class="space-y-8">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="md:col-span-2 space-y-2">
+                        <label class="text-xs font-bold text-brand-dark/40 uppercase tracking-widest ml-1">Company/Designer Name</label>
+                        <input type="text" name="provider_name" value="{{ item.provider_name }}" required
+                               class="w-full px-6 py-4 rounded-2xl bg-white border border-brand-dark/5 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/5 transition-all text-brand-dark font-medium"
+                               placeholder="e.g., Studio 48 Architects">
+                    </div>
+
+                    <div class="md:col-span-2 space-y-2">
+                        <label class="text-xs font-bold text-brand-dark/40 uppercase tracking-widest ml-1">Service Type</label>
+                        <input type="text" name="service_type" value="{{ item.service_type }}" required
+                               class="w-full px-6 py-4 rounded-2xl bg-white border border-brand-dark/5 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/5 transition-all text-brand-dark font-medium"
+                               placeholder="e.g. Residential Interior">
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-brand-dark/40 uppercase tracking-widest ml-1">Starting Price (৳)</label>
+                        <input type="number" name="starting_price" step="any" value="{{ item.starting_price }}"
+                               class="w-full px-6 py-4 rounded-2xl bg-white border border-brand-dark/5 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/5 transition-all text-brand-dark font-medium"
+                               placeholder="Base package">
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-brand-dark/40 uppercase tracking-widest ml-1">Status Control</label>
+                        <select name="status" required
+                                class="w-full px-6 py-4 rounded-2xl bg-white border border-brand-dark/5 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/5 transition-all text-brand-dark appearance-none cursor-pointer font-bold">
+                            <option value="pending" {% if item.status == 'pending' %}selected{% endif %} class="text-amber-500">Pending Approval</option>
+                            <option value="approved" {% if item.status == 'approved' %}selected{% endif %} class="text-emerald-500">Approved & Live</option>
+                            <option value="rejected" {% if item.status == 'rejected' %}selected{% endif %} class="text-rose-500">Rejected / Archived</option>
+                        </select>
+                    </div>
+
+                    <div class="md:col-span-2 space-y-2">
+                        <label class="text-xs font-bold text-brand-dark/40 uppercase tracking-widest ml-1">Portfolio or Website Link</label>
+                        <input type="url" name="portfolio_url" value="{{ item.portfolio_url or '' }}"
+                               class="w-full px-6 py-4 rounded-2xl bg-white border border-brand-dark/5 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/5 transition-all text-brand-dark font-medium"
+                               placeholder="https://behance.net/yours">
+                    </div>
+
+                    <div class="md:col-span-2 space-y-2">
+                        <label class="text-xs font-bold text-brand-dark/40 uppercase tracking-widest ml-1">About Your Services</label>
+                        <textarea name="description" rows="4"
+                                  class="w-full px-6 py-4 rounded-2xl bg-white border border-brand-dark/5 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/5 transition-all text-brand-dark font-medium"
+                                  placeholder="Describe your expertise...">{{ item.description }}</textarea>
+                    </div>
+
+                    <div class="md:col-span-2 space-y-2">
+                        <label class="text-xs font-bold text-brand-dark/40 uppercase tracking-widest ml-1">Featured Media</label>
+                        {% if item.image_url %}
+                        <div class="mb-4 relative group w-48 aspect-video rounded-xl overflow-hidden border border-glass-border shadow-soft">
+                            <img src="{{ item.image_url }}" alt="Existing portfolio" class="w-full h-full object-cover" loading="lazy" decoding="async">
+                            <div class="absolute inset-0 bg-brand-dark/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <span class="text-white text-[10px] uppercase font-bold tracking-widest">Current Image</span>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="relative group">
+                            <input type="file" name="image_file" accept="image/png,image/jpeg,image/webp"
+                                   class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                            <div class="p-8 border-2 border-dashed border-brand-dark/10 rounded-[2rem] bg-brand-soft/50 group-hover:bg-brand-gold/5 group-hover:border-brand-gold/30 transition-all text-center">
+                                <div class="w-12 h-12 rounded-xl bg-brand-gold/10 flex items-center justify-center text-brand-gold text-lg mx-auto mb-3">
+                                    <i class="fas fa-camera"></i>
+                                </div>
+                                <p class="text-brand-dark font-bold text-sm mb-1">Update portfolio work</p>
+                                <p class="text-brand-dark/40 text-[10px] uppercase tracking-widest font-bold">Leave empty to keep current</p>
+                            </div>
+                        </div>
+                        <input type="text" name="image_url" value="{{ item.image_url or '' }}"
+                               class="w-full px-6 py-4 rounded-2xl bg-white border border-brand-dark/5 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/5 transition-all text-brand-dark text-sm mt-4 font-medium"
+                               placeholder="Or update image URL">
+                    </div>
                 </div>
-                <div class="col-md-12">
-                    <label class="form-label">Service Type</label>
-                    <input type="text" name="service_type" class="form-control custom-input" value="{{ item.service_type }}" required>
+
+                <div class="flex flex-col md:flex-row gap-4">
+                    <button type="submit" class="btn-gold-tw flex-1 py-5 text-lg shadow-lg shadow-brand-gold/20">
+                        Update Studio Profile
+                    </button>
+                    <a href="{{ url_for('admin_dashboard', tab='services') }}" class="px-8 py-5 rounded-2xl border border-glass-border text-brand-dark/60 text-sm font-bold hover:bg-slate-50 transition-all flex items-center justify-center">
+                        Cancel
+                    </a>
                 </div>
-                <div class="col-md-4">
-                    <label class="form-label">Starting Price (BDT)</label>
-                    <input type="number" name="starting_price" step="any" class="form-control custom-input" value="{{ item.starting_price }}">
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Status</label>
-                    <select name="status" class="form-select custom-input">
-                        <option value="pending" {% if item.status == 'pending' %}selected{% endif %}>Pending</option>
-                        <option value="approved" {% if item.status == 'approved' %}selected{% endif %}>Approved</option>
-                        <option value="rejected" {% if item.status == 'rejected' %}selected{% endif %}>Rejected</option>
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Portfolio Link</label>
-                    <input type="url" name="portfolio_url" class="form-control custom-input" value="{{ item.portfolio_url or '' }}">
-                </div>
-                <div class="col-md-12">
-                    <label class="form-label">About Your Services</label>
-                    <textarea name="description" class="form-control custom-input" rows="4">{{ item.description }}</textarea>
-                </div>
-                <div class="col-md-12">
-                    <label class="form-label">Image URL</label>
-                    <input type="text" name="image_url" class="form-control custom-input" value="{{ item.image_url or '' }}">
-                </div>
-                <div class="col-md-12 mb-3">
-                    <label class="form-label">Upload New Image</label>
-                    <input type="file" name="image_file" class="form-control custom-input" accept="image/png,image/jpeg,image/webp">
-                    <small class="text-muted d-block">Uploading a file replaces the current image.</small>
-                </div>
-                <div class="col-md-12">
-                    <button type="submit" class="btn btn-gold w-100 py-3 mt-2">Save Changes</button>
-                </div>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 </div>
 {% endblock %}

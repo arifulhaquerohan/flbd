@@ -3,295 +3,401 @@
 {% block title %}Property Listings - FlatlandBD{% endblock %}
 
 {% block preload %}
-<link rel="preload" as="image" href="https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=75">
+<link rel="preload" as="image" href="https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=1400&q=80" imagesrcset="https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=900&q=80 900w, https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=1400&q=80 1400w, https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=2000&q=80 2000w" imagesizes="100vw" fetchpriority="high">
 {% endblock %}
 
 {% block extra_css %}
 <style>
-    .listing-hero {
-        padding: 120px 0 90px;
-        background:
-            linear-gradient(120deg, rgba(255, 255, 255, 0.9), rgba(247, 249, 252, 0.85)),
-            url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=75');
+    .listing-hero-bg {
+        background-color: var(--primary-dark);
+        background-image: linear-gradient(to bottom, rgba(15, 23, 42, 0.3), rgba(15, 23, 42, 0.9)), url('https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=1400&q=80');
         background-size: cover;
         background-position: center;
-        border-radius: 0 0 32px 32px;
-        position: relative;
-        overflow: hidden;
-        margin-bottom: 60px;
+        background-attachment: fixed;
     }
 
-    .listing-hero::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background-image:
-            radial-gradient(circle at 20% 30%, rgba(213, 123, 76, 0.18), transparent 55%),
-            linear-gradient(rgba(29, 37, 51, 0.04) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(29, 37, 51, 0.04) 1px, transparent 1px);
-        background-size: auto, 64px 64px, 64px 64px;
-        opacity: 0.7;
-        pointer-events: none;
+    @media (max-width: 640px) {
+        .listing-hero-bg {
+            background-image: linear-gradient(to bottom, rgba(15, 23, 42, 0.3), rgba(15, 23, 42, 0.9)), url('https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=900&q=80');
+        }
     }
 
-    .listing-hero .container {
-        position: relative;
-        z-index: 1;
+    @media (min-width: 1280px) {
+        .listing-hero-bg {
+            background-image: linear-gradient(to bottom, rgba(15, 23, 42, 0.3), rgba(15, 23, 42, 0.9)), url('https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=2000&q=80');
+        }
+    }
+    
+    .glass-panel {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 20px 40px -10px rgba(0,0,0,0.3);
     }
 
-    .listing-title {
-        font-size: clamp(2.4rem, 3.5vw, 3.6rem);
-        font-weight: 700;
-        margin-bottom: 16px;
+    .glass-input {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: white;
     }
-
-    .listing-subtitle {
-        max-width: 560px;
-    }
-
-    .filter-panel {
-        background: var(--surface-strong);
-        border: 1px solid var(--glass-border);
-        padding: 22px;
-        border-radius: var(--radius-lg);
-        margin-top: -50px;
-        box-shadow: var(--shadow-soft);
-        position: relative;
-        z-index: 2;
-    }
-
-    .filter-panel::before {
-        content: "";
-        position: absolute;
-        left: 16px;
-        right: 16px;
-        top: 0;
-        height: 3px;
-        border-radius: 999px;
-        background: linear-gradient(90deg, var(--accent-gold), var(--accent-warm));
-    }
-
-    .filter-input {
-        background: rgba(255, 255, 255, 0.96);
-        border: 1px solid var(--glass-border);
-        color: var(--primary-dark);
-        border-radius: 10px;
-        padding: 12px;
-    }
-
-    .filter-input:focus {
-        background: rgba(255, 255, 255, 0.98);
+    .glass-input:focus {
+        background: rgba(255, 255, 255, 0.1);
         border-color: var(--accent-gold);
-        color: var(--primary-dark);
-        box-shadow: 0 0 0 0.15rem rgba(213, 123, 76, 0.18);
+    }
+    .glass-input::placeholder {
+        color: rgba(255, 255, 255, 0.4);
     }
 
+    /* Card styling override for listing page */
     .listing-card {
-        background: var(--surface-strong);
-        border: 1px solid var(--glass-border);
-        border-radius: var(--radius-lg);
-        overflow: hidden;
-        transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-        box-shadow: var(--shadow-soft);
-        height: 100%;
+        background: rgba(255, 255, 255, 0.96);
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        box-shadow: var(--shadow-card);
+        transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
     }
-
     .listing-card:hover {
         transform: translateY(-6px);
-        border-color: rgba(213, 123, 76, 0.3);
-        box-shadow: var(--shadow-strong);
+        box-shadow: var(--shadow-card-hover);
+        border-color: rgba(213, 123, 76, 0.35);
     }
 
-    .listing-img {
-        height: 230px;
-        object-fit: cover;
-        width: 100%;
-    }
-
-    .listing-body {
-        padding: 22px 24px;
-        border-top: 1px solid var(--glass-border);
-        background: #ffffff;
-    }
-
-    .listing-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-        color: rgba(29, 37, 51, 0.7);
-        font-size: 0.9rem;
-    }
-
-    .listing-loc {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        color: rgba(29, 37, 51, 0.7);
-        font-size: 0.9rem;
-    }
-
-    .listing-price {
-        color: var(--accent-gold);
-        font-size: 1.35rem;
-        font-weight: 700;
+    @media (hover: none) and (pointer: coarse) {
+        .listing-hero-bg {
+            background-attachment: scroll;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<header class="listing-hero">
-    <div class="container">
-        <p class="section-kicker reveal">Buy + sell flats</p>
-        <h1 class="listing-title reveal">Find the right flat with clarity.</h1>
-        <p class="lead text-muted reveal delay-1 listing-subtitle">Filter by location, price, size, and features, then connect fast with sellers.</p>
-        <div class="hero-details reveal delay-2 mt-4">
-            <span class="metric-pill">Advanced filters</span>
-            <span class="metric-pill">Detailed listings</span>
-            <span class="metric-pill">Fast contact</span>
-        </div>
+<!-- Immersive Header -->
+<header class="relative pt-40 pb-32 listing-hero-bg text-center">
+    <div class="max-w-4xl mx-auto px-4 relative z-10 animate-fade-in-up">
+        <span class="inline-block px-4 py-1.5 rounded-full border border-white/20 text-white/80 text-xs font-bold uppercase tracking-[0.2em] mb-6 backdrop-blur-md">Curated Collection</span>
+        <h1 class="text-5xl md:text-6xl lg:text-7xl font-display text-white leading-tight mb-6 drop-shadow-lg">
+            Find Your <i class="font-serif text-brand-gold">Sanctuary</i>
+        </h1>
+        <p class="text-white/70 text-lg md:text-xl font-light max-w-2xl mx-auto leading-relaxed">
+            Explore verified flats in Dhaka's most prestigious neighborhoods.
+        </p>
     </div>
 </header>
 
-<div class="container">
-    <div class="filter-panel mb-5 reveal delay-1">
-        <form class="row g-3 align-items-center" method="get" action="{{ url_for('flats') }}">
-            <div class="col-lg-4 col-md-6">
-                <input type="text" name="search" class="form-control filter-input" placeholder="Search location, area..." value="{{ filters.search or '' }}">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-20">
+    <!-- Filter Panel -->
+    <!-- Luxury Glass Filter Panel -->
+    <div class="glass-panel rounded-[2rem] p-8 mb-16">
+        <form class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6 items-end" method="get" action="{{ url_for('flats') }}">
+            
+            <!-- Location -->
+            <div class="lg:col-span-3">
+                <label class="block text-[10px] font-bold text-white/60 uppercase tracking-widest mb-3 px-1">Location</label>
+                <div class="relative">
+                    <i class="fas fa-map-marker-alt absolute left-4 top-1/2 -translate-y-1/2 text-white/40"></i>
+                    <input type="text" name="search" class="w-full pl-10 pr-5 py-4 rounded-xl glass-input outline-none transition-all placeholder:text-white/30 text-sm font-light" placeholder="Gulshan, Banani..." value="{{ filters.search or '' }}">
+                </div>
             </div>
-            <div class="col-lg-2 col-md-6">
-                <select class="form-select filter-input" name="bhk">
-                    <option value="all" {% if filters.bhk == 'all' or not filters.bhk %}selected{% endif %}>All BHK</option>
-                    <option value="1" {% if filters.bhk == '1' %}selected{% endif %}>1 BHK</option>
-                    <option value="2" {% if filters.bhk == '2' %}selected{% endif %}>2 BHK</option>
-                    <option value="3" {% if filters.bhk == '3' %}selected{% endif %}>3 BHK</option>
-                    <option value="4plus" {% if filters.bhk == '4plus' %}selected{% endif %}>4+ BHK</option>
-                </select>
+
+            <!-- Price Range (Combined for aesthetics) -->
+            <div class="lg:col-span-4 grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-[10px] font-bold text-white/60 uppercase tracking-widest mb-3 px-1">Min Price</label>
+                    <input type="number" name="min_price" class="w-full px-5 py-4 rounded-xl glass-input outline-none transition-all placeholder:text-white/30 text-sm font-light" placeholder="Min BDT" value="{{ filters.min_price or '' }}">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-white/60 uppercase tracking-widest mb-3 px-1">Max Price</label>
+                    <input type="number" name="max_price" class="w-full px-5 py-4 rounded-xl glass-input outline-none transition-all placeholder:text-white/30 text-sm font-light" placeholder="Max BDT" value="{{ filters.max_price or '' }}">
+                </div>
             </div>
-            <div class="col-lg-2 col-md-6">
-                <input type="number" min="0" step="any" inputmode="numeric" name="min_price" class="form-control filter-input" placeholder="Min Budget (BDT)" value="{{ filters.min_price or '' }}">
+
+            <!-- Size -->
+            <div class="lg:col-span-2">
+                <label class="block text-[10px] font-bold text-white/60 uppercase tracking-widest mb-3 px-1">Size</label>
+                <div class="relative">
+                    <select name="bhk" class="w-full px-5 py-4 rounded-xl glass-input outline-none transition-all appearance-none cursor-pointer text-sm font-light text-white bg-brand-dark/90">
+                        <option value="all" {% if filters.bhk == 'all' or not filters.bhk %}selected{% endif %}>All Sizes</option>
+                        <option value="1" {% if filters.bhk == '1' %}selected{% endif %}>1 Bedroom</option>
+                        <option value="2" {% if filters.bhk == '2' %}selected{% endif %}>2 Bedrooms</option>
+                        <option value="3" {% if filters.bhk == '3' %}selected{% endif %}>3 Bedrooms</option>
+                        <option value="4plus" {% if filters.bhk == '4plus' %}selected{% endif %}>4+ Bedrooms</option>
+                    </select>
+                    <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-white/40 text-xs pointer-events-none"></i>
+                </div>
             </div>
-            <div class="col-lg-2 col-md-6">
-                <input type="number" min="0" step="any" inputmode="numeric" name="max_price" class="form-control filter-input" placeholder="Max Budget (BDT)" value="{{ filters.max_price or '' }}">
-            </div>
-            <div class="col-lg-2 col-md-6">
-                <button class="btn btn-gold w-100 py-2" type="submit">Search</button>
+
+            <!-- Action -->
+            <div class="lg:col-span-3 flex gap-3">
+                <div class="flex-1">
+                    <label class="block text-[10px] font-bold text-white/60 uppercase tracking-widest mb-3 px-1">Sort By</label>
+                    <div class="relative">
+                        <select name="sort" class="w-full px-5 py-4 rounded-xl glass-input outline-none transition-all appearance-none cursor-pointer text-sm font-light text-white bg-brand-dark/90">
+                            <option value="newest" {% if filters.sort == 'newest' %}selected{% endif %}>Newest First</option>
+                            <option value="price_low" {% if filters.sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                            <option value="price_high" {% if filters.sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                            <option value="area_high" {% if filters.sort == 'area_high' %}selected{% endif %}>Size: Large to Small</option>
+                        </select>
+                        <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-white/40 text-xs pointer-events-none"></i>
+                    </div>
+                </div>
+                <button type="submit" class="self-end h-[54px] px-8 rounded-xl bg-gradient-to-r from-brand-gold to-brand-warm text-brand-dark font-display font-bold text-sm tracking-wide hover:brightness-110 transition-all shadow-lg hover:shadow-brand-gold/30">
+                    Search
+                </button>
             </div>
         </form>
+        
+        <!-- Quick Tags -->
+        <div class="mt-8 pt-6 border-t border-white/10 flex flex-wrap items-center gap-4">
+            <span class="text-[10px] font-bold text-white/40 uppercase tracking-widest">Quick Filters:</span>
+            <div class="flex flex-wrap gap-2">
+                {% for b in ['2', '3', '4plus'] %}
+                <a href="{{ url_for('flats', bhk=b) }}" 
+                   class="px-4 py-1.5 rounded-full border text-[10px] font-bold uppercase tracking-wider transition-all
+                   {{ 'bg-white text-brand-dark border-white' if filters.bhk == b else 'bg-transparent text-white/60 border-white/20 hover:border-white/50 hover:text-white' }}">
+                    {{ b | replace('plus', '+') }} BHK
+                </a>
+                {% endfor %}
+                <a href="{{ url_for('flats', max_price='10000000') }}" 
+                   class="px-4 py-1.5 rounded-full border text-[10px] font-bold uppercase tracking-wider transition-all
+                   {{ 'bg-white text-brand-dark border-white' if filters.max_price == '10000000' else 'bg-transparent text-white/60 border-white/20 hover:border-white/50 hover:text-white' }}">
+                    Under 1 Cr
+                </a>
+            </div>
+        </div>
     </div>
 
-    <div class="row g-4 ListingContainer">
+    <!-- Results Header -->
+    <div class="flex items-end justify-between mb-12 px-2">
+        <div>
+            <h2 class="text-brand-dark font-display text-3xl">Available Residences</h2>
+            <p class="text-brand-dark/50 font-light mt-1">Showing {{ total_results }} premium properties</p>
+        </div>
+        {% if total_results > 0 and (filters.search or filters.bhk != 'all' or filters.min_price or filters.max_price) %}
+        <a href="{{ url_for('flats') }}" class="text-xs font-bold text-brand-gold uppercase tracking-widest hover:underline underline-offset-4">
+            Clear All Filters <i class="fas fa-times ml-1"></i>
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Listings Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
         {% if flats %}
             {% for flat in flats %}
-        <div class="col-md-4">
-            <div class="listing-card defer-card h-100 reveal">
-                <img src="{{ flat.image_url or 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800' }}" alt="Property" class="listing-img img-expand" loading="lazy" decoding="async" width="800" height="600">
-                <div class="listing-body">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="badge badge-premium">Premium</span>
-                        <span class="listing-loc"><i class="fas fa-map-marker-alt"></i> {{ flat.location }}</span>
-                    </div>
-                    <h5 class="mb-3">{{ flat.title }}</h5>
-                    <div class="listing-meta mb-3">
-                        <span><i class="fas fa-bed me-1"></i> {{ flat.bhk }} BHK</span>
-                        <span><i class="fas fa-vector-square me-1"></i> {{ flat.area_sqft }} sqft</span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="listing-price">৳ {{ flat.price }}</div>
-                        <a href="{{ url_for('flat_detail', id=flat.id) }}" class="btn btn-outline-light btn-sm px-3">Details</a>
+            <article class="listing-card defer-card luxe-card group rounded-[2rem] overflow-hidden relative flex flex-col h-full">
+                <!-- Image -->
+                <div class="relative h-64 overflow-hidden">
+                    <img src="{{ flat.image_url }}" alt="{{ flat.title }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy" decoding="async">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    
+                    <span class="absolute top-4 left-4 bg-brand-gold text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full shadow-lg">
+                        {{ flat.status }}
+                    </span>
+
+                    <button @click.prevent="$store.wishlist.toggle({
+                                id: {{ flat.id }}, 
+                                type: 'flat', 
+                                title: '{{ flat.title }}', 
+                                price: '৳ {{ flat.price }}', 
+                                image: '{{ flat.image_url }}',
+                                desc: '{{ flat.bhk }} BHK • {{ flat.area_sqft }} sqft',
+                                url: '{{ url_for('flat_detail', id=flat.id) }}'
+                            })" 
+                            class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white hover:text-red-500 transition-all shadow-lg"
+                            :class="$store.wishlist.has({{ flat.id }}, 'flat') ? '!bg-white !text-red-500' : ''">
+                        <i class="fas fa-heart text-lg" :class="$store.wishlist.has({{ flat.id }}, 'flat') ? 'fas' : 'far'"></i>
+                    </button>
+                    
+                    <div class="absolute bottom-4 left-4 text-white">
+                        <p class="text-xs font-medium opacity-80 uppercase tracking-widest mb-1">Asking Price</p>
+                        <div class="text-2xl font-display font-bold">
+                            {{ "৳ {:,.0f}".format(flat.price | float) if flat.price else 'Price on Request' }}
+                        </div>
+                        <div class="text-xs opacity-80 font-light mt-1"><i class="fas fa-map-marker-alt mr-1"></i> {{ flat.location }}</div>
                     </div>
                 </div>
-            </div>
-        </div>
+
+                <!-- Content -->
+                <div class="p-8 flex-1 flex flex-col">
+                    <div class="mb-4">
+                        <h3 class="text-xl font-display text-brand-dark leading-snug mb-2 group-hover:text-brand-gold transition-colors">
+                            <a href="{{ url_for('flat_detail', id=flat.id) }}" class="stretched-link">
+                                {{ flat.title }}
+                            </a>
+                        </h3>
+                        <p class="text-brand-dark/50 text-sm font-light flex items-center gap-2">
+                            <i class="fas fa-map-marker-alt text-brand-gold/60"></i> {{ flat.location }}
+                        </p>
+                    </div>
+                    
+                    <div class="flex items-center gap-6 py-6 border-t border-brand-dark/5 mt-auto">
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-bed text-brand-dark/30"></i>
+                            <span class="text-sm text-brand-dark/70 font-medium">{{ flat.bhk }} Bed</span>
+                        </div>
+                        <div class="w-px h-4 bg-brand-dark/10"></div>
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-ruler-combined text-brand-dark/30"></i>
+                            <span class="text-sm text-brand-dark/70 font-medium">{{ flat.area_sqft }} Sqft</span>
+                        </div>
+                        <div class="w-px h-4 bg-brand-dark/10"></div>
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-check-circle text-brand-dark/30"></i>
+                            <span class="text-sm text-brand-dark/70 font-medium">Ready</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 flex justify-between items-center">
+                        <span class="text-[10px] font-bold text-brand-gold uppercase tracking-widest group-hover:translate-x-1 transition-transform">
+                            View Details <i class="fas fa-arrow-right ml-1"></i>
+                        </span>
+                        <span class="text-[10px] font-bold text-brand-dark/20 uppercase tracking-widest">
+                            Ref: FL-{{ flat.id }}
+                        </span>
+                    </div>
+                </div>
+            </article>
             {% endfor %}
         {% else %}
-        {% if filters_applied %}
-        <div class="col-12">
-            <div class="glass-card p-4 text-center reveal">
-                <h5 class="mb-2">No listings match your filters.</h5>
-                <p class="text-muted mb-3">Try widening your budget or clearing filters.</p>
-                <a href="{{ url_for('flats') }}" class="btn btn-outline-light btn-sm">Clear Filters</a>
-            </div>
-        </div>
-        {% else %}
-        <!-- Demo Content if database is empty -->
-        <div class="col-md-4">
-            <div class="listing-card defer-card h-100 reveal">
-                <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800" alt="Property" class="listing-img img-expand" loading="lazy" decoding="async" width="800" height="600">
-                <div class="listing-body">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="badge badge-premium">Verified</span>
-                        <span class="listing-loc"><i class="fas fa-map-marker-alt"></i> Gulshan, Dhaka</span>
-                    </div>
-                    <h5 class="mb-3">Luxurious 3BHK Apartment</h5>
-                    <div class="listing-meta mb-3">
-                        <span><i class="fas fa-bed me-1"></i> 3 BHK</span>
-                        <span><i class="fas fa-vector-square me-1"></i> 1850 sqft</span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="listing-price">৳ 1.5 Cr</div>
-                        <a href="#" class="btn btn-outline-light btn-sm px-3">Details</a>
-                    </div>
+            <div class="col-span-full py-24 text-center">
+                <div class="w-24 h-24 rounded-full bg-brand-soft border border-brand-dark/5 flex items-center justify-center mx-auto mb-6 text-brand-dark/20 text-3xl">
+                    <i class="fas fa-search"></i>
                 </div>
+                <h3 class="text-3xl font-display text-brand-dark mb-3">No residences found</h3>
+                <p class="text-brand-dark/50 mb-8 max-w-sm mx-auto font-light">
+                    We couldn't find any properties matching your criteria. Try adjusting your filters.
+                </p>
+                <a href="{{ url_for('flats') }}" class="inline-block px-8 py-3 rounded-xl border border-brand-dark/20 text-brand-dark font-bold hover:bg-brand-dark hover:text-white transition-all text-sm uppercase tracking-widest">
+                    Clear Filters
+                </a>
             </div>
-        </div>
-        <div class="col-md-4">
-            <div class="listing-card defer-card h-100 reveal delay-1">
-                <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800" alt="Property" class="listing-img img-expand" loading="lazy" decoding="async" width="800" height="600">
-                <div class="listing-body">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="badge badge-premium">Ready</span>
-                        <span class="listing-loc"><i class="fas fa-map-marker-alt"></i> Bashundhara R/A</span>
-                    </div>
-                    <h5 class="mb-3">Modern Penthouse Suite</h5>
-                    <div class="listing-meta mb-3">
-                        <span><i class="fas fa-bed me-1"></i> 2 BHK</span>
-                        <span><i class="fas fa-vector-square me-1"></i> 1200 sqft</span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="listing-price">৳ 85 Lac</div>
-                        <a href="#" class="btn btn-outline-light btn-sm px-3">Details</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="listing-card defer-card h-100 reveal delay-2">
-                <img src="https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=800" alt="Property" class="listing-img img-expand" loading="lazy" decoding="async" width="800" height="600">
-                <div class="listing-body">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="badge badge-premium">New</span>
-                        <span class="listing-loc"><i class="fas fa-map-marker-alt"></i> Uttara</span>
-                    </div>
-                    <h5 class="mb-3">Elegant Family Condo</h5>
-                    <div class="listing-meta mb-3">
-                        <span><i class="fas fa-bed me-1"></i> 4 BHK</span>
-                        <span><i class="fas fa-vector-square me-1"></i> 2200 sqft</span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="listing-price">৳ 2.2 Cr</div>
-                        <a href="#" class="btn btn-outline-light btn-sm px-3">Details</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endif %}
         {% endif %}
     </div>
 
+    <!-- Pagination -->
     {% if has_prev or has_next %}
-    <nav class="my-5" aria-label="Listings pagination">
-        <ul class="pagination justify-content-center">
-            <li class="page-item {% if not has_prev %}disabled{% endif %}">
-                <a class="page-link" href="{{ prev_url or '#' }}" tabindex="{% if not has_prev %}-1{% else %}0{% endif %}">Previous</a>
-            </li>
-            <li class="page-item disabled">
-                <span class="page-link">Page {{ page }}</span>
-            </li>
-            <li class="page-item {% if not has_next %}disabled{% endif %}">
-                <a class="page-link" href="{{ next_url or '#' }}" tabindex="{% if not has_next %}-1{% else %}0{% endif %}">Next</a>
-            </li>
-        </ul>
-    </nav>
+    <div class="flex justify-center items-center gap-4 my-20">
+        {% if has_prev %}
+        <a href="{{ prev_url }}" class="w-12 h-12 rounded-full border border-brand-dark/10 flex items-center justify-center text-brand-dark hover:bg-brand-gold hover:border-brand-gold hover:text-white transition-all">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        {% endif %}
+        <span class="text-sm font-bold text-brand-dark/40 uppercase tracking-widest">Page {{ page }}</span>
+        {% if has_next %}
+        <a href="{{ next_url }}" class="w-12 h-12 rounded-full border border-brand-dark/10 flex items-center justify-center text-brand-dark hover:bg-brand-gold hover:border-brand-gold hover:text-white transition-all">
+            <i class="fas fa-arrow-right"></i>
+        </a>
+        {% endif %}
+    </div>
     {% endif %}
 </div>
+
+<!-- FAQ Section -->
+<section class="py-24" x-data="{ active: 1 }">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col lg:flex-row gap-16">
+            <div class="w-full lg:w-1/3">
+                <span class="inline-block px-4 py-1.5 rounded-full bg-brand-gold/10 text-brand-gold text-xs font-bold uppercase tracking-widest mb-6">FAQ</span>
+                <h2 class="text-4xl font-display font-bold text-brand-dark leading-tight mb-6">Buyer questions, answered.</h2>
+                <p class="text-brand-dark/60 leading-relaxed">Short answers to help you shortlist faster and book a viewing with confidence.</p>
+            </div>
+            
+            <div class="w-full lg:w-2/3 space-y-4">
+                {% set faqs = [
+                    ('How are listings verified?', 'Listings are reviewed for pricing, location details, and ownership before they are marked approved on the platform.'),
+                    ('How do I schedule a site visit?', 'Open any listing, tap the contact buttons, and our team will coordinate a visit with the owner or agent.'),
+                    ('Can I request a custom shortlist?', 'Yes. Use the shortlist request form and share your budget, location, and size preferences.'),
+                    ('Do you help with paperwork?', 'We can connect you with trusted professionals for document checks, financing, and handover guidance.')
+                ] %}
+                
+                {% for question, answer in faqs %}
+                <div class="rounded-2xl border border-glass-border overflow-hidden bg-brand-soft" :class="{ 'ring-2 ring-brand-gold/20 border-brand-gold/30 bg-white': active == {{ loop.index }} }">
+                    <button @click="active = (active === {{ loop.index }} ? null : {{ loop.index }})" 
+                            class="w-full p-6 text-left flex items-center justify-between group">
+                        <span class="text-lg font-bold text-brand-dark group-hover:text-brand-gold transition-colors">{{ question }}</span>
+                        <div class="w-8 h-8 rounded-lg bg-white shadow-soft flex items-center justify-center text-brand-dark transition-all"
+                             :class="{ 'rotate-180 bg-brand-gold text-white': active == {{ loop.index }} }">
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </div>
+                    </button>
+                    <div x-show="active == {{ loop.index }}" 
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="opacity-0 -translate-y-2"
+                         x-transition:enter-end="opacity-100 translate-y-0"
+                         class="px-6 pb-6 text-brand-dark/60 leading-relaxed border-t border-glass-border pt-4">
+                        {{ answer }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer Lead Capture -->
+<section class="py-24 bg-brand-dark overflow-hidden relative">
+    <div class="absolute top-0 right-0 w-[600px] h-[600px] bg-brand-gold/5 rounded-full blur-3xl -z-0"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="flex flex-col lg:flex-row items-stretch gap-12">
+            <div class="w-full lg:w-5/12 bg-white/5 backdrop-blur-md rounded-[3rem] p-10 md:p-12 border border-white/10 flex flex-col justify-center">
+                <span class="inline-block px-4 py-1.5 rounded-full bg-brand-gold/10 text-brand-gold text-xs font-bold uppercase tracking-widest mb-6 px-1">Need help shortlisting?</span>
+                <h3 class="text-3xl md:text-4xl font-display font-bold text-white mb-6 leading-tight">Get a curated flat shortlist.</h3>
+                <p class="text-white/60 text-lg mb-10 leading-relaxed">Share your location, budget, and preferred size. We will send the best matches.</p>
+                
+                <div class="flex flex-wrap gap-3 mb-12">
+                    <span class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white/80 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
+                        <i class="fas fa-check text-brand-gold"></i> Verified listings
+                    </span>
+                    <span class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white/80 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
+                        <i class="fas fa-check text-brand-gold"></i> Fast response
+                    </span>
+                </div>
+
+                <div class="flex flex-wrap gap-4">
+                    <a href="tel:+8801712458794" class="px-8 py-3 rounded-xl border border-white/20 text-white font-bold hover:bg-white hover:text-brand-dark transition-all text-sm flex items-center gap-2">
+                        <i class="fas fa-phone-alt"></i> Call
+                    </a>
+                    <a href="https://wa.me/8801712458794" class="btn-gold-tw text-sm py-3 px-8">
+                        <i class="fab fa-whatsapp text-lg"></i> WhatsApp
+                    </a>
+                </div>
+            </div>
+
+            <div class="w-full lg:w-7/12">
+                <form class="bg-white rounded-[3rem] p-10 md:p-14 shadow-strong" method="post" action="{{ url_for('contact') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="interest" value="Flats">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <label class="block text-[10px] font-bold text-brand-dark/40 uppercase tracking-widest mb-3 px-1">Name</label>
+                            <input type="text" name="name" class="w-full px-6 py-4 rounded-2xl bg-brand-soft border border-glass-border focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/10 outline-none transition-all placeholder:text-brand-dark/20" placeholder="Your full name" required>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-brand-dark/40 uppercase tracking-widest mb-3 px-1">Phone or Email</label>
+                            <input type="text" name="contact" required class="w-full px-6 py-4 rounded-2xl bg-brand-soft border border-glass-border focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/10 outline-none transition-all placeholder:text-brand-dark/20" placeholder="01XXXXXXXXX">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-[10px] font-bold text-brand-dark/40 uppercase tracking-widest mb-3 px-1">Estimated budget</label>
+                            <select name="budget" class="w-full px-6 py-4 rounded-2xl bg-brand-soft border border-glass-border focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/10 outline-none transition-all appearance-none cursor-pointer">
+                                <option value="">Select range</option>
+                                <option value="Under 50 Lac">Under 50 Lac</option>
+                                <option value="50 Lac - 1 Cr">50 Lac - 1 Cr</option>
+                                <option value="1 Cr - 2 Cr">1 Cr - 2 Cr</option>
+                                <option value="2 Cr+">2 Cr+</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-[10px] font-bold text-brand-dark/40 uppercase tracking-widest mb-3 px-1">Message</label>
+                            <textarea name="message" rows="4" class="w-full px-6 py-4 rounded-2xl bg-brand-soft border border-glass-border focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/10 outline-none transition-all placeholder:text-brand-dark/20 resize-none" placeholder="Area, size, and timeline..." required></textarea>
+                            <p class="mt-4 text-[10px] font-medium text-brand-dark/40 uppercase tracking-widest">Response within 24 hours.</p>
+                        </div>
+                        <div class="md:col-span-2 pt-4">
+                            <button type="submit" class="btn-gold-tw w-full py-4 text-lg">Request Shortlist</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock %}

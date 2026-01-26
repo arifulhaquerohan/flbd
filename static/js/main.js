@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', function() {
         initLightbox();
     };
 
-    // Defer non-critical UI work until the browser is idle.
     if ('requestIdleCallback' in window) {
         window.requestIdleCallback(runEnhancements, { timeout: 1500 });
     } else {
@@ -15,9 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function initReveal() {
     const revealElements = document.querySelectorAll('.reveal');
-    if (!revealElements.length) {
-        return;
-    }
+    if (!revealElements.length) return;
 
     if (!('IntersectionObserver' in window)) {
         revealElements.forEach((el) => el.classList.add('is-visible'));
@@ -40,24 +37,19 @@ function initReveal() {
 }
 
 function initLightbox() {
-    const lightbox = document.getElementById('imageLightbox');
-    const lightboxImg = document.getElementById('lightboxImage');
-    if (!lightbox || !lightboxImg || !window.bootstrap || !bootstrap.Modal) {
-        return;
-    }
-
-    const modal = bootstrap.Modal.getOrCreateInstance(lightbox);
+    // Lightbox is now handled by Alpine.js in base.html
+    // We just need to trigger the custom event on click
     document.addEventListener('click', function(e) {
         const target = e.target.closest('.img-expand');
-        if (!target) {
-            return;
-        }
+        if (!target) return;
+        
         const src = target.getAttribute('src');
-        if (!src) {
-            return;
-        }
-        lightboxImg.setAttribute('src', src);
-        lightboxImg.setAttribute('alt', target.getAttribute('alt') || 'Enlarged view');
-        modal.show();
+        const alt = target.getAttribute('alt') || 'Enlarged view';
+        
+        if (!src) return;
+        
+        window.dispatchEvent(new CustomEvent('lightbox-open', { 
+            detail: { src, alt } 
+        }));
     });
 }

@@ -1,5 +1,7 @@
 import os
 import time
+import re
+from urllib.parse import urlparse, parse_qs
 from flask import Flask, render_template, request, redirect, url_for, flash, abort, Response
 from datetime import timedelta, datetime
 from flask_sqlalchemy import SQLAlchemy
@@ -8,7 +10,7 @@ from flask_compress import Compress
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from models import db, User, Flat, InteriorService, Lead
-from sqlalchemy import or_
+from sqlalchemy import or_, text
 from sqlalchemy.orm import load_only, joinedload
 
 from flask_wtf.csrf import CSRFProtect
@@ -19,9 +21,12 @@ from werkzeug.utils import secure_filename
 
 load_dotenv()
 
+LISTING_STATUSES = {'pending', 'approved', 'rejected'}
+LEAD_STATUSES = {'new', 'contacted', 'closed'}
+
 app = Flask(__name__)
-Compress(app)
-csrf = CSRFProtect(app)
+compress = Compress()
+csrf = CSRFProtect()
 
 # Respect upstream proxies when configured (e.g., nginx / load balancer).
 if os.getenv('TRUST_PROXY', '0') == '1':
@@ -31,7 +36,7 @@ if os.getenv('TRUST_PROXY', '0') == '1':
 limiter = Limiter(
     key_func=get_remote_address,
     app=app,
-    default_limits=["200 per day", "50 per hour"],
+    default_limits=["2000 per day", "500 per hour"],
     storage_uri="memory://",
 )
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-key-7755')
@@ -43,6 +48,18 @@ app.config['REMEMBER_COOKIE_SAMESITE'] = os.getenv('SESSION_COOKIE_SAMESITE', 'L
 app.config['REMEMBER_COOKIE_SECURE'] = os.getenv('SESSION_COOKIE_SECURE', '0') == '1'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=6)
 app.config['MAX_CONTENT_LENGTH'] = 6 * 1024 * 1024
+app.config['COMPRESS_MIN_SIZE'] = int(os.getenv('COMPRESS_MIN_SIZE', '512'))
+app.config['COMPRESS_LEVEL'] = int(os.getenv('COMPRESS_LEVEL', '6'))
+app.config['COMPRESS_MIMETYPES'] = [
+    'text/html',
+    'text/css',
+    'application/javascript',
+    'application/json',
+    'application/xml',
+    'text/xml',
+    'text/plain',
+    'image/svg+xml',
+]
 
 # Secure Admin Path from .env
 ADMIN_PATH = os.getenv('ADMIN_PATH', 'admin')
@@ -60,6 +77,10 @@ if database_url.startswith("postgres://"):
 
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'pool_pre_ping': True,
+    'pool_recycle': 280,
+}
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 31536000 # Cache static files for 1 year
 app.config['LISTINGS_PER_PAGE'] = int(os.getenv('LISTINGS_PER_PAGE', '9'))
 app.config['ALLOWED_IMAGE_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'webp'}
@@ -71,6 +92,20 @@ app.config['DEFAULT_OG_IMAGE'] = os.getenv(
     'https://images.unsplash.com/photo-1505691938895-1758d7feb511?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80'
 )
 
+PUBLIC_CACHE_ENDPOINTS = {
+    'index',
+    'flats',
+    'interior',
+    'flat_detail',
+    'interior_detail',
+    'robots',
+    'sitemap',
+}
+PUBLIC_CACHE_TTL = 120
+PUBLIC_CACHE_TTL_LONG = 3600
+
+compress.init_app(app)
+csrf.init_app(app)
 db.init_app(app)
 
 def static_url(filename):
@@ -134,6 +169,61 @@ def summarize_text(text, limit=155):
         return compact
     return compact[:limit].rstrip()
 
+YOUTUBE_ID_RE = re.compile(r'^[a-zA-Z0-9_-]{11}$')
+
+def extract_youtube_id(url):
+    if not url:
+        return None
+    trimmed = str(url).strip()
+    if not trimmed:
+        return None
+    if YOUTUBE_ID_RE.match(trimmed):
+        return trimmed
+    try:
+        parsed = urlparse(trimmed)
+    except ValueError:
+        return None
+    host = (parsed.netloc or '').lower()
+    path = parsed.path or ''
+    if host in {'youtu.be', 'www.youtu.be'}:
+        candidate = path.lstrip('/').split('/')[0]
+        return candidate if YOUTUBE_ID_RE.match(candidate) else None
+    if host.endswith('youtube.com') or host.endswith('youtube-nocookie.com'):
+        if path == '/watch':
+            query = parse_qs(parsed.query or '')
+            candidate = query.get('v', [''])[0]
+            return candidate if YOUTUBE_ID_RE.match(candidate) else None
+        parts = [part for part in path.split('/') if part]
+        if len(parts) >= 2 and parts[0] in {'embed', 'shorts', 'v'}:
+            candidate = parts[1]
+            return candidate if YOUTUBE_ID_RE.match(candidate) else None
+    return None
+
+def build_youtube_embed(url):
+    video_id = extract_youtube_id(url)
+    if not video_id:
+        return None
+    return f"https://www.youtube-nocookie.com/embed/{video_id}?rel=0&modestbranding=1"
+
+def build_youtube_watch(url):
+    video_id = extract_youtube_id(url)
+    if not video_id:
+        return None
+    return f"https://youtu.be/{video_id}"
+
+def ensure_schema_updates():
+    table_name = Flat.__tablename__
+    inspector = db.inspect(db.engine)
+    columns = [col['name'] for col in inspector.get_columns(table_name)]
+    
+    if 'video_url' not in columns:
+        try:
+            with db.engine.begin() as conn:
+                conn.execute(text(f"ALTER TABLE {table_name} ADD COLUMN video_url VARCHAR(500)"))
+            print("Added video_url column to Flat table.")
+        except Exception as e:
+            print(f"Error adding column: {e}")
+
 # Login Manager Setup
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -144,10 +234,35 @@ login_manager.session_protection = "strong"
 def load_user(user_id):
     return db.session.get(User, int(user_id))
 
+_STATS_CACHE = {}
+
+def get_cached_value(key, ttl_seconds, factory):
+    now = time.monotonic()
+    cached = _STATS_CACHE.get(key)
+    if cached and cached['expires_at'] > now:
+        return cached['value']
+    value = factory()
+    _STATS_CACHE[key] = {'value': value, 'expires_at': now + ttl_seconds}
+    return value
+
+def safe_next_path():
+    path = request.full_path if request.query_string else request.path
+    if not path:
+        return '/'
+    if path.endswith('?'):
+        path = path[:-1]
+    if '://' in path or path.startswith('//') or '..' in path:
+        return '/'
+    if not path.startswith('/'):
+        return f'/{path}'
+    return path
+
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if not current_user.is_authenticated or current_user.role != 'admin':
+        if not current_user.is_authenticated:
+            return redirect(url_for('login', next=safe_next_path()))
+        if current_user.role != 'admin':
             abort(404)
         return f(*args, **kwargs)
     return decorated_function
@@ -165,11 +280,11 @@ def add_security_headers(response):
         "object-src 'none'",
         "frame-ancestors 'self'",
         "form-action 'self'",
-        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com",
-        "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com",
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://cdn.tailwindcss.com",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://cdn.tailwindcss.com",
         "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com",
         "img-src 'self' data: https:",
-        "frame-src 'self' https://www.google.com https://maps.google.com https://maps.gstatic.com",
+        "frame-src 'self' https://www.google.com https://maps.google.com https://maps.gstatic.com https://www.youtube.com https://www.youtube-nocookie.com",
         "connect-src 'self'",
     ]
     response.headers.setdefault('Content-Security-Policy', '; '.join(csp_parts))
@@ -181,7 +296,24 @@ def add_security_headers(response):
         response.headers.setdefault('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
     if request.path.startswith('/static/'):
         response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
+    if (
+        request.method == 'GET'
+        and not current_user.is_authenticated
+        and not response.headers.get('Set-Cookie')
+        and request.endpoint in PUBLIC_CACHE_ENDPOINTS
+    ):
+        ttl = PUBLIC_CACHE_TTL_LONG if request.endpoint in {'robots', 'sitemap'} else PUBLIC_CACHE_TTL
+        response.headers.setdefault('Cache-Control', f'public, max-age={ttl}, stale-while-revalidate={ttl // 2}')
+    vary = response.headers.get('Vary')
+    if vary:
+        if 'Accept-Encoding' not in vary:
+            response.headers['Vary'] = f'{vary}, Accept-Encoding'
+    else:
+        response.headers['Vary'] = 'Accept-Encoding'
     return response
+
+with app.app_context():
+    ensure_schema_updates()
 
 def normalize_preview_path(raw_path):
     if not raw_path:
@@ -208,7 +340,7 @@ def normalize_status(status):
     if not status:
         return None
     status = status.strip().lower()
-    if status in {'pending', 'approved', 'rejected'}:
+    if status in LISTING_STATUSES:
         return status
     return None
 
@@ -216,7 +348,7 @@ def normalize_lead_status(status):
     if not status:
         return None
     status = status.strip().lower()
-    if status in {'new', 'contacted', 'closed'}:
+    if status in LEAD_STATUSES:
         return status
     return None
 
@@ -255,6 +387,108 @@ def sitemap():
     xml = render_template('sitemap.xml', pages=pages)
     return Response(xml, mimetype='application/xml')
 
+@app.route(f'/{ADMIN_PATH}/export/<item_type>')
+@admin_required
+@limiter.limit("20 per minute")
+def export_data(item_type):
+    import csv
+    from io import StringIO
+
+    status_filter = request.args.get('status', 'all').strip().lower()
+    search = request.args.get('q', '').strip()
+
+    output = StringIO()
+    writer = csv.writer(output)
+
+    if item_type == 'flats':
+        if status_filter not in LISTING_STATUSES:
+            status_filter = 'all'
+        query = Flat.query.options(joinedload(Flat.owner))
+        if status_filter in LISTING_STATUSES:
+            query = query.filter_by(status=status_filter)
+        if search:
+            like = f"%{search}%"
+            query = query.filter(or_(Flat.title.ilike(like), Flat.location.ilike(like)))
+        writer.writerow([
+            'id', 'title', 'location', 'price', 'bhk', 'area_sqft', 'status', 'owner', 'created_at', 'image_url', 'video_url'
+        ])
+        for item in query.order_by(Flat.created_at.desc()).all():
+            writer.writerow([
+                item.id,
+                item.title,
+                item.location,
+                item.price,
+                item.bhk,
+                item.area_sqft,
+                item.status,
+                item.owner.username if item.owner else '',
+                item.created_at.isoformat() if item.created_at else '',
+                item.image_url or '',
+                item.video_url or '',
+            ])
+        filename = 'flats.csv'
+    elif item_type == 'services':
+        if status_filter not in LISTING_STATUSES:
+            status_filter = 'all'
+        query = InteriorService.query.options(joinedload(InteriorService.provider))
+        if status_filter in LISTING_STATUSES:
+            query = query.filter_by(status=status_filter)
+        if search:
+            like = f"%{search}%"
+            query = query.filter(InteriorService.provider_name.ilike(like))
+        writer.writerow([
+            'id', 'provider_name', 'service_type', 'starting_price', 'status', 'provider', 'created_at',
+            'image_url', 'portfolio_url'
+        ])
+        for item in query.order_by(InteriorService.created_at.desc()).all():
+            writer.writerow([
+                item.id,
+                item.provider_name,
+                item.service_type,
+                item.starting_price,
+                item.status,
+                item.provider.username if item.provider else '',
+                item.created_at.isoformat() if item.created_at else '',
+                item.image_url or '',
+                item.portfolio_url or '',
+            ])
+        filename = 'services.csv'
+    elif item_type == 'leads':
+        if status_filter not in LEAD_STATUSES:
+            status_filter = 'all'
+        query = Lead.query
+        if status_filter in LEAD_STATUSES:
+            query = query.filter_by(status=status_filter)
+        if search:
+            like = f"%{search}%"
+            query = query.filter(
+                or_(
+                    Lead.name.ilike(like),
+                    Lead.email.ilike(like),
+                    Lead.phone.ilike(like),
+                    Lead.message.ilike(like),
+                )
+            )
+        writer.writerow(['id', 'name', 'phone', 'email', 'interest', 'message', 'status', 'created_at'])
+        for item in query.order_by(Lead.created_at.desc()).all():
+            writer.writerow([
+                item.id,
+                item.name,
+                item.phone or '',
+                item.email or '',
+                item.interest or '',
+                item.message,
+                item.status,
+                item.created_at.isoformat() if item.created_at else '',
+            ])
+        filename = 'leads.csv'
+    else:
+        abort(404)
+
+    response = Response(output.getvalue(), mimetype='text/csv')
+    response.headers['Content-Disposition'] = f'attachment; filename={filename}'
+    return response
+
 with app.app_context():
     db.create_all()
     # Create admin only if explicitly configured in env
@@ -270,8 +504,17 @@ with app.app_context():
 
 @app.route('/')
 def index():
+    stats = get_cached_value(
+        'public_stats',
+        60,
+        lambda: {
+            'flats': Flat.query.filter_by(status='approved').count(),
+            'studios': InteriorService.query.filter_by(status='approved').count(),
+        },
+    )
     return render_template(
         'index.html',
+        stats=stats,
         meta_description=app.config['DEFAULT_META_DESCRIPTION'],
         meta_image=app.config['DEFAULT_OG_IMAGE'],
     )
@@ -332,9 +575,13 @@ def flat_detail(id):
     if flat.status != 'approved':
         if not current_user.is_authenticated or current_user.role != 'admin':
             abort(404)
+    video_embed_url = build_youtube_embed(flat.video_url)
+    video_watch_url = build_youtube_watch(flat.video_url)
     return render_template(
         'flat_detail.html',
         flat=flat,
+        video_embed_url=video_embed_url,
+        video_watch_url=video_watch_url,
         meta_description=summarize_text(flat.description) or app.config['DEFAULT_META_DESCRIPTION'],
         meta_image=flat.image_url or app.config['DEFAULT_OG_IMAGE'],
         meta_type='article',
@@ -393,8 +640,19 @@ def contact():
     name = request.form.get('name', '').strip()
     phone = request.form.get('phone', '').strip()
     email = request.form.get('email', '').strip().lower()
+    contact_info = request.form.get('contact', '').strip()
     interest = request.form.get('interest', '').strip()
     message = request.form.get('message', '').strip()
+    budget = request.form.get('budget', '').strip()
+
+    if contact_info and not phone and not email:
+        if '@' in contact_info:
+            email = contact_info.lower()
+        else:
+            phone = contact_info
+
+    if budget:
+        message = f"Budget: {budget}\n{message}" if message else f"Budget: {budget}"
 
     if not name or not message or (not phone and not email):
         flash('Please provide your name, a message, and a phone or email.', 'warning')
@@ -436,6 +694,63 @@ def delete_lead(id):
     flash('Lead deleted!', 'success')
     return redirect(request.referrer or url_for('admin_dashboard', tab='leads'))
 
+@app.route(f'/{ADMIN_PATH}/bulk/<item_type>', methods=['POST'])
+@admin_required
+@limiter.limit("30 per minute")
+def bulk_update_listings(item_type):
+    action = request.form.get('action', '').strip().lower()
+    ids = [coerce_int(value, 0) for value in request.form.getlist('ids')]
+    ids = [item_id for item_id in ids if item_id > 0]
+    if not ids:
+        flash('Select at least one listing.', 'warning')
+        return redirect(request.referrer or url_for('admin_dashboard'))
+
+    if item_type == 'flat':
+        model = Flat
+        redirect_tab = 'flats'
+    elif item_type == 'interior':
+        model = InteriorService
+        redirect_tab = 'services'
+    else:
+        abort(404)
+
+    query = model.query.filter(model.id.in_(ids))
+    if action in LISTING_STATUSES:
+        query.update({'status': action}, synchronize_session=False)
+        db.session.commit()
+        flash('Listings updated!', 'success')
+    elif action == 'delete':
+        query.delete(synchronize_session=False)
+        db.session.commit()
+        flash('Listings deleted!', 'success')
+    else:
+        abort(400)
+    return redirect(request.referrer or url_for('admin_dashboard', tab=redirect_tab))
+
+@app.route(f'/{ADMIN_PATH}/leads/bulk', methods=['POST'])
+@admin_required
+@limiter.limit("30 per minute")
+def bulk_update_leads():
+    action = request.form.get('action', '').strip().lower()
+    ids = [coerce_int(value, 0) for value in request.form.getlist('ids')]
+    ids = [item_id for item_id in ids if item_id > 0]
+    if not ids:
+        flash('Select at least one lead.', 'warning')
+        return redirect(request.referrer or url_for('admin_dashboard', tab='leads'))
+
+    query = Lead.query.filter(Lead.id.in_(ids))
+    if action in LEAD_STATUSES:
+        query.update({'status': action}, synchronize_session=False)
+        db.session.commit()
+        flash('Leads updated!', 'success')
+    elif action == 'delete':
+        query.delete(synchronize_session=False)
+        db.session.commit()
+        flash('Leads deleted!', 'success')
+    else:
+        abort(400)
+    return redirect(request.referrer or url_for('admin_dashboard', tab='leads'))
+
 @app.route(f'/{ADMIN_PATH}/edit/<item_type>/<int:id>', methods=['GET', 'POST'])
 @admin_required
 @limiter.limit("60 per minute")
@@ -464,6 +779,14 @@ def edit_listing(item_type, id):
             item.price = coerce_float(request.form.get('price'), item.price or 0)
             item.bhk = coerce_int(request.form.get('bhk'), item.bhk or 1)
             item.area_sqft = coerce_int(request.form.get('area_sqft'), item.area_sqft or 0)
+            raw_video_url = request.form.get('video_url', '').strip()
+            if raw_video_url:
+                if extract_youtube_id(raw_video_url):
+                    item.video_url = raw_video_url
+                else:
+                    flash('Invalid YouTube link. Keeping the previous video.', 'warning')
+            else:
+                item.video_url = None
         else:
             item.provider_name = request.form.get('provider_name', '').strip()
             item.service_type = request.form.get('service_type', '').strip()
@@ -479,18 +802,16 @@ def edit_listing(item_type, id):
     return render_template(template, item=item)
 
 # Admin Routes
-@app.route(f'/{ADMIN_PATH}')
+@app.route(f'/{ADMIN_PATH}', strict_slashes=False)
 @admin_required
 def admin_dashboard():
     
     tab = request.args.get('tab', 'dashboard')
     status_filter = request.args.get('status', 'all').strip().lower()
     search = request.args.get('q', '').strip()
-    listing_statuses = {'pending', 'approved', 'rejected'}
-    lead_statuses = {'new', 'contacted', 'closed'}
-    if tab == 'leads' and status_filter not in lead_statuses:
+    if tab == 'leads' and status_filter not in LEAD_STATUSES:
         status_filter = 'all'
-    if tab != 'leads' and status_filter not in listing_statuses:
+    if tab != 'leads' and status_filter not in LISTING_STATUSES:
         status_filter = 'all'
 
     flats_all = []
@@ -499,7 +820,7 @@ def admin_dashboard():
 
     if tab in {'dashboard', 'flats'}:
         flats_query = Flat.query.options(joinedload(Flat.owner))
-        if status_filter in listing_statuses:
+        if status_filter in LISTING_STATUSES:
             flats_query = flats_query.filter_by(status=status_filter)
         if search:
             like = f"%{search}%"
@@ -508,7 +829,7 @@ def admin_dashboard():
 
     if tab in {'dashboard', 'services'}:
         services_query = InteriorService.query.options(joinedload(InteriorService.provider))
-        if status_filter in listing_statuses:
+        if status_filter in LISTING_STATUSES:
             services_query = services_query.filter_by(status=status_filter)
         if search:
             like = f"%{search}%"
@@ -517,7 +838,7 @@ def admin_dashboard():
 
     if tab == 'leads':
         leads_query = Lead.query
-        if status_filter in lead_statuses:
+        if status_filter in LEAD_STATUSES:
             leads_query = leads_query.filter_by(status=status_filter)
         if search:
             like = f"%{search}%"
@@ -531,24 +852,28 @@ def admin_dashboard():
             )
         leads_all = leads_query.order_by(Lead.created_at.desc()).all()
 
-    stats = {
-        'total_flats': Flat.query.count(),
-        'pending_flats': Flat.query.filter_by(status='pending').count(),
-        'approved_flats': Flat.query.filter_by(status='approved').count(),
-        'rejected_flats': Flat.query.filter_by(status='rejected').count(),
-        'total_services': InteriorService.query.count(),
-        'pending_services': InteriorService.query.filter_by(status='pending').count(),
-        'approved_services': InteriorService.query.filter_by(status='approved').count(),
-        'rejected_services': InteriorService.query.filter_by(status='rejected').count(),
-        'total_leads': Lead.query.count(),
-        'new_leads': Lead.query.filter_by(status='new').count(),
-    }
+    stats = get_cached_value(
+        'admin_stats',
+        30,
+        lambda: {
+            'total_flats': Flat.query.count(),
+            'pending_flats': Flat.query.filter_by(status='pending').count(),
+            'approved_flats': Flat.query.filter_by(status='approved').count(),
+            'rejected_flats': Flat.query.filter_by(status='rejected').count(),
+            'total_services': InteriorService.query.count(),
+            'pending_services': InteriorService.query.filter_by(status='pending').count(),
+            'approved_services': InteriorService.query.filter_by(status='approved').count(),
+            'rejected_services': InteriorService.query.filter_by(status='rejected').count(),
+            'total_leads': Lead.query.count(),
+            'new_leads': Lead.query.filter_by(status='new').count(),
+        },
+    )
     admin_filters = {
         'status': status_filter,
         'q': search,
     }
     if tab == 'leads':
-        filters_applied = bool(search or status_filter in lead_statuses)
+        filters_applied = bool(search or status_filter in LEAD_STATUSES)
         status_options = [
             ('all', 'All Status'),
             ('new', 'New'),
@@ -556,7 +881,7 @@ def admin_dashboard():
             ('closed', 'Closed'),
         ]
     else:
-        filters_applied = bool(search or status_filter in listing_statuses)
+        filters_applied = bool(search or status_filter in LISTING_STATUSES)
         status_options = [
             ('all', 'All Status'),
             ('pending', 'Pending'),
@@ -580,10 +905,19 @@ def flats():
     bhk = request.args.get('bhk', 'all').strip()
     min_price = request.args.get('min_price', '').strip()
     max_price = request.args.get('max_price', '').strip()
+    sort = request.args.get('sort', 'newest').strip()
     page = request.args.get('page', 1, type=int)
     if page < 1:
         page = 1
     per_page = app.config['LISTINGS_PER_PAGE']
+    sort_options = {
+        'newest': Flat.created_at.desc(),
+        'price_low': Flat.price.asc(),
+        'price_high': Flat.price.desc(),
+        'area_high': Flat.area_sqft.desc(),
+    }
+    if sort not in sort_options:
+        sort = 'newest'
 
     query = Flat.query.filter_by(status='approved').options(
         load_only(
@@ -628,7 +962,12 @@ def flats():
     if max_price_value is not None:
         query = query.filter(Flat.price <= max_price_value)
 
-    query = query.order_by(Flat.created_at.desc())
+    total_results = query.order_by(None).count()
+    sort_clause = sort_options[sort]
+    if sort == 'newest':
+        query = query.order_by(sort_clause)
+    else:
+        query = query.order_by(sort_clause, Flat.created_at.desc())
     offset = (page - 1) * per_page
     flats_page = query.offset(offset).limit(per_page + 1).all()
     has_next = len(flats_page) > per_page
@@ -639,6 +978,7 @@ def flats():
         'bhk': bhk,
         'min_price': min_price,
         'max_price': max_price,
+        'sort': sort,
     }
     filters_applied = bool(search or (bhk and bhk != 'all') or min_price or max_price)
     filter_params = {}
@@ -650,6 +990,8 @@ def flats():
         filter_params['min_price'] = min_price
     if max_price:
         filter_params['max_price'] = max_price
+    if sort and sort != 'newest':
+        filter_params['sort'] = sort
     prev_url = url_for('flats', page=page - 1, **filter_params) if has_prev else None
     next_url = url_for('flats', page=page + 1, **filter_params) if has_next else None
     return render_template(
@@ -657,6 +999,8 @@ def flats():
         flats=all_flats,
         filters=filters,
         filters_applied=filters_applied,
+        total_results=total_results,
+        sort=sort,
         page=page,
         has_prev=has_prev,
         has_next=has_next,
@@ -716,6 +1060,10 @@ def post_listing():
             flash('Unsupported image type. Use PNG, JPG, or WEBP.', 'warning')
 
         if form_type == 'flat':
+            raw_video_url = request.form.get('video_url', '').strip()
+            video_url = raw_video_url if extract_youtube_id(raw_video_url) else None
+            if raw_video_url and not video_url:
+                flash('Invalid YouTube link. Video has been skipped.', 'warning')
             new_flat = Flat(
                 title=request.form.get('title', '').strip(),
                 location=request.form.get('location', '').strip(),
@@ -724,6 +1072,7 @@ def post_listing():
                 area_sqft=coerce_int(request.form.get('area'), 0),
                 description=request.form.get('description', '').strip(),
                 image_url=uploaded_url or request.form.get('image_url', '').strip(),
+                video_url=video_url,
                 user_id=current_user.id
             )
             new_flat.status = status
@@ -749,6 +1098,10 @@ def post_listing():
         flash('Listing posted successfully!', 'success')
         return redirect(url_for('admin_dashboard', tab='flats' if form_type == 'flat' else 'services'))
     return render_template('post_listing.html')
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5001))

@@ -6,6 +6,7 @@
     <meta name="theme-color" content="#f8fafc">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="format-detection" content="telephone=no">
     {% set page_title = (self.title() | striptags | trim) %}
     {% set page_description = meta_description if meta_description is defined else default_meta_description %}
@@ -39,10 +40,124 @@
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="preconnect" href="https://images.unsplash.com" crossorigin>
     {% block preload %}{% endblock %}
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+        document.addEventListener('alpine:init', () => {
+            const loadWishlist = () => {
+                try {
+                    const raw = localStorage.getItem('flatland_wishlist');
+                    if (!raw) {
+                        return [];
+                    }
+                    const parsed = JSON.parse(raw);
+                    return Array.isArray(parsed) ? parsed : [];
+                } catch (err) {
+                    try {
+                        localStorage.removeItem('flatland_wishlist');
+                    } catch (cleanupError) {
+                        return [];
+                    }
+                    return [];
+                }
+            };
+
+            Alpine.store('wishlist', {
+                items: loadWishlist(),
+                
+                add(item) {
+                    if (!this.has(item.id, item.type)) {
+                        this.items.push(item);
+                        this.save();
+                        
+                        // Show toast
+                        const event = new CustomEvent('flash-toast', {
+                            detail: { message: 'Added to shortlist', type: 'success' }
+                        });
+                        window.dispatchEvent(event);
+                    }
+                },
+                
+                remove(id, type) {
+                    this.items = this.items.filter(i => !(i.id === id && i.type === type));
+                    this.save();
+                },
+                
+                toggle(item) {
+                    if (this.has(item.id, item.type)) {
+                        this.remove(item.id, item.type);
+                    } else {
+                        this.add(item);
+                    }
+                },
+                
+                has(id, type) {
+                    return this.items.some(i => i.id === id && i.type === type);
+                },
+                
+                save() {
+                    try {
+                        localStorage.setItem('flatland_wishlist', JSON.stringify(this.items));
+                    } catch (err) {
+                        return;
+                    }
+                },
+                
+                count() {
+                    return this.items.length;
+                }
+            });
+        });
+
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#1d2533',
+                            gold: '#d57b4c',
+                            warm: '#f1b67c',
+                            soft: '#f6f7fb',
+                        },
+                        glass: {
+                            bg: 'rgba(255, 255, 255, 0.78)',
+                            border: 'rgba(29, 37, 51, 0.12)',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['DM Sans', 'sans-serif'],
+                        display: ['Playfair Display', 'serif'],
+                    },
+                    borderRadius: {
+                        'xl': '24px',
+                        '2xl': '32px',
+                    },
+                    boxShadow: {
+                        'soft': '0 12px 28px rgba(29, 37, 51, 0.1)',
+                        'strong': '0 20px 45px rgba(29, 37, 51, 0.14)',
+                    },
+                    keyframes: {
+                        'fade-in-up': {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        'slow-zoom': {
+                            '0%': { transform: 'scale(1)' },
+                            '100%': { transform: 'scale(1.1)' },
+                        }
+                    },
+                    animation: {
+                        'fade-in-up': 'fade-in-up 0.8s ease-out forwards',
+                        'slow-zoom': 'slow-zoom 20s linear infinite alternate',
+                    }
+                }
+            }
+        }
+    </script>
     <!-- Font Awesome -->
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
@@ -90,167 +205,358 @@
             ]
         }
     </script>
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
 </head>
-<body>
+<body x-data="{ wishlistOpen: false }">
     <a class="skip-link" href="#main">Skip to content</a>
 
-    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
-        <div class="container">
-            <a class="navbar-brand" href="{{ url_for('index') }}" aria-label="FlatlandBD home">
-                <span class="brand-mark">
-                    <img src="{{ logo_full }}" alt="FlatlandBD logo" class="brand-icon" width="164" height="44" loading="eager" decoding="async">
-                </span>
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto align-items-center">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('index') }}">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('flats') }}">Buy Flats</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('interior') }}">Interior Design</a>
-                    </li>
+    {% set active_endpoint = request.endpoint or '' %}
+    <nav class="nav-shell sticky top-0 z-50 bg-brand-soft/80 backdrop-blur-xl border-b border-glass-border shadow-soft" x-data="{ mobileMenuOpen: false }">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center">
+                    <a href="{{ url_for('index') }}" class="flex items-center gap-3">
+                        <img src="{{ logo_full }}" alt="FlatlandBD logo" class="h-11 w-auto" loading="eager" decoding="async">
+                    </a>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-1">
+                    <a href="{{ url_for('index') }}" class="nav-link {{ 'is-active' if active_endpoint == 'index' else '' }}">Home</a>
+                    <a href="{{ url_for('flats') }}" class="nav-link {{ 'is-active' if active_endpoint in ['flats', 'flat_detail'] else '' }}">Buy Flats</a>
+                    <a href="{{ url_for('interior') }}" class="nav-link {{ 'is-active' if active_endpoint in ['interior', 'interior_detail'] else '' }}">Interior Design</a>
+                    
+                    <button @click="wishlistOpen = true" class="relative p-2 ml-2 rounded-xl text-brand-dark hover:text-brand-gold transition-colors group" aria-label="Shortlist">
+                        <i class="far fa-heart text-lg group-hover:scale-110 transition-transform"></i>
+                        <span class="absolute top-1 right-0 w-4 h-4 rounded-full bg-brand-gold text-[10px] font-bold text-white flex items-center justify-center animate-bounce-short"
+                              x-show="$store.wishlist.count() > 0"
+                              x-text="$store.wishlist.count()"
+                              x-transition:enter="transition ease-out duration-300"
+                              x-transition:enter-start="opacity-0 scale-0"
+                              x-transition:enter-end="opacity-100 scale-100">
+                        </span>
+                    </button>
+
                     {% if current_user.is_authenticated %}
                         {% if current_user.role == 'admin' %}
-                        <li class="nav-item ms-lg-2">
-                            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-light btn-sm">Admin Panel</a>
-                        </li>
-                        <li class="nav-item ms-lg-2">
-                            <a href="{{ url_for('post_listing') }}" class="btn btn-gold btn-sm">New Listing</a>
-                        </li>
+                            <a href="{{ url_for('admin_dashboard') }}" class="nav-link {{ 'is-active' if active_endpoint == 'admin_dashboard' else '' }}">Admin Panel</a>
+                            <a href="{{ url_for('post_listing') }}" class="btn-gold-tw text-sm py-2 ml-2">New Listing</a>
                         {% endif %}
-                        <li class="nav-item ms-lg-3">
-                            <a href="{{ url_for('logout') }}" class="btn btn-outline-danger btn-sm">Logout ({{ current_user.username }})</a>
-                        </li>
+                        <a href="{{ url_for('logout') }}" class="ml-4 px-4 py-2 rounded-xl text-red-600 font-bold hover:bg-red-50 transition-all text-sm">Logout ({{ current_user.username }})</a>
                     {% else %}
-                        <li class="nav-item dropdown ms-lg-2">
-                            <a class="btn btn-gold btn-sm dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="relative ml-4" x-data="{ open: false }" @click.away="open = false">
+                            <button @click="open = !open" class="btn-gold-tw text-sm py-2 flex items-center gap-2">
                                 Request Quote
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li>
-                                    <a class="dropdown-item" href="https://wa.me/8801712458794?text=Hello%20FlatlandBD%2C%20I%20need%20a%20flat%20quote.%20Location%3A%20%5B%5D%20Budget%3A%20%5B%5D%20Size%3A%20%5B%5D" target="_blank" rel="noopener">Need a flat</a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="https://wa.me/8801712458794?text=Hello%20FlatlandBD%2C%20I%20need%20an%20interior%20design%20quote.%20Space%3A%20%5B%5D%20Budget%3A%20%5B%5D%20Timeline%3A%20%5B%5D" target="_blank" rel="noopener">Need interior</a>
-                                </li>
-                            </ul>
-                        </li>
+                                <i class="fas fa-chevron-down text-[10px]" :class="open ? 'rotate-180' : ''"></i>
+                            </button>
+                            <div x-show="open" 
+                                 x-transition:enter="transition ease-out duration-200"
+                                 x-transition:enter-start="opacity-0 translate-y-2"
+                                 x-transition:enter-end="opacity-100 translate-y-0"
+                                 class="absolute right-0 mt-3 w-56 rounded-2xl bg-white shadow-strong border border-glass-border overflow-hidden">
+                                <a href="https://wa.me/8801712458794?text=Hello%20FlatlandBD%2C%20I%20need%20a%20flat%20quote." target="_blank" class="block px-4 py-3 text-sm text-brand-dark hover:bg-brand-gold/5 font-medium border-b border-glass-border">Need a flat</a>
+                                <a href="https://wa.me/8801712458794?text=Hello%20FlatlandBD%2C%20I%20need%20an%20interior%20design%20quote." target="_blank" class="block px-4 py-3 text-sm text-brand-dark hover:bg-brand-gold/5 font-medium">Need interior</a>
+                            </div>
+                        </div>
                     {% endif %}
-                </ul>
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden flex items-center gap-4">
+                     <button @click="wishlistOpen = true" class="relative p-2 rounded-xl text-brand-dark hover:text-brand-gold transition-colors" aria-label="Shortlist">
+                        <i class="far fa-heart text-lg"></i>
+                        <span class="absolute top-1 right-0 w-4 h-4 rounded-full bg-brand-gold text-[10px] font-bold text-white flex items-center justify-center"
+                              x-show="$store.wishlist.count() > 0"
+                              x-text="$store.wishlist.count()">
+                        </span>
+                    </button>
+
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="inline-flex items-center justify-center p-2 rounded-xl text-brand-dark hover:bg-brand-gold/10 focus:outline-none transition-all">
+                        <i class="fas" :class="mobileMenuOpen ? 'fa-times' : 'fa-bars'"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div x-show="mobileMenuOpen" 
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 -translate-y-4"
+             x-transition:enter-end="opacity-100 translate-y-0"
+             class="md:hidden border-t border-glass-border bg-white">
+            <div class="px-4 pt-2 pb-6 space-y-1">
+                <a href="{{ url_for('index') }}" class="nav-link nav-link--mobile {{ 'is-active' if active_endpoint == 'index' else '' }}">Home</a>
+                <a href="{{ url_for('flats') }}" class="nav-link nav-link--mobile {{ 'is-active' if active_endpoint in ['flats', 'flat_detail'] else '' }}">Buy Flats</a>
+                <a href="{{ url_for('interior') }}" class="nav-link nav-link--mobile {{ 'is-active' if active_endpoint in ['interior', 'interior_detail'] else '' }}">Interior Design</a>
+                
+                {% if current_user.is_authenticated %}
+                    {% if current_user.role == 'admin' %}
+                        <a href="{{ url_for('admin_dashboard') }}" class="nav-link nav-link--mobile {{ 'is-active' if active_endpoint == 'admin_dashboard' else '' }}">Admin Panel</a>
+                        <a href="{{ url_for('post_listing') }}" class="block px-4 py-3 rounded-xl text-brand-gold font-bold">New Listing</a>
+                    {% endif %}
+                    <a href="{{ url_for('logout') }}" class="block px-4 py-3 text-red-600 font-bold">Logout</a>
+                {% else %}
+                    <div class="pt-4 space-y-2">
+                        <a href="https://wa.me/8801712458794?text=Hello%20FlatlandBD%2C%20I%20need%20a%20flat%20quote." class="block px-4 py-3 rounded-xl bg-brand-gold/10 text-brand-gold font-bold">Need a flat</a>
+                        <a href="https://wa.me/8801712458794?text=Hello%20FlatlandBD%2C%20I%20need%20an%20interior%20design%20quote." class="block px-4 py-3 rounded-xl bg-brand-warm/10 text-brand-warm font-bold">Need interior</a>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </nav>
+    
+    <!-- Shortlist Drawer -->
+    <div class="relative z-[70]" aria-labelledby="slide-over-title" role="dialog" aria-modal="true" x-show="wishlistOpen" x-cloak>
+        <div class="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity" 
+             x-show="wishlistOpen"
+             x-transition:enter="ease-in-out duration-500"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="ease-in-out duration-500"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             @click="wishlistOpen = false"></div>
 
-    <div class="flash-stack container" aria-live="polite" aria-atomic="true">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    {% set alert_class = 'info' %}
-                    {% if category in ['success', 'warning', 'danger', 'info'] %}
-                        {% set alert_class = category %}
-                    {% elif category == 'message' %}
-                        {% set alert_class = 'info' %}
-                    {% endif %}
-                    <div class="alert alert-{{ alert_class }} alert-dismissible fade show mb-3" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div class="fixed inset-0 overflow-hidden">
+            <div class="absolute inset-0 overflow-hidden">
+                <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
+                    <div class="pointer-events-auto w-screen max-w-md"
+                         x-show="wishlistOpen"
+                         x-transition:enter="transform transition ease-in-out duration-500 sm:duration-700"
+                         x-transition:enter-start="translate-x-full"
+                         x-transition:enter-end="translate-x-0"
+                         x-transition:leave="transform transition ease-in-out duration-500 sm:duration-700"
+                         x-transition:leave-start="translate-x-0"
+                         x-transition:leave-end="translate-x-full">
+                        <div class="flex h-full flex-col overflow-y-scroll no-scrollbar bg-white shadow-2xl">
+                            <div class="p-6 bg-brand-dark text-white flex items-center justify-between">
+                                <p class="text-white/60 text-sm font-medium uppercase tracking-widest" x-text="$store.wishlist.count() + ' Saved Items'"></p>
+                                <button @click="wishlistOpen = false" class="text-white/40 hover:text-white transition-colors">
+                                    <i class="fas fa-times text-xl"></i>
+                                </button>
+                            </div>
+
+                            <div class="flex-1 overflow-y-auto p-6 space-y-6">
+                                <template x-if="$store.wishlist.count() === 0">
+                                    <div class="text-center py-20 opacity-40">
+                                        <i class="far fa-heart text-5xl mb-4 text-brand-dark"></i>
+                                        <p class="font-bold text-brand-dark">No saved items yet.</p>
+                                        <p class="text-sm mt-2 text-brand-dark">Browse listings to add favorites.</p>
+                                    </div>
+                                </template>
+                                
+                                <template x-for="item in $store.wishlist.items" :key="item.id + item.type">
+                                    <div class="flex gap-4 p-4 rounded-2xl bg-white border border-glass-border shadow-soft group hover:border-brand-gold/30 transition-colors relative">
+                                        <div class="w-20 h-20 rounded-xl overflow-hidden shrink-0 bg-brand-soft">
+                                            <img :src="item.image" class="w-full h-full object-cover" loading="lazy" decoding="async">
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex justify-between items-start">
+                                                <div>
+                                                     <span class="text-[10px] font-bold uppercase tracking-widest text-brand-gold mb-1 block" x-text="item.type"></span>
+                                                    <h4 class="font-bold text-brand-dark truncate pr-4 text-sm" x-text="item.title"></h4>
+                                                </div>
+                                                <button @click="$store.wishlist.remove(item.id, item.type)" class="text-brand-dark/20 hover:text-red-500 transition-colors -mt-1 -mr-1 p-2 relative z-10 cursor-pointer">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                            <p class="text-brand-dark/60 text-xs mt-1" x-text="item.desc"></p>
+                                            <div class="mt-2 text-sm font-bold text-brand-dark" x-text="item.price"></div>
+                                            <a :href="item.url" class="absolute inset-0 z-0"></a>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+
+                            <div class="p-6 border-t border-glass-border bg-brand-soft/50" x-show="$store.wishlist.count() > 0">
+                                <a href="https://wa.me/8801712458794?text=Hi,%20I%20like%20items%20in%20my%20shortlist." target="_blank" class="btn-gold-tw w-full py-4 justify-center text-sm shadow-lg">
+                                    <i class="fab fa-whatsapp text-lg mr-2"></i> Inquire About All
+                                </a>
+                            </div>
+                        </div>
                     </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Flash Messages (Tailwind Toasts) -->
+    <div class="fixed top-24 right-4 z-[60] flex flex-col gap-3 max-w-sm w-full pointer-events-none" 
+         x-data="{ toasts: [] }" 
+         x-init="
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        toasts.push({ 
+                            id: Date.now() + {{ loop.index }}, 
+                            message: '{{ message | replace("'", "\\'") }}', 
+                            type: '{{ category }}',
+                            visible: true 
+                        });
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+         ">
+        <template x-for="toast in toasts" :key="toast.id">
+            <div x-show="toast.visible"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-x-8"
+                 x-transition:enter-end="opacity-100 translate-x-0"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-x-0"
+                 x-transition:leave-end="opacity-0 translate-x-8"
+                 class="pointer-events-auto bg-white/90 backdrop-blur-xl rounded-2xl shadow-strong border-l-4 p-5 flex items-start gap-4"
+                 :class="{
+                    'border-emerald-500': toast.type === 'success',
+                    'border-rose-500': toast.type === 'danger' || toast.type === 'error',
+                    'border-brand-gold': toast.type === 'warning',
+                    'border-sky-500': toast.type === 'info' || toast.type === 'message'
+                 }"
+                 x-init="setTimeout(() => toast.visible = false, 5000)">
+                <div class="flex-shrink-0 mt-0.5">
+                    <template x-if="toast.type === 'success'">
+                        <i class="fas fa-check-circle text-emerald-500"></i>
+                    </template>
+                    <template x-if="toast.type === 'danger' || toast.type === 'error'">
+                        <i class="fas fa-exclamation-circle text-rose-500"></i>
+                    </template>
+                    <template x-if="toast.type === 'warning'">
+                        <i class="fas fa-exclamation-triangle text-brand-gold"></i>
+                    </template>
+                    <template x-if="toast.type === 'info' || toast.type === 'message'">
+                        <i class="fas fa-info-circle text-sky-500"></i>
+                    </template>
+                </div>
+                <div class="flex-1">
+                    <p class="text-xs font-bold text-brand-dark/80" x-text="toast.message"></p>
+                </div>
+                <button @click="toast.visible = false" class="text-brand-dark/20 hover:text-brand-dark transition-colors">
+                    <i class="fas fa-times text-[10px]"></i>
+                </button>
+            </div>
+        </template>
+    </div>
+
+    <!-- Global Lightbox (Alpine.js) -->
+    <div x-data="{ open: false, src: '', alt: '' }" 
+         @lightbox-open.window="open = true; src = $event.detail.src; alt = $event.detail.alt"
+         x-show="open" 
+         x-cloak
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm"
+         style="display: none;">
+        
+        <button @click="open = false" class="absolute top-6 right-6 z-10 p-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition-all">
+            <i class="fas fa-times"></i>
+        </button>
+
+        <div class="relative max-w-7xl w-full" @click.away="open = false">
+            <img :src="src" :alt="alt" class="w-full h-auto max-h-[90vh] object-contain rounded-2xl shadow-2xl" loading="lazy" decoding="async">
+        </div>
     </div>
 
     <main id="main">
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="site-footer defer-render">
-        <div class="container">
-            <div class="footer-shell">
-                <div class="footer-grid">
-                    <div class="footer-card footer-brand">
-                        <div class="footer-badge">FlatlandBD</div>
-                        <p class="footer-text">Smart flat buying, selling, and interior design in one trusted platform for Bangladesh.</p>
-                        <div class="footer-links">
-                            <h6 class="footer-title">Quick Links</h6>
-                            <ul class="footer-list">
-                                <li><a href="#" class="footer-link">Privacy Policy</a></li>
-                                <li><a href="#" class="footer-link">Terms of Service</a></li>
-                                <li><a href="#" class="footer-link">Our Story</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="footer-card footer-contact">
-                        <h6 class="footer-title">Contact</h6>
-                        <ul class="footer-list">
-                            <li class="footer-contact-item">
-                                <span class="footer-contact-icon" aria-hidden="true"><i class="fas fa-map-marker-alt"></i></span>
-                                <span>Hashem Mansion, Level-1, 48 Kazi Nazrul Islam Ave, Dhaka 1215, Bangladesh</span>
-                            </li>
-                            <li class="footer-contact-item">
-                                <span class="footer-contact-icon" aria-hidden="true"><i class="fas fa-phone-alt"></i></span>
-                                <a href="tel:+8801712458794" class="footer-link">01712458794</a>
-                            </li>
-                            <li class="footer-contact-item">
-                                <span class="footer-contact-icon" aria-hidden="true"><i class="fab fa-whatsapp"></i></span>
-                                <a href="https://wa.me/8801712458794" class="footer-link" target="_blank" rel="noopener">WhatsApp: 01712458794</a>
-                            </li>
-                        </ul>
-                        <div class="footer-divider"></div>
-                        <h6 class="footer-title">Connect With Us</h6>
-                        <div class="footer-social">
-                            <a href="#" class="footer-social-link" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                            <a href="#" class="footer-social-link" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                            <a href="#" class="footer-social-link" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                        </div>
-                    </div>
-                    <div class="footer-card footer-map-card">
-                        <h6 class="footer-title">Find Us</h6>
-                        <div class="footer-map ratio ratio-4x3">
-                            <iframe
-                                title="FlatlandBD Location"
-                                src="https://www.google.com/maps?q=Hashem%20Mansion%2C%20Level-1%2C%2048%20Kazi%20Nazrul%20Islam%20Ave%2C%20Dhaka%201215%2C%20Dhaka%2C%20Bangladesh&output=embed"
-                                loading="lazy"
-                                allowfullscreen
-                                referrerpolicy="no-referrer-when-downgrade"></iframe>
-                        </div>
-                        <p class="footer-meta">Visit our studio for guided consultations and project planning.</p>
+    <!-- Modern Luxury Footer -->
+    <footer class="bg-brand-dark text-white relative overflow-hidden mt-auto">
+        <!-- Decor -->
+        <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-gold/5 rounded-full blur-[100px] -mr-32 -mt-32 pointer-events-none"></div>
+        <div class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-brand-gold/5 rounded-full blur-[100px] -ml-32 -mb-32 pointer-events-none"></div>
+
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-8 mb-16">
+                
+                <!-- Brand -->
+                <div class="lg:col-span-5 space-y-8">
+                    <a href="{{ url_for('index') }}" class="inline-block">
+                        <img src="{{ static_url('img/logo-mark.svg') }}" alt="FlatlandBD" class="h-12 w-auto brightness-0 invert" loading="lazy" decoding="async">
+                    </a>
+                    <p class="text-white/60 leading-relaxed text-lg font-light max-w-md">
+                        Redefining the standard of living in Dhaka. We curate premium flats and connect you with elite interior artisans.
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="tel:+8801712458794" class="px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-brand-gold font-bold hover:bg-brand-gold hover:text-brand-dark transition-all">
+                            <i class="fas fa-phone-alt mr-2"></i> 01712458794
+                        </a>
+                        <a href="https://wa.me/8801712458794" target="_blank" class="px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-emerald-400 font-bold hover:bg-emerald-500 hover:text-white transition-all">
+                            <i class="fab fa-whatsapp mr-2"></i> WhatsApp
+                        </a>
                     </div>
                 </div>
-                <div class="footer-bottom">
-                    <span>&copy; 2026 FlatlandBD. All rights reserved.</span>
-                    <span class="footer-mini">Built for the Bangladesh real estate market.</span>
+
+                <!-- Navigation -->
+                <div class="lg:col-span-3">
+                    <h4 class="font-display font-medium text-xl mb-6 text-white">Explore</h4>
+                    <ul class="space-y-4">
+                        <li><a href="{{ url_for('flats') }}" class="text-white/60 hover:text-brand-gold transition-colors block py-1">Premium Flats</a></li>
+                        <li><a href="{{ url_for('interior') }}" class="text-white/60 hover:text-brand-gold transition-colors block py-1">Interior Studios</a></li>
+                        <li><a href="{{ url_for('post_listing') }}" class="text-white/60 hover:text-brand-gold transition-colors block py-1">List Property</a></li>
+                        <li><a href="{{ url_for('index') }}#consult" class="text-white/60 hover:text-brand-gold transition-colors block py-1">Request Quote</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact & Map -->
+                <div class="lg:col-span-4">
+                    <h4 class="font-display font-medium text-xl mb-6 text-white">Visit Our Studio</h4>
+                    <div class="bg-white/5 p-2 rounded-2xl border border-white/10 hover:border-brand-gold/30 transition-colors">
+                        <div class="aspect-video w-full rounded-xl overflow-hidden mb-4 relative bg-brand-dark/50">
+                            <iframe 
+                                src="https://www.google.com/maps?q=Hashem%20Mansion%2C%20Level-1%2C%2048%20Kazi%20Nazrul%20Islam%20Ave%2C%20Dhaka%201215%2C%20Dhaka%2C%20Bangladesh&output=embed" 
+                                width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" class="opacity-80 hover:opacity-100 transition-opacity"></iframe>
+                        </div>
+                        <div class="px-2 pb-2">
+                            <p class="text-white/80 text-sm leading-relaxed">
+                                <i class="fas fa-map-pin text-brand-gold mr-2"></i> Hashem Mansion, Level-1, 48 Kazi Nazrul Islam Ave, Dhaka 1215
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom -->
+            <div class="border-t border-white/10 pt-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                <p class="text-white/40 text-sm font-medium">
+                    &copy; 2026 FlatlandBD.<i class=""></i>
+                </p>
+                <div class="flex gap-6">
+                    <a href="#" class="text-white/40 hover:text-white transition-colors"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-white/40 hover:text-white transition-colors"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="text-white/40 hover:text-white transition-colors"><i class="fab fa-linkedin-in"></i></a>
                 </div>
             </div>
         </div>
     </footer>
 
     <div class="contact-fab" aria-label="Quick contact">
-        <a href="tel:+8801712458794" aria-label="Call FlatlandBD"><i class="fas fa-phone-alt"></i>Call</a>
-        <a href="https://wa.me/8801712458794" target="_blank" rel="noopener" aria-label="WhatsApp FlatlandBD"><i class="fab fa-whatsapp"></i>WhatsApp</a>
-        <a href="{{ url_for('index') }}#contact-form" aria-label="Request a quote"><i class="fas fa-comment-dots"></i>Quote</a>
+        <a class="contact-fab__link contact-fab__link--call" href="tel:+8801712458794" aria-label="Call FlatlandBD">
+            <i class="fas fa-phone-alt"></i>
+            <span class="contact-fab__label">Call</span>
+        </a>
+        <a class="contact-fab__link contact-fab__link--whatsapp" href="https://wa.me/8801712458794" target="_blank" rel="noopener" aria-label="WhatsApp FlatlandBD">
+            <i class="fab fa-whatsapp"></i>
+            <span class="contact-fab__label">WhatsApp</span>
+        </a>
+        <a class="contact-fab__link contact-fab__link--quote" href="{{ url_for('index') }}#consult" aria-label="Request a quote">
+            <i class="fas fa-comment-dots"></i>
+            <span class="contact-fab__label">Quote</span>
+        </a>
     </div>
 
-    <!-- Lightbox Modal -->
-    <div class="modal fade" id="imageLightbox" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-xl">
-            <div class="modal-content bg-transparent border-0 shadow-none">
-                <div class="modal-body p-0 text-center position-relative">
-                    <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3 shadow-lg" data-bs-dismiss="modal" aria-label="Close" style="z-index: 1051; background-color: rgba(0,0,0,0.5); border-radius: 50%; padding: 10px;"></button>
-                    <img src="" id="lightboxImage" class="img-fluid rounded-4 shadow-2xl" alt="Enlarged view" style="max-height: 90vh; max-height: 90svh; cursor: zoom-out;" data-bs-dismiss="modal">
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Bootstrap 5 JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
+
+
+
+
     <script src="{{ static_url('js/main.js') }}" defer></script>
     {% block extra_js %}{% endblock %}
 </body>

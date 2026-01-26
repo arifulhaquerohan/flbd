@@ -5,7 +5,7 @@ A premium web-based project for buying/selling flats and professional interior d
 ## Features
 - **Flat Trading**: Post and browse verified flat listings.
 - **Interior Design Hub**: A dedicated section for interior designers to showcase portfolios and services.
-- **Premium UI**: Modern dark theme with glassmorphism and responsive design.
+- **Premium UI**: Editorial light theme with glassmorphism, motion, and responsive layouts.
 
 ## Tech Stack
 - **Backend**: Python (Flask)
@@ -43,6 +43,19 @@ pip install -r requirements.txt
 python app.py
 ```
 Open `http://localhost:5000` in your browser.
+
+### 5. Production (Gunicorn)
+```bash
+gunicorn -w 2 -b 0.0.0.0:8000 wsgi:app
+```
+Adjust workers based on CPU cores and traffic (e.g. `-w 4`).
+
+### 6. Database Migrations (Optional)
+If you already have a database and want new indexes, run:
+```bash
+flask --app app db migrate
+flask --app app db upgrade
+```
 
 ## Security checklist
 - Set `SECRET_KEY` to a long random value in `.env`.

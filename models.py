@@ -25,29 +25,36 @@ class User(db.Model, UserMixin):
         return self.role == 'admin'
 
 class Flat(db.Model):
+    __table_args__ = (
+        db.Index('idx_flat_status_created', 'status', 'created_at'),
+    )
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text, nullable=False)
-    price = db.Column(db.Float, nullable=False)
-    location = db.Column(db.String(100), nullable=False)
+    price = db.Column(db.Float, nullable=False, index=True)
+    location = db.Column(db.String(100), nullable=False, index=True)
     area_sqft = db.Column(db.Integer)
-    bhk = db.Column(db.Integer)
+    bhk = db.Column(db.Integer, index=True)
     image_url = db.Column(db.String(500))
-    status = db.Column(db.String(20), default='pending') # pending, approved, rejected
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    video_url = db.Column(db.String(500))
+    status = db.Column(db.String(20), default='pending', index=True) # pending, approved, rejected
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
 
 class InteriorService(db.Model):
+    __table_args__ = (
+        db.Index('idx_interior_status_created', 'status', 'created_at'),
+    )
     id = db.Column(db.Integer, primary_key=True)
     provider_name = db.Column(db.String(100), nullable=False)
-    service_type = db.Column(db.String(100), nullable=False) # Full house, kitchen, etc
+    service_type = db.Column(db.String(100), nullable=False, index=True) # Full house, kitchen, etc
     description = db.Column(db.Text, nullable=False)
-    starting_price = db.Column(db.Float)
+    starting_price = db.Column(db.Float, index=True)
     image_url = db.Column(db.String(500))
     portfolio_url = db.Column(db.String(500))
-    status = db.Column(db.String(20), default='pending') # pending, approved, rejected
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    status = db.Column(db.String(20), default='pending', index=True) # pending, approved, rejected
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
 
 class Lead(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -56,5 +63,5 @@ class Lead(db.Model):
     email = db.Column(db.String(120))
     interest = db.Column(db.String(40))
     message = db.Column(db.Text, nullable=False)
-    status = db.Column(db.String(20), default='new') # new, contacted, closed
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    status = db.Column(db.String(20), default='new', index=True) # new, contacted, closed
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)

@@ -1,228 +1,220 @@
 {% extends "base.html" %}
 
-{% block title %}{{ service.provider_name }} - Interior Design - FlatlandBD{% endblock %}
+{% block title %}{{ service.provider_name }} - FlatlandBD{% endblock %}
 
 {% block extra_css %}
-<style>
-    .interior-hero {
-        padding: 120px 0 90px;
-        background: linear-gradient(120deg, rgba(255, 255, 255, 0.9), rgba(247, 249, 252, 0.85)),
-                    url('{{ service.image_url or "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1600" }}');
-        background-size: cover;
-        background-position: center;
-        position: relative;
-        overflow: hidden;
-    }
+{% endblock %}
 
-    .interior-hero::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background-image:
-            linear-gradient(rgba(29, 37, 51, 0.05) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(29, 37, 51, 0.05) 1px, transparent 1px);
-        background-size: 64px 64px;
-        opacity: 0.35;
-        pointer-events: none;
+{% block extra_js %}
+<script type="application/ld+json">
+{{ {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": service.provider_name,
+    "description": service.description,
+    "image": service.image_url or default_og_image,
+    "provider": {
+        "@type": "Organization",
+        "name": service.provider_name
+    },
+    "areaServed": "BD",
+    "offers": {
+        "@type": "Offer",
+        "priceCurrency": "BDT",
+        "price": service.starting_price
     }
-
-    .interior-hero .container {
-        position: relative;
-        z-index: 1;
-    }
-    .portfolio-img {
-        height: 300px;
-        object-fit: cover;
-        border-radius: var(--radius-lg);
-        transition: transform 0.3s ease;
-        box-shadow: var(--shadow-soft);
-    }
-    .portfolio-img:hover {
-        transform: scale(1.03);
-    }
-    .booking-card {
-        background: var(--surface-strong);
-        border: 1px solid var(--glass-border);
-        border-radius: var(--radius-lg);
-        padding: 40px;
-        box-shadow: var(--shadow-soft);
-        top: 100px;
-    }
-
-    .booking-meta {
-        background: rgba(255, 255, 255, 0.8);
-        border: 1px solid var(--glass-border);
-        border-radius: var(--radius-md);
-        padding: 16px;
-    }
-</style>
+} | tojson }}
+</script>
 {% endblock %}
 
 {% block content %}
-<section class="interior-hero">
-    <div class="container text-center">
-        <p class="section-kicker mb-3 reveal">Designer dossier</p>
-        <span class="badge badge-premium mb-3">{{ service.service_type }}</span>
-        <h1 class="display-3 fw-bold mb-4 reveal">{{ service.provider_name }}</h1>
-        <p class="lead text-muted mx-auto reveal delay-1" style="max-width: 700px;">{{ service.description }}</p>
-        <div class="hero-details justify-content-center mt-4 reveal delay-2">
-            <span class="metric-pill">Full-service</span>
-            <span class="metric-pill">On-site supervision</span>
-            <span class="metric-pill">Material sourcing</span>
+<div class="relative pt-40 pb-32 overflow-hidden">
+    <!-- Background Decor -->
+    <div class="absolute inset-0 -z-10">
+        <div class="absolute inset-0 bg-gradient-to-b from-brand-soft via-brand-soft/95 to-brand-soft"></div>
+        <img src="{{ service.image_url or 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1600' }}" 
+             alt="" class="w-full h-full object-cover opacity-10 filter blur-xl scale-110" decoding="async">
+    </div>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <span class="inline-block px-4 py-1.5 rounded-full bg-brand-gold/10 text-brand-gold text-[10px] font-bold uppercase tracking-widest mb-8">Designer Dossier</span>
+        <h1 class="text-5xl md:text-7xl font-display font-bold text-brand-dark leading-tight mb-8">
+            {{ service.provider_name }}
+        </h1>
+        <p class="text-brand-dark/60 text-lg md:text-xl max-w-3xl mx-auto leading-relaxed mb-12">
+            {{ service.description }}
+        </p>
+        
+        <div class="flex flex-wrap justify-center gap-4">
+            <span class="px-6 py-2.5 rounded-2xl bg-white border border-glass-border shadow-soft text-xs font-bold uppercase tracking-widest text-brand-dark/60">Full-service</span>
+            <span class="px-6 py-2.5 rounded-2xl bg-white border border-glass-border shadow-soft text-xs font-bold uppercase tracking-widest text-brand-dark/60">On-site supervision</span>
+            <span class="px-6 py-2.5 rounded-2xl bg-white border border-glass-border shadow-soft text-xs font-bold uppercase tracking-widest text-brand-dark/60">Material sourcing</span>
         </div>
     </div>
-</section>
+</div>
 
-<div class="container py-5">
-    <div class="row g-5">
-        <div class="col-lg-8">
-            <div class="editorial-card p-4 surface-grid mb-5 reveal">
-                <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-16">
+        <div class="lg:col-span-8">
+            <!-- Project Essentials -->
+            <section class="bg-white/50 backdrop-blur-xl rounded-[3rem] p-8 md:p-12 border border-glass-border shadow-strong mb-16 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-brand-gold/5 rounded-full blur-3xl -mr-32 -mt-32"></div>
+                
+                <header class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
                     <div>
-                        <p class="section-kicker mb-2">Project dossier</p>
-                        <h3 class="fw-bold mb-1">Project essentials</h3>
-                        <p class="text-muted small mb-0">Everything a senior designer needs to scope the work.</p>
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-brand-gold">Capabilities</span>
+                        <h2 class="text-3xl font-display font-bold text-brand-dark mt-2">Project Essentials</h2>
                     </div>
-                    <span class="badge badge-premium">Verified</span>
-                </div>
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <div class="spec-card">
-                            <small>Scope</small>
-                            <h6>{{ service.service_type }}</h6>
-                            <p>Layout planning, lighting, custom joinery, styling.</p>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="spec-card">
-                            <small>Budget</small>
-                            <h6>Starting at ৳ {{ service.starting_price }}</h6>
-                            <p>Transparent, milestone-based payments.</p>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="spec-card">
-                            <small>Timeline</small>
-                            <h6>8-12 weeks</h6>
-                            <p>Concept to handover with weekly check-ins.</p>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="spec-card">
-                            <small>Deliverables</small>
-                            <h6>Plans + 3D renders</h6>
-                            <p>Material schedule, vendor list, site notes.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="mt-3">
-                    <span class="material-chip">Oak veneer</span>
-                    <span class="material-chip">Limestone</span>
-                    <span class="material-chip">Brushed brass</span>
-                    <span class="material-chip">Textured linen</span>
-                </div>
-            </div>
-            <h3 class="fw-bold mb-4 reveal">Portfolio Gallery</h3>
-            <div class="row g-4 mb-5">
-                <div class="col-md-6">
-                    <img src="{{ service.image_url or 'https://images.unsplash.com/photo-1505691938895-1758d7feb511?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' }}" class="portfolio-img w-100 reveal" alt="Work 1" loading="lazy" decoding="async" width="800" height="600">
-                </div>
-                <div class="col-md-6">
-                    <img src="https://images.unsplash.com/photo-1501045661006-fcebe0257c3f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" class="portfolio-img w-100 reveal delay-1" alt="Work 2" loading="lazy" decoding="async" width="800" height="600">
-                </div>
-                <div class="col-md-12">
-                    <img src="https://images.unsplash.com/photo-1616137466211-f939a420be84?auto=format&fit=crop&w=1200&q=80" class="portfolio-img portfolio-img-wide w-100 reveal delay-2" alt="Work 3" loading="lazy" decoding="async" width="1200" height="800">
-                </div>
-            </div>
+                    <span class="px-4 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-[10px] font-bold uppercase tracking-widest self-start">Premium Partner</span>
+                </header>
 
-            <h3 class="fw-bold mb-4 reveal">Service Details</h3>
-            <div class="p-4 rounded-4 bg-secondary bg-opacity-10 mb-4 reveal delay-1">
-                <p class="lh-lg mb-0 text-secondary">Our team at {{ service.provider_name }} creates bespoke living environments with a focus on craft and clarity. From concept visualization to final detailing, every phase is documented so you can approve with confidence.</p>
-                <ul class="detail-list mt-4">
-                    <li><i class="fas fa-check text-gold"></i><span>Concept + spatial planning with defined revision rounds.</span></li>
-                    <li><i class="fas fa-check text-gold"></i><span>Material specifications, BOQ, and vendor list.</span></li>
-                    <li><i class="fas fa-check text-gold"></i><span>On-site supervision, coordination, and quality checks.</span></li>
-                    <li><i class="fas fa-check text-gold"></i><span>Final styling, punch list, and post-handover support.</span></li>
-                </ul>
-            </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="p-6 rounded-3xl bg-brand-soft/50 border border-brand-dark/5 space-y-2">
+                        <span class="text-[9px] font-bold uppercase tracking-widest text-brand-dark/40">Scope</span>
+                        <h4 class="text-lg font-bold text-brand-dark">{{ service.service_type }}</h4>
+                        <p class="text-sm text-brand-dark/60 leading-relaxed">Layout planning, lighting, custom joinery, and styling.</p>
+                    </div>
+                    <div class="p-6 rounded-3xl bg-brand-soft/50 border border-brand-dark/5 space-y-2">
+                        <span class="text-[9px] font-bold uppercase tracking-widest text-brand-dark/40">Investment</span>
+                        <h4 class="text-lg font-bold text-brand-dark">From ৳ {{ service.starting_price }}</h4>
+                        <p class="text-sm text-brand-dark/60 leading-relaxed">Transparent pricing with milestone-based progress.</p>
+                    </div>
+                    <div class="p-6 rounded-3xl bg-brand-soft/50 border border-brand-dark/5 space-y-2">
+                        <span class="text-[9px] font-bold uppercase tracking-widest text-brand-dark/40">Timeline</span>
+                        <h4 class="text-lg font-bold text-brand-dark">8-12 Weeks</h4>
+                        <p class="text-sm text-brand-dark/60 leading-relaxed">From initial concept to final client handover.</p>
+                    </div>
+                    <div class="p-6 rounded-3xl bg-brand-soft/50 border border-brand-dark/5 space-y-2">
+                        <span class="text-[9px] font-bold uppercase tracking-widest text-brand-dark/40">Deliverables</span>
+                        <h4 class="text-lg font-bold text-brand-dark">Plans + 3D Renders</h4>
+                        <p class="text-sm text-brand-dark/60 leading-relaxed">Full technical drawings and photorealistic visuals.</p>
+                    </div>
+                </div>
 
-            <h3 class="fw-bold mb-4 reveal">Design Process</h3>
-            <div class="row g-3 mb-5">
-                <div class="col-md-6">
-                    <div class="process-card reveal">
-                        <div class="process-step">01</div>
-                        <h6 class="fw-bold">Discovery</h6>
-                        <p class="text-muted small mb-0">Site visit, measurements, and lifestyle mapping.</p>
+                <div class="flex flex-wrap gap-2 mt-12">
+                    <span class="px-4 py-1.5 rounded-xl bg-white text-[10px] font-bold uppercase tracking-widest text-brand-dark/40 border border-glass-border">Oak Veneer</span>
+                    <span class="px-4 py-1.5 rounded-xl bg-white text-[10px] font-bold uppercase tracking-widest text-brand-dark/40 border border-glass-border">Limestone</span>
+                    <span class="px-4 py-1.5 rounded-xl bg-white text-[10px] font-bold uppercase tracking-widest text-brand-dark/40 border border-glass-border">Brushed Brass</span>
+                    <span class="px-4 py-1.5 rounded-xl bg-white text-[10px] font-bold uppercase tracking-widest text-brand-dark/40 border border-glass-border">Textured Linen</span>
+                </div>
+            </section>
+
+            <!-- Portfolio Gallery -->
+            <section class="mb-16">
+                <header class="mb-12">
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-brand-gold">Portfolio</span>
+                    <h2 class="text-4xl font-display font-bold text-brand-dark mt-2">Design Gallery</h2>
+                </header>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="group rounded-[2.5rem] overflow-hidden shadow-strong border-4 border-white aspect-[4/3] relative">
+                        <img src="{{ service.image_url or 'https://images.unsplash.com/photo-1505691938895-1758d7feb511?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' }}" 
+                             alt="Portfolio 1" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" loading="lazy" decoding="async">
+                    </div>
+                    <div class="group rounded-[2.5rem] overflow-hidden shadow-strong border-4 border-white aspect-[4/3] relative">
+                        <img src="https://images.unsplash.com/photo-1501045661006-fcebe0257c3f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                             alt="Portfolio 2" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" loading="lazy" decoding="async">
+                    </div>
+                    <div class="md:col-span-2 group rounded-[3rem] overflow-hidden shadow-strong border-8 border-white aspect-video relative">
+                        <img src="https://images.unsplash.com/photo-1616137466211-f939a420be84?auto=format&fit=crop&w=1200&q=80" 
+                             alt="Portfolio 3" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" loading="lazy" decoding="async">
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="process-card reveal delay-1">
-                        <div class="process-step">02</div>
-                        <h6 class="fw-bold">Concept</h6>
-                        <p class="text-muted small mb-0">Moodboards, layouts, and 3D visuals.</p>
+            </section>
+
+            <!-- Process -->
+            <section class="mb-16">
+                <header class="mb-12">
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-brand-gold">Workflow</span>
+                    <h2 class="text-4xl font-display font-bold text-brand-dark mt-2">Design Process</h2>
+                </header>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {% for step in [
+                        ('01', 'Discovery', 'Site visit, measurements, and lifestyle mapping.'),
+                        ('02', 'Concept', 'Moodboards, layouts, and 3D visuals.'),
+                        ('03', 'Execution', 'Vendor coordination and site supervision.'),
+                        ('04', 'Handover', 'Final styling and quality walkthrough.')
+                    ] %}
+                    <div class="p-8 rounded-[2.5rem] bg-white border border-glass-border shadow-soft flex gap-6 items-start">
+                        <span class="text-4xl font-display font-bold text-brand-gold/20 leading-none">{{ step[0] }}</span>
+                        <div class="space-y-2">
+                            <h4 class="text-lg font-bold text-brand-dark">{{ step[1] }}</h4>
+                            <p class="text-sm text-brand-dark/40 leading-relaxed">{{ step[2] }}</p>
+                        </div>
                     </div>
+                    {% endfor %}
                 </div>
-                <div class="col-md-6">
-                    <div class="process-card reveal delay-2">
-                        <div class="process-step">03</div>
-                        <h6 class="fw-bold">Execution</h6>
-                        <p class="text-muted small mb-0">Vendor coordination and site supervision.</p>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="process-card reveal delay-3">
-                        <div class="process-step">04</div>
-                        <h6 class="fw-bold">Handover</h6>
-                        <p class="text-muted small mb-0">Final styling and quality walkthrough.</p>
-                    </div>
-                </div>
-            </div>
+            </section>
         </div>
 
-        <div class="col-lg-4">
-            <div class="booking-card sticky-top reveal delay-1">
-                <h4 class="fw-bold mb-2">Request Service</h4>
-                <div class="fs-2 fw-bold text-gold mb-4">৳ {{ service.starting_price }} <small class="fs-6 text-muted fw-normal">Starting price</small></div>
-                <div class="booking-meta mb-4">
-                    <div class="d-flex justify-content-between small text-muted">
-                        <span>Typical timeline</span>
-                        <span>8-12 weeks</span>
+        <aside class="lg:col-span-4">
+            <div class="sticky top-28 space-y-8">
+                <div class="bg-brand-dark rounded-[3rem] p-10 border border-white/10 shadow-strong relative overflow-hidden text-white" x-data="{ revealed: false }">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-brand-gold/10 rounded-full blur-2xl -mr-16 -mt-16"></div>
+                    
+                    <header class="mb-8 relative z-10">
+                        <span class="px-4 py-1.5 rounded-full bg-white/10 text-white text-[10px] font-bold uppercase tracking-widest mb-4 inline-block">Official Partner</span>
+                        <h4 class="text-2xl font-display font-bold text-white mb-2">Connect with Studio</h4>
+                        <div class="flex items-baseline gap-2">
+                            <span class="text-3xl font-display font-bold text-brand-gold">৳{{ service.starting_price }}</span>
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-white/40">Starting Price</span>
+                        </div>
+                    </header>
+
+                    <!-- Direct Contact Actions -->
+                    <div class="grid grid-cols-2 gap-3 mb-8 relative z-10">
+                        <button @click="revealed = !revealed" class="col-span-2 py-4 rounded-2xl bg-white text-brand-dark font-bold hover:bg-brand-gold hover:text-white transition-all flex items-center justify-center gap-2 shadow-lg text-sm">
+                             <i class="fas" :class="revealed ? 'fa-phone-alt' : 'fa-headset'"></i>
+                             <span x-text="revealed ? '+880 1712 458 794' : 'Show Number'"></span>
+                        </button>
+                        <a href="https://wa.me/8801712458794?text=Hi%20FlatlandBD,%20I'd%20like%20to%20discuss%20design%20service:%20{{ service.provider_name }}" target="_blank" class="py-3 rounded-xl bg-white/5 border border-white/10 text-white font-bold hover:bg-white/10 transition-all flex items-center justify-center gap-2 text-xs">
+                            <i class="fab fa-whatsapp text-lg text-emerald-400"></i> WhatsApp
+                        </a>
+                        <a href="{{ service.portfolio_url or '#' }}" target="_blank" class="py-3 rounded-xl bg-white/5 border border-white/10 text-white font-bold hover:bg-white/10 transition-all flex items-center justify-center gap-2 text-xs">
+                            <i class="fas fa-external-link-alt text-brand-gold"></i> Portfolio
+                        </a>
                     </div>
-                    <div class="d-flex justify-content-between small text-muted mt-2">
-                        <span>Revisions</span>
-                        <span>2 included</span>
+                    
+                    <div class="w-full h-px bg-white/10 mb-8"></div>
+
+                    <h5 class="text-sm font-bold text-white mb-6 uppercase tracking-widest">Request Consultation</h5>
+
+                    <form action="{{ url_for('contact') }}" method="post" class="space-y-4 relative z-10">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="interest" value="Interior Service: {{ service.provider_name }}">
+                        
+                        <div class="space-y-2">
+                            <input type="text" name="name" placeholder="Your Name" required
+                                   class="w-full px-5 py-3 rounded-xl bg-white/5 border border-white/10 focus:border-brand-gold focus:bg-white/10 outline-none transition-all text-white placeholder:text-white/30 text-sm">
+                        </div>
+                        <div class="space-y-2">
+                            <input type="text" name="contact" placeholder="Phone or Email" required
+                                   class="w-full px-5 py-3 rounded-xl bg-white/5 border border-white/10 focus:border-brand-gold focus:bg-white/10 outline-none transition-all text-white placeholder:text-white/30 text-sm">
+                        </div>
+                        <div class="space-y-2">
+                             <input type="text" name="message" required placeholder="Property size (sqft) & requirements..." 
+                                   class="w-full px-5 py-3 rounded-xl bg-white/5 border border-white/10 focus:border-brand-gold focus:bg-white/10 outline-none transition-all text-white placeholder:text-white/30 text-sm">
+                        </div>
+                        
+                        <button type="submit" class="btn-gold-tw w-full py-4 text-sm shadow-lg shadow-brand-gold/20 mt-2">
+                            Submit Request
+                        </button>
+                    </form>
+
+                    <div class="mt-8 pt-6 border-t border-white/5 space-y-3">
+                        <div class="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-white/40">
+                            <span>Response Time</span>
+                            <span class="text-white">~ 4 Hours</span>
+                        </div>
+                        <div class="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-white/40">
+                            <span>Site Visits</span>
+                            <span class="text-white">Included</span>
+                        </div>
                     </div>
-                    <div class="d-flex justify-content-between small text-muted mt-2">
-                        <span>Site supervision</span>
-                        <span>Included</span>
-                    </div>
-                </div>
-                
-                <form>
-                    <div class="mb-3">
-                        <label class="form-label small text-muted">Property Type</label>
-                        <select class="form-select">
-                            <option>Apartment</option>
-                            <option>Duplex</option>
-                            <option>Office</option>
-                        </select>
-                    </div>
-                    <div class="mb-4">
-                        <label class="form-label small text-muted">Estimated Area (Sqft)</label>
-                        <input type="number" class="form-control" placeholder="e.g. 1500">
-                    </div>
-                    <button type="button" class="btn btn-gold w-100 py-3 fw-bold mb-3">Book Consultation</button>
-                    <a href="{{ service.portfolio_url or '#' }}" target="_blank" rel="noopener" class="btn btn-outline-light w-100 py-3 d-flex align-items-center justify-content-center">
-                        <i class="fas fa-external-link-alt me-2"></i> External Portfolio
-                    </a>
-                </form>
-                
-                <hr class="bg-secondary my-4">
-                <div class="text-center">
-                    <small class="text-muted">Average response time: 2-4 hours</small>
                 </div>
             </div>
-        </div>
+        </aside>
     </div>
 </div>
 {% endblock %}

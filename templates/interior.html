@@ -3,634 +3,679 @@
 {% block title %}Interior Design Services - FlatlandBD{% endblock %}
 
 {% block preload %}
-<link rel="preload" as="image" href="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=75">
+<link rel="preload" as="image" href="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=75" imagesrcset="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?ixlib=rb-4.0.3&auto=format&fit=crop&w=900&q=75 900w, https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=75 1400w, https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80 2000w" imagesizes="100vw" fetchpriority="high">
 <link rel="preload" as="image" href="https://images.unsplash.com/photo-1505691938895-1758d7feb511?ixlib=rb-4.0.3&auto=format&fit=crop&w=900&q=80" imagesrcset="https://images.unsplash.com/photo-1505691938895-1758d7feb511?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80 500w, https://images.unsplash.com/photo-1505691938895-1758d7feb511?ixlib=rb-4.0.3&auto=format&fit=crop&w=900&q=80 900w, https://images.unsplash.com/photo-1505691938895-1758d7feb511?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80 1200w" imagesizes="(max-width: 576px) 92vw, (max-width: 992px) 70vw, 48vw" fetchpriority="high">
 {% endblock %}
 
 {% block extra_css %}
 <style>
-    .interior-hero {
-        padding: 120px 0 90px;
-        background: linear-gradient(120deg, rgba(255, 255, 255, 0.9) 50%, rgba(247, 249, 252, 0.6)),
-                    url('https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=75');
+    .interior-hero-bg {
+        background-color: var(--primary-dark);
+        background-image: linear-gradient(to bottom, rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.9)), url('https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1400&q=80');
         background-size: cover;
         background-position: center;
-        position: relative;
-        overflow: hidden;
+        background-attachment: fixed;
     }
 
-    .interior-hero::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background-image:
-            linear-gradient(rgba(29, 37, 51, 0.06) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(29, 37, 51, 0.06) 1px, transparent 1px);
-        background-size: 34px 34px;
-        opacity: 0.35;
-        pointer-events: none;
+    @media (max-width: 640px) {
+        .interior-hero-bg {
+            background-image: linear-gradient(to bottom, rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.9)), url('https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=900&q=80');
+        }
     }
 
-    .interior-hero .container {
-        position: relative;
-        z-index: 1;
+    @media (min-width: 1280px) {
+        .interior-hero-bg {
+            background-image: linear-gradient(to bottom, rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.9)), url('https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=2000&q=80');
+        }
     }
-
-    .interior-hero-card {
-        background: rgba(255, 255, 255, 0.88);
-        border: 1px solid var(--glass-border);
-        border-radius: var(--radius-lg);
-        padding: 24px;
-        box-shadow: var(--shadow-strong);
-        backdrop-filter: blur(6px);
+    
+    .glass-tab {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
     }
-
-    .interior-hero-card img {
-        width: 100%;
-        height: 230px;
-        object-fit: cover;
-        border-radius: var(--radius-md);
-    }
-
-    .interior-hero-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-        margin-top: 16px;
-    }
-
-    .designer-card {
-        background: var(--surface-strong);
-        border: 1px solid var(--glass-border);
-        border-radius: var(--radius-lg);
-        overflow: hidden;
-        transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-        box-shadow: var(--shadow-soft);
-    }
-
-    .designer-card:hover {
-        transform: translateY(-6px);
-        box-shadow: var(--shadow-strong);
-        border-color: rgba(213, 123, 76, 0.3);
-    }
-
-    .portfolio-overlay {
-        position: relative;
-        height: 240px;
-        overflow: hidden;
-    }
-
-    .portfolio-overlay::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(180deg, rgba(29, 37, 51, 0) 40%, rgba(29, 37, 51, 0.35) 100%);
-        pointer-events: none;
-    }
-
-    .portfolio-overlay img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.8s ease;
-    }
-
-    .designer-card:hover .portfolio-overlay img {
-        transform: scale(1.1);
-    }
-
-    .designer-info {
-        padding: 26px;
-    }
-
-    .designer-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin: 18px 0 24px;
-    }
-
-    .designer-meta .metric-pill {
-        background: rgba(29, 37, 51, 0.06);
-    }
-
-    .service-tag {
-        background: rgba(213, 123, 76, 0.14);
+    .glass-tab.active {
+        background: #ffffff;
         color: var(--primary-dark);
-        border: 1px solid rgba(213, 123, 76, 0.35);
-        padding: 4px 12px;
-        border-radius: 10px;
-        font-size: 0.8rem;
-        margin-right: 5px;
+        border-color: #ffffff;
     }
 
-    .section-divider {
-        height: 1px;
-        background: linear-gradient(to right, var(--accent-gold), transparent);
-        margin: 40px 0;
-    }
-
-    .interior-gallery-header {
-        gap: 18px;
-        flex-wrap: wrap;
-    }
-
-    .focus-card {
-        background: var(--surface-strong);
-        border: 1px solid var(--glass-border);
-        border-radius: var(--radius-md);
-        padding: 20px;
-        height: 100%;
-        box-shadow: var(--shadow-soft);
-        transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-    }
-
-    .focus-card:hover {
-        transform: translateY(-6px);
-        border-color: rgba(213, 123, 76, 0.35);
-        box-shadow: var(--shadow-strong);
-    }
-
-    .focus-icon {
-        width: 46px;
-        height: 46px;
-        border-radius: 14px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        background: linear-gradient(135deg, rgba(213, 123, 76, 0.9), rgba(242, 181, 123, 0.9));
-        color: #ffffff;
-        font-size: 1.1rem;
-        margin-bottom: 12px;
-        box-shadow: 0 10px 20px rgba(213, 123, 76, 0.22);
+    @media (hover: none) and (pointer: coarse) {
+        .interior-hero-bg {
+            background-attachment: scroll;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<section class="interior-hero">
-    <div class="container">
-        <div class="row align-items-center g-5">
-            <div class="col-lg-6">
-                <span class="section-kicker mb-3 d-block reveal">Premium interiors</span>
-                <h1 class="display-3 fw-bold mb-4 reveal delay-1">Studio-grade interiors for <br><span class="text-gradient">refined living</span></h1>
-                <p class="lead text-muted mb-5 reveal delay-2">Work with expert designers and explore projects that include clear scope, materials, and deliverables.</p>
-                <div class="d-flex gap-3 reveal delay-3">
-                    <a href="#packages" class="btn btn-gold btn-lg">Request Consultation</a>
-                    <a href="#gallery" class="btn btn-outline-light btn-lg px-4">View Gallery</a>
+<header class="relative pt-40 pb-32 interior-hero-bg text-center">
+    <div class="max-w-4xl mx-auto px-4 relative z-10 animate-fade-in-up">
+        <span class="inline-block px-4 py-1.5 rounded-full border border-white/20 text-white/80 text-xs font-bold uppercase tracking-[0.2em] mb-6 backdrop-blur-md">Bespoke Living</span>
+        <h1 class="text-5xl md:text-6xl lg:text-7xl font-display text-white leading-tight mb-6 drop-shadow-lg">
+            Curated <i class="font-serif text-brand-gold">Interiors</i>
+        </h1>
+        <p class="text-white/70 text-lg md:text-xl font-light max-w-2xl mx-auto leading-relaxed">
+            Collaborate with Bangladesh's finest design studios to craft your personal sanctuary.
+        </p>
+        
+        <div class="mt-10 flex flex-wrap justify-center gap-4">
+            <a href="#packages" class="px-8 py-3 rounded-xl bg-brand-gold text-brand-dark font-bold hover:bg-white transition-all text-sm uppercase tracking-widest">
+                View Packages
+            </a>
+            <a href="#gallery" class="px-8 py-3 rounded-xl border border-white/20 text-white font-bold hover:bg-white hover:text-brand-dark transition-all text-sm uppercase tracking-widest backdrop-blur-sm">
+                Design Gallery
+            </a>
+        </div>
+    </div>
+</header>
+
+<section class="py-24 bg-white" id="features">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col lg:flex-row items-end justify-between mb-16 gap-8">
+            <div class="max-w-2xl">
+                <span class="inline-block px-4 py-1.5 rounded-full bg-brand-gold/10 text-brand-gold text-xs font-bold uppercase tracking-widest mb-6">Interior features</span>
+                <h2 class="text-4xl font-display font-bold text-brand-dark leading-tight">Full service interiors with clear deliverables.</h2>
+            </div>
+            <p class="text-brand-dark/60 text-lg max-w-md">
+                We combine planning, sourcing, and on-site coordination so every stage is transparent and easy to approve.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Feature 1 -->
+            <div class="group p-8 rounded-[2.5rem] bg-brand-soft border border-glass-border hover:bg-white hover:shadow-strong transition-all duration-300">
+                <div class="w-14 h-14 rounded-2xl bg-brand-gold/10 flex items-center justify-center text-brand-gold text-2xl mb-8 group-hover:scale-110 transition-transform">
+                    <i class="fas fa-pencil-ruler"></i>
                 </div>
-                <div class="hero-details reveal delay-4 mt-4">
-                    <span class="metric-pill">Project briefs</span>
-                    <span class="metric-pill">Material palettes</span>
-                    <span class="metric-pill">On-site guidance</span>
+                <h3 class="text-xl font-bold text-brand-dark mb-4">Space planning + 3D</h3>
+                <p class="text-brand-dark/60 text-sm leading-relaxed mb-8">Layout, lighting, and visuals to validate the concept early.</p>
+                <ul class="space-y-4">
+                    <li class="flex items-center gap-3 text-sm font-medium text-brand-dark/80">
+                        <i class="fas fa-check text-brand-gold"></i> Site measurements
+                    </li>
+                    <li class="flex items-center gap-3 text-sm font-medium text-brand-dark/80">
+                        <i class="fas fa-check text-brand-gold"></i> Furniture layout
+                    </li>
+                    <li class="flex items-center gap-3 text-sm font-medium text-brand-dark/80">
+                        <i class="fas fa-check text-brand-gold"></i> 3D renders
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="group p-8 rounded-[2.5rem] bg-brand-soft border border-glass-border hover:bg-white hover:shadow-strong transition-all duration-300">
+                <div class="w-14 h-14 rounded-2xl bg-brand-warm/10 flex items-center justify-center text-brand-warm text-2xl mb-8 group-hover:scale-110 transition-transform">
+                    <i class="fas fa-swatchbook"></i>
+                </div>
+                <h3 class="text-xl font-bold text-brand-dark mb-4">Materials + sourcing</h3>
+                <p class="text-brand-dark/60 text-sm leading-relaxed mb-8">Finish palettes and cost clarity before execution begins.</p>
+                <ul class="space-y-4">
+                    <li class="flex items-center gap-3 text-sm font-medium text-brand-dark/80">
+                        <i class="fas fa-check text-brand-gold"></i> Material palette
+                    </li>
+                    <li class="flex items-center gap-3 text-sm font-medium text-brand-dark/80">
+                        <i class="fas fa-check text-brand-gold"></i> BOQ & estimates
+                    </li>
+                    <li class="flex items-center gap-3 text-sm font-medium text-brand-dark/80">
+                        <i class="fas fa-check text-brand-gold"></i> Vendor shortlist
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="group p-8 rounded-[2.5rem] bg-brand-soft border border-glass-border hover:bg-white hover:shadow-strong transition-all duration-300">
+                <div class="w-14 h-14 rounded-2xl bg-brand-dark/5 flex items-center justify-center text-brand-dark text-2xl mb-8 group-hover:scale-110 transition-transform">
+                    <i class="fas fa-hard-hat"></i>
+                </div>
+                <h3 class="text-xl font-bold text-brand-dark mb-4">Execution support</h3>
+                <p class="text-brand-dark/60 text-sm leading-relaxed mb-8">On-site coordination to deliver on time and on spec.</p>
+                <ul class="space-y-4">
+                    <li class="flex items-center gap-3 text-sm font-medium text-brand-dark/80">
+                        <i class="fas fa-check text-brand-gold"></i> Site supervision
+                    </li>
+                    <li class="flex items-center gap-3 text-sm font-medium text-brand-dark/80">
+                        <i class="fas fa-check text-brand-gold"></i> Quality checks
+                    </li>
+                    <li class="flex items-center gap-3 text-sm font-medium text-brand-dark/80">
+                        <i class="fas fa-check text-brand-gold"></i> Final handover
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-24 bg-brand-soft overflow-hidden" id="before-after">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col lg:flex-row items-center gap-16">
+            <div class="w-full lg:w-1/2">
+                <span class="inline-block px-4 py-1.5 rounded-full bg-brand-warm/10 text-brand-warm text-xs font-bold uppercase tracking-widest mb-6">Before / After</span>
+                <h2 class="text-4xl font-display font-bold text-brand-dark leading-tight mb-6">See the transformation.</h2>
+                <p class="text-brand-dark/60 text-lg mb-10 max-w-xl">
+                    Drag the slider to compare a real kitchen renovation from our studio partners. Clear focus on ergonomics and premium finishes.
+                </p>
+                <div class="space-y-6">
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-xl bg-white shadow-soft flex items-center justify-center text-brand-gold shrink-0">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-brand-dark mb-1">Optimized Lighting</h4>
+                            <p class="text-sm text-brand-dark/60">Layered lighting plan for better task performance.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-xl bg-white shadow-soft flex items-center justify-center text-brand-gold shrink-0">
+                            <i class="fas fa-layer-group"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-brand-dark mb-1">Custom Cabinetry</h4>
+                            <p class="text-sm text-brand-dark/60">Tailored storage solutions with soft-close hardware.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="col-lg-6">
-                <div class="interior-hero-card reveal delay-2">
-                    <p class="section-kicker mb-2">Current spotlight</p>
-                    <h4 class="mb-3">Banani Residence</h4>
-                    <img src="https://images.unsplash.com/photo-1505691938895-1758d7feb511?ixlib=rb-4.0.3&auto=format&fit=crop&w=900&q=80" srcset="https://images.unsplash.com/photo-1505691938895-1758d7feb511?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80 500w, https://images.unsplash.com/photo-1505691938895-1758d7feb511?ixlib=rb-4.0.3&auto=format&fit=crop&w=900&q=80 900w, https://images.unsplash.com/photo-1505691938895-1758d7feb511?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80 1200w" sizes="(max-width: 576px) 92vw, (max-width: 992px) 70vw, 48vw" alt="Signature interior" loading="eager" fetchpriority="high" decoding="async" width="900" height="650">
-                    <div class="interior-hero-meta">
-                        <span class="metric-pill">3D visualisation</span>
-                        <span class="metric-pill">12-week delivery</span>
-                        <span class="metric-pill">Custom joinery</span>
+
+            <div class="w-full lg:w-1/2">
+                <div class="relative rounded-[3rem] overflow-hidden shadow-strong aspect-[4/3]" x-data="{ position: 50 }">
+                    <img src="https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=1200&q=80" 
+                         alt="Before" class="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async">
+                    <div class="absolute inset-0 overflow-hidden" :style="{ width: position + '%' }">
+                        <img src="https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1200&q=80" 
+                             alt="After" class="absolute inset-0 w-[200%] h-full object-cover max-w-none" loading="lazy" decoding="async"
+                             :style="{ width: (10000 / position) + '%' }">
                     </div>
+                    
+                    <!-- Slider Handle -->
+                    <div class="absolute inset-y-0 z-20" :style="{ left: position + '%' }">
+                        <div class="absolute inset-y-0 -left-px w-0.5 bg-white shadow-strong"></div>
+                        <div class="absolute top-1/2 -left-5 w-10 h-10 rounded-full bg-white shadow-strong flex items-center justify-center -translate-y-1/2 cursor-ew-resize">
+                            <i class="fas fa-arrows-alt-h text-brand-gold"></i>
+                        </div>
+                    </div>
+
+                    <!-- Range Input -->
+                    <input type="range" min="0" max="100" x-model="position" 
+                           class="absolute inset-0 w-full h-full opacity-0 z-30 cursor-ew-resize">
+
+                    <!-- Labels -->
+                    <div class="absolute bottom-6 left-6 px-4 py-2 bg-black/40 backdrop-blur rounded-xl text-white text-[10px] font-bold uppercase tracking-[0.2em]">Before</div>
+                    <div class="absolute bottom-6 right-6 px-4 py-2 bg-brand-gold/80 backdrop-blur rounded-xl text-white text-[10px] font-bold uppercase tracking-[0.2em]">After</div>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<section class="py-5 defer-render" id="features">
-    <div class="container">
-        <div class="row align-items-end mb-4">
-            <div class="col-lg-6">
-                <p class="section-kicker reveal">Interior features</p>
-                <h2 class="fw-bold reveal">Full service interiors with clear deliverables.</h2>
+<section class="py-24 bg-white" id="spaces">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col lg:flex-row items-end justify-between mb-16 gap-8">
+            <div class="max-w-2xl">
+                <span class="inline-block px-4 py-1.5 rounded-full bg-brand-gold/10 text-brand-gold text-xs font-bold uppercase tracking-widest mb-6">Spaces + add-ons</span>
+                <h2 class="text-4xl font-display font-bold text-brand-dark leading-tight">Design support for every room.</h2>
             </div>
-            <div class="col-lg-6">
-                <p class="text-muted reveal delay-1">We combine planning, sourcing, and on-site coordination so every stage is transparent and easy to approve.</p>
-            </div>
+            <p class="text-brand-dark/60 text-lg max-w-md">
+                Choose full-home or room-by-room upgrades. We tailor scope and finishes to your lifestyle.
+            </p>
         </div>
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="interior-feature-card defer-card reveal">
-                    <div class="interior-feature-icon" aria-hidden="true"><i class="fas fa-pencil-ruler"></i></div>
-                    <h5>Space planning + 3D</h5>
-                    <p class="text-muted small mb-0">Layout, lighting, and visuals to validate the concept early.</p>
-                    <ul class="interior-feature-list">
-                        <li><i class="fas fa-check text-gold"></i><span>Site measurements + zoning</span></li>
-                        <li><i class="fas fa-check text-gold"></i><span>Furniture layout and circulation</span></li>
-                        <li><i class="fas fa-check text-gold"></i><span>3D renders for approvals</span></li>
-                    </ul>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Room Cards -->
+                    <div class="p-6 rounded-3xl bg-brand-soft border border-glass-border hover:bg-white hover:shadow-strong transition-all group">
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-gold to-brand-warm flex items-center justify-center text-white text-xl mb-4 shadow-lg group-hover:scale-110 transition-transform">
+                            <i class="fas fa-couch"></i>
+                        </div>
+                        <h4 class="font-bold text-brand-dark mb-2 text-lg">Living room</h4>
+                        <p class="text-brand-dark/60 text-xs leading-relaxed">Layered lighting, TV wall, and seating layout.</p>
+                    </div>
+                    <div class="p-6 rounded-3xl bg-brand-soft border border-glass-border hover:bg-white hover:shadow-strong transition-all group">
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-gold to-brand-warm flex items-center justify-center text-white text-xl mb-4 shadow-lg group-hover:scale-110 transition-transform">
+                            <i class="fas fa-bed"></i>
+                        </div>
+                        <h4 class="font-bold text-brand-dark mb-2 text-lg">Bedroom</h4>
+                        <p class="text-brand-dark/60 text-xs leading-relaxed">Wardrobes, headboards, and cozy palettes.</p>
+                    </div>
+                    <div class="p-6 rounded-3xl bg-brand-soft border border-glass-border hover:bg-white hover:shadow-strong transition-all group">
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-gold to-brand-warm flex items-center justify-center text-white text-xl mb-4 shadow-lg group-hover:scale-110 transition-transform">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                        <h4 class="font-bold text-brand-dark mb-2 text-lg">Kitchen</h4>
+                        <p class="text-brand-dark/60 text-xs leading-relaxed">Modular storage, countertops, and appliances.</p>
+                    </div>
+                    <div class="p-6 rounded-3xl bg-brand-soft border border-glass-border hover:bg-white hover:shadow-strong transition-all group">
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-gold to-brand-warm flex items-center justify-center text-white text-xl mb-4 shadow-lg group-hover:scale-110 transition-transform">
+                            <i class="fas fa-bath"></i>
+                        </div>
+                        <h4 class="font-bold text-brand-dark mb-2 text-lg">Bathroom</h4>
+                        <p class="text-brand-dark/60 text-xs leading-relaxed">Fixtures, tiles, and moisture-safe finishes.</p>
+                    </div>
+                    <div class="p-6 rounded-3xl bg-brand-soft border border-glass-border hover:bg-white hover:shadow-strong transition-all group">
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-gold to-brand-warm flex items-center justify-center text-white text-xl mb-4 shadow-lg group-hover:scale-110 transition-transform">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+                        <h4 class="font-bold text-brand-dark mb-2 text-lg">Home office</h4>
+                        <p class="text-brand-dark/60 text-xs leading-relaxed">Productive layouts, storage, and acoustic care.</p>
+                    </div>
+                    <div class="p-6 rounded-3xl bg-brand-soft border border-glass-border hover:bg-white hover:shadow-strong transition-all group">
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-brand-gold to-brand-warm flex items-center justify-center text-white text-xl mb-4 shadow-lg group-hover:scale-110 transition-transform">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <h4 class="font-bold text-brand-dark mb-2 text-lg">Commercial</h4>
+                        <p class="text-brand-dark/60 text-xs leading-relaxed">Retail, studio, and hospitality interiors.</p>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="interior-feature-card defer-card reveal delay-1">
-                    <div class="interior-feature-icon" aria-hidden="true"><i class="fas fa-swatchbook"></i></div>
-                    <h5>Materials + sourcing</h5>
-                    <p class="text-muted small mb-0">Finish palettes and cost clarity before execution begins.</p>
-                    <ul class="interior-feature-list">
-                        <li><i class="fas fa-check text-gold"></i><span>Material palette + samples</span></li>
-                        <li><i class="fas fa-check text-gold"></i><span>BOQ and vendor shortlist</span></li>
-                        <li><i class="fas fa-check text-gold"></i><span>Cost control and alternates</span></li>
-                    </ul>
+
+            <div class="bg-brand-dark rounded-[2.5rem] p-8 relative overflow-hidden flex flex-col justify-center h-full">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-brand-gold/20 rounded-full blur-3xl"></div>
+                <span class="inline-block text-[10px] font-bold text-white/40 uppercase tracking-widest mb-6">Material board</span>
+                <h3 class="text-2xl font-bold text-white mb-4">Curated finishes for modern homes.</h3>
+                <p class="text-white/60 text-sm mb-8">We recommend combinations that balance durability, cost, and aesthetics.</p>
+                <div class="flex flex-wrap gap-2 mb-8">
+                    <span class="px-3 py-1 rounded-lg bg-white/10 text-white text-[10px] font-medium border border-white/10">Laminate + veneer</span>
+                    <span class="px-3 py-1 rounded-lg bg-white/10 text-white text-[10px] font-medium border border-white/10">Quartz tops</span>
+                    <span class="px-3 py-1 rounded-lg bg-white/10 text-white text-[10px] font-medium border border-white/10">Matte paint</span>
+                    <span class="px-3 py-1 rounded-lg bg-white/10 text-white text-[10px] font-medium border border-white/10">Warm lighting</span>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="interior-feature-card defer-card reveal delay-2">
-                    <div class="interior-feature-icon" aria-hidden="true"><i class="fas fa-hard-hat"></i></div>
-                    <h5>Execution support</h5>
-                    <p class="text-muted small mb-0">On-site coordination to deliver on time and on spec.</p>
-                    <ul class="interior-feature-list">
-                        <li><i class="fas fa-check text-gold"></i><span>Site supervision + checklists</span></li>
-                        <li><i class="fas fa-check text-gold"></i><span>Vendor coordination and QA</span></li>
-                        <li><i class="fas fa-check text-gold"></i><span>Final styling + handover</span></li>
-                    </ul>
-                </div>
+                <a href="#packages" class="inline-flex items-center gap-2 text-brand-gold font-bold hover:gap-3 transition-all group text-sm">
+                    See Packages <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                </a>
             </div>
         </div>
     </div>
 </section>
 
-<section class="py-5 defer-render">
-    <div class="container">
-        <div class="row align-items-end mb-4">
-            <div class="col-lg-6">
-                <p class="section-kicker reveal">Spaces + add-ons</p>
-                <h2 class="fw-bold reveal">Design support for every room.</h2>
+<section class="py-24 bg-brand-soft" id="gallery" x-data="{ filter: 'all' }">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row items-end justify-between mb-16 gap-8">
+            <div class="max-w-xl">
+                <span class="inline-block px-4 py-1.5 rounded-full bg-brand-gold/10 text-brand-gold text-xs font-bold uppercase tracking-widest mb-6">Studio Collection</span>
+                <h2 class="text-4xl font-display font-bold text-brand-dark leading-tight">Handpicked Design Studios</h2>
+                <p class="text-brand-dark/60 text-lg mt-4 font-light">Browse portfolios from verified professionals who match your style.</p>
             </div>
-            <div class="col-lg-6">
-                <p class="text-muted reveal delay-1">Choose full-home or room-by-room upgrades. We tailor scope and finishes to your lifestyle.</p>
-            </div>
-        </div>
-        <div class="row g-4">
-            <div class="col-lg-8">
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <div class="focus-card defer-card reveal">
-                            <div class="focus-icon" aria-hidden="true"><i class="fas fa-couch"></i></div>
-                            <h6 class="fw-bold">Living room</h6>
-                            <p class="text-muted small mb-0">Layered lighting, TV wall, and seating layout.</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="focus-card defer-card reveal delay-1">
-                            <div class="focus-icon" aria-hidden="true"><i class="fas fa-bed"></i></div>
-                            <h6 class="fw-bold">Bedroom</h6>
-                            <p class="text-muted small mb-0">Wardrobes, headboards, and cozy palettes.</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="focus-card defer-card reveal delay-2">
-                            <div class="focus-icon" aria-hidden="true"><i class="fas fa-utensils"></i></div>
-                            <h6 class="fw-bold">Kitchen</h6>
-                            <p class="text-muted small mb-0">Modular storage, countertops, and appliances.</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="focus-card defer-card reveal">
-                            <div class="focus-icon" aria-hidden="true"><i class="fas fa-bath"></i></div>
-                            <h6 class="fw-bold">Bathroom</h6>
-                            <p class="text-muted small mb-0">Fixtures, tiles, and moisture-safe finishes.</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="focus-card defer-card reveal delay-1">
-                            <div class="focus-icon" aria-hidden="true"><i class="fas fa-briefcase"></i></div>
-                            <h6 class="fw-bold">Home office</h6>
-                            <p class="text-muted small mb-0">Productive layouts, storage, and acoustic care.</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="focus-card defer-card reveal delay-2">
-                            <div class="focus-icon" aria-hidden="true"><i class="fas fa-building"></i></div>
-                            <h6 class="fw-bold">Commercial</h6>
-                            <p class="text-muted small mb-0">Retail, studio, and hospitality interiors.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4">
-                <div class="glass-card p-4 reveal delay-2">
-                    <p class="section-kicker mb-2">Material board</p>
-                    <h5 class="fw-bold mb-3">Curated finishes for modern homes.</h5>
-                    <p class="text-muted small mb-3">We recommend combinations that balance durability, cost, and aesthetics.</p>
-                    <div>
-                        <span class="material-chip">Laminate + veneer</span>
-                        <span class="material-chip">Quartz tops</span>
-                        <span class="material-chip">Matte paint</span>
-                        <span class="material-chip">Warm lighting</span>
-                        <span class="material-chip">Acoustic panels</span>
-                    </div>
-                    <a href="#packages" class="btn btn-outline-secondary btn-sm mt-3">See Packages</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<div class="container py-5 defer-render" id="gallery">
-        <div class="row align-items-end mb-4 interior-gallery-header">
-            <div class="col-lg-6">
-                <p class="section-kicker reveal">Designer roster</p>
-                <h2 class="fw-bold reveal">Top designers & studios</h2>
-                <p class="text-muted reveal delay-1">Handpicked professionals for your unique needs.</p>
-            </div>
-            <div class="col-lg-6">
-                <div class="d-flex flex-wrap gap-2 justify-content-lg-end" role="group" id="filterGroup">
-                    <button class="btn btn-outline-secondary active" data-filter="all">All</button>
-                    <button class="btn btn-outline-secondary" data-filter="Residential">Residential</button>
-                    <button class="btn btn-outline-secondary" data-filter="Kitchen">Kitchen</button>
-                    <button class="btn btn-outline-secondary" data-filter="Commercial">Commercial</button>
-                </div>
+            
+            <!-- Glass Tabs -->
+            <div class="flex flex-wrap gap-2 p-1.5 bg-white rounded-2xl border border-glass-border shadow-soft">
+                <button @click="filter = 'all'" 
+                        :class="filter === 'all' ? 'bg-brand-dark text-white shadow-md' : 'text-brand-dark/60 hover:text-brand-dark'"
+                        class="px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all">All</button>
+                <button @click="filter = 'Residential'" 
+                        :class="filter === 'Residential' ? 'bg-brand-dark text-white shadow-md' : 'text-brand-dark/60 hover:text-brand-dark'"
+                        class="px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all">Home</button>
+                <button @click="filter = 'Kitchen'" 
+                        :class="filter === 'Kitchen' ? 'bg-brand-dark text-white shadow-md' : 'text-brand-dark/60 hover:text-brand-dark'"
+                        class="px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all">Kitchen</button>
+                <button @click="filter = 'Commercial'" 
+                        :class="filter === 'Commercial' ? 'bg-brand-dark text-white shadow-md' : 'text-brand-dark/60 hover:text-brand-dark'"
+                        class="px-6 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all">Office</button>
             </div>
         </div>
 
-    <div class="row g-4">
-        {% if services %}
-            {% for service in services %}
-            <div class="col-lg-4 col-md-6">
-                <div class="designer-card defer-card reveal">
-                    <div class="portfolio-overlay">
-                        <img src="{{ service.image_url or 'https://images.unsplash.com/photo-1505691938895-1758d7feb511?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' }}" alt="Portfolio" loading="lazy" decoding="async" width="800" height="600" class="img-expand">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+            {% if services %}
+                {% for service in services %}
+                <article x-show="filter === 'all' || '{{ service.service_type }}'.includes(filter)"
+                     x-transition:enter="transition ease-out duration-500"
+                     x-transition:enter-start="opacity-0 translate-y-4"
+                     x-transition:enter-end="opacity-100 translate-y-0"
+                     class="group defer-card luxe-card bg-white rounded-[2rem] overflow-hidden border border-glass-border hover:shadow-strong transition-all duration-500 hover:-translate-y-2 flex flex-col h-full">
+                    
+                    <div class="aspect-[4/3] overflow-hidden relative">
+                        <img src="{{ service.image_url or 'https://images.unsplash.com/photo-1505691938895-1758d7feb511?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' }}" 
+                             alt="{{ service.provider_name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" decoding="async">
+                        <div class="absolute top-4 left-4">
+                            <span class="px-3 py-1 bg-white/95 backdrop-blur rounded-md text-[10px] font-bold text-brand-dark uppercase tracking-widest border border-white/20 shadow-sm">
+                                {{ service.service_type }}
+                            </span>
+                        </div>
+                        <button @click.prevent="$store.wishlist.toggle({
+                                    id: {{ service.id }}, 
+                                    type: 'interior', 
+                                    title: '{{ service.provider_name }}', 
+                                    price: '৳ {{ service.starting_price }}', 
+                                    image: '{{ service.image_url or 'https://images.unsplash.com/photo-1505691938895-1758d7feb511?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80' }}',
+                                    desc: '{{ service.service_type }}',
+                                    url: '{{ url_for('interior_detail', id=service.id) }}'
+                                })" 
+                                class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white hover:text-red-500 transition-all shadow-lg"
+                                :class="$store.wishlist.has({{ service.id }}, 'interior') ? '!bg-white !text-red-500' : ''">
+                            <i class="fas fa-heart text-lg" :class="$store.wishlist.has({{ service.id }}, 'interior') ? 'fas' : 'far'"></i>
+                        </button>
                     </div>
-                    <div class="designer-info">
-                        <div class="mb-3">
-                            <span class="service-tag">{{ service.service_type }}</span>
+                    
+                    <div class="p-8 flex-1 flex flex-col">
+                        <h4 class="text-2xl font-display text-brand-dark mb-3 group-hover:text-brand-gold transition-colors">{{ service.provider_name }}</h4>
+                        <p class="text-brand-dark/60 text-sm font-light leading-relaxed mb-6 line-clamp-3">{{ service.description }}</p>
+                        
+                        <div class="flex flex-wrap gap-2 mb-8 mt-auto">
+                            <span class="px-3 py-1 bg-brand-soft rounded-md text-[10px] font-bold text-brand-dark/50 uppercase tracking-widest flex items-center gap-2">
+                                <i class="fas fa-layer-group text-brand-gold"></i> Full-service
+                            </span>
+                            <span class="px-3 py-1 bg-brand-soft rounded-md text-[10px] font-bold text-brand-dark/50 uppercase tracking-widest flex items-center gap-2">
+                                <i class="fas fa-stopwatch text-brand-gold"></i> Fast Track
+                            </span>
                         </div>
-                        <h4>{{ service.provider_name }}</h4>
-                        <p class="text-muted small mb-4">{{ service.description | truncate(160, True, '...') }}</p>
-                        <div class="designer-meta">
-                            <span class="metric-pill"><i class="fas fa-layer-group me-1"></i> Full-service</span>
-                            <span class="metric-pill"><i class="fas fa-stopwatch me-1"></i> 6-12 weeks</span>
-                            <span class="metric-pill"><i class="fas fa-palette me-1"></i> {{ service.service_type }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center">
+
+                        <div class="flex items-center justify-between pt-6 border-t border-brand-dark/5">
                             <div>
-                                <small class="text-muted d-block">Starting from</small>
-                                <span class="fw-bold text-gold">৳ {{ service.starting_price }}</span>
+                                <span class="block text-[10px] font-bold text-brand-dark/40 uppercase tracking-widest mb-1">Starting from</span>
+                                <span class="text-xl font-display font-medium text-brand-gold">৳ {{ service.starting_price }}</span>
                             </div>
-                        <a href="{{ url_for('interior_detail', id=service.id) }}" class="btn btn-gold">Project Details</a>
+                            <a href="{{ url_for('interior_detail', id=service.id) }}" class="w-12 h-12 rounded-full border border-brand-dark/10 flex items-center justify-center text-brand-dark hover:bg-brand-dark hover:text-white transition-all group-hover:rotate-45">
+                                <i class="fas fa-arrow-up text-sm"></i>
+                            </a>
                         </div>
                     </div>
-                </div>
-            </div>
-            {% endfor %}
-        {% else %}
-            <!-- Demo Designers -->
-            <div class="col-lg-4 col-md-6">
-                <div class="designer-card defer-card reveal">
-                    <div class="portfolio-overlay">
-                        <img src="https://images.unsplash.com/photo-1505691938895-1758d7feb511?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Portfolio" class="img-expand" loading="lazy" decoding="async" width="800" height="600">
+                </article>
+                {% endfor %}
+            {% else %}
+                <!-- Demo Card with new style -->
+                <article x-show="filter === 'all' || 'Residential'.includes(filter)"
+                     class="group luxe-card bg-white rounded-[2rem] overflow-hidden border border-glass-border hover:shadow-strong transition-all duration-500 hover:-translate-y-2 flex flex-col h-full">
+                    <div class="aspect-[4/3] overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1616486338812-3dadae4b4f9d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                             alt="Demo" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" decoding="async">
+                        <div class="absolute top-4 left-4">
+                            <span class="px-3 py-1 bg-white/95 backdrop-blur rounded-md text-[10px] font-bold text-brand-dark uppercase tracking-widest border border-white/20 shadow-sm">
+                                Luxury Homes
+                            </span>
+                        </div>
                     </div>
-                    <div class="designer-info">
-                        <div class="mb-3">
-                            <span class="service-tag">Luxury Homes</span>
+                    <div class="p-8 flex-1 flex flex-col">
+                        <h4 class="text-2xl font-display text-brand-dark mb-3 group-hover:text-brand-gold transition-colors">Elegant Spaces Ltd.</h4>
+                        <p class="text-brand-dark/60 text-sm font-light leading-relaxed mb-6 line-clamp-3">Specializing in minimalism and modern luxury aesthetic for high-end apartments.</p>
+                        
+                        <div class="flex flex-wrap gap-2 mb-8 mt-auto">
+                            <span class="px-3 py-1 bg-brand-soft rounded-md text-[10px] font-bold text-brand-dark/50 uppercase tracking-widest flex items-center gap-2">
+                                <i class="fas fa-layer-group text-brand-gold"></i> Full-service
+                            </span>
+                            <span class="px-3 py-1 bg-brand-soft rounded-md text-[10px] font-bold text-brand-dark/50 uppercase tracking-widest flex items-center gap-2">
+                                <i class="fas fa-stopwatch text-brand-gold"></i> 8-12 weeks
+                            </span>
                         </div>
-                        <h4>Elegant Spaces Ltd. (Demo)</h4>
-                        <p class="text-muted small mb-4">Specializing in minimalism and modern luxury aesthetic for high-end apartments.</p>
-                        <div class="designer-meta">
-                            <span class="metric-pill"><i class="fas fa-layer-group me-1"></i> Full-service</span>
-                            <span class="metric-pill"><i class="fas fa-stopwatch me-1"></i> 8-12 weeks</span>
-                            <span class="metric-pill"><i class="fas fa-palette me-1"></i> Minimal luxury</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center">
+
+                        <div class="flex items-center justify-between pt-6 border-t border-brand-dark/5">
                             <div>
-                                <small class="text-muted d-block">Starting from</small>
-                                <span class="fw-bold text-gold">৳ 2.5 Lac</span>
+                                <span class="block text-[10px] font-bold text-brand-dark/40 uppercase tracking-widest mb-1">Starting from</span>
+                                <span class="text-xl font-display font-medium text-brand-gold">৳ 2.5 Lac</span>
                             </div>
-                        <a href="#" class="btn btn-gold">Project Details</a>
+                            <a href="#" class="w-12 h-12 rounded-full border border-brand-dark/10 flex items-center justify-center text-brand-dark hover:bg-brand-dark hover:text-white transition-all group-hover:rotate-45">
+                                <i class="fas fa-arrow-up text-sm"></i>
+                            </a>
                         </div>
                     </div>
-                </div>
+                </article>
+            {% endif %}
+        </div>
+
+        {% if has_prev or has_next %}
+        <nav class="mt-20 flex justify-center gap-2" aria-label="Pagination">
+            {% if has_prev %}
+            <a href="{{ prev_url }}" class="w-12 h-12 rounded-full border border-glass-border bg-white flex items-center justify-center text-brand-dark hover:bg-brand-gold hover:text-white hover:border-brand-gold transition-all shadow-soft">
+                <i class="fas fa-chevron-left text-xs"></i>
+            </a>
+            {% endif %}
+            
+            <div class="px-6 flex items-center bg-brand-dark rounded-full font-bold text-xs uppercase tracking-widest text-white shadow-soft">
+                Page {{ page }}
             </div>
 
-            <div class="col-lg-4 col-md-6">
-                <div class="designer-card defer-card reveal delay-1">
-                    <div class="portfolio-overlay">
-                        <img src="https://images.unsplash.com/photo-1501045661006-fcebe0257c3f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Portfolio" class="img-expand" loading="lazy" decoding="async" width="800" height="600">
-                    </div>
-                    <div class="designer-info">
-                        <div class="mb-3">
-                            <span class="service-tag">Modular Kitchen</span>
-                        </div>
-                        <h4>ArchiTech Interiors (Demo)</h4>
-                        <p class="text-muted small mb-4">Smart modular kitchen solutions and space-saving interior designs.</p>
-                        <div class="designer-meta">
-                            <span class="metric-pill"><i class="fas fa-layer-group me-1"></i> Modular kitchen</span>
-                            <span class="metric-pill"><i class="fas fa-stopwatch me-1"></i> 4-6 weeks</span>
-                            <span class="metric-pill"><i class="fas fa-palette me-1"></i> Smart storage</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <small class="text-muted d-block">Starting from</small>
-                                <span class="fw-bold text-gold">৳ 80,000</span>
-                            </div>
-                        <a href="#" class="btn btn-gold">Project Details</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6">
-                <div class="designer-card defer-card reveal delay-2">
-                    <div class="portfolio-overlay">
-                        <img src="https://images.unsplash.com/photo-1616137466211-f939a420be84?auto=format&fit=crop&w=800" alt="Portfolio" class="img-expand" loading="lazy" decoding="async" width="800" height="600">
-                    </div>
-                    <div class="designer-info">
-                        <div class="mb-3">
-                            <span class="service-tag">Classic</span>
-                        </div>
-                        <h4>Heritage Designers (Demo)</h4>
-                        <p class="text-muted small mb-4">Bringing back classic royal aesthetics with a touch of contemporary elegance.</p>
-                        <div class="designer-meta">
-                            <span class="metric-pill"><i class="fas fa-layer-group me-1"></i> Classic interiors</span>
-                            <span class="metric-pill"><i class="fas fa-stopwatch me-1"></i> 10-14 weeks</span>
-                            <span class="metric-pill"><i class="fas fa-palette me-1"></i> Heritage style</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <small class="text-muted d-block">Starting from</small>
-                                <span class="fw-bold text-gold">৳ 5.0 Lac</span>
-                            </div>
-                        <a href="#" class="btn btn-gold">Project Details</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {% if has_next %}
+            <a href="{{ next_url }}" class="w-12 h-12 rounded-full border border-glass-border bg-white flex items-center justify-center text-brand-dark hover:bg-brand-gold hover:text-white hover:border-brand-gold transition-all shadow-soft">
+                <i class="fas fa-chevron-right text-xs"></i>
+            </a>
+            {% endif %}
+        </nav>
         {% endif %}
     </div>
-</div>
+</section>
 
-{% if has_prev or has_next %}
-<nav class="container my-5" aria-label="Designer pagination">
-    <ul class="pagination justify-content-center">
-        <li class="page-item {% if not has_prev %}disabled{% endif %}">
-            <a class="page-link" href="{{ prev_url or '#' }}" tabindex="{% if not has_prev %}-1{% else %}0{% endif %}">Previous</a>
-        </li>
-        <li class="page-item disabled">
-            <span class="page-link">Page {{ page }}</span>
-        </li>
-        <li class="page-item {% if not has_next %}disabled{% endif %}">
-            <a class="page-link" href="{{ next_url or '#' }}" tabindex="{% if not has_next %}-1{% else %}0{% endif %}">Next</a>
-        </li>
-    </ul>
-</nav>
-{% endif %}
+<section class="py-24 bg-white" id="contact">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-stretch">
+            <div class="flex flex-col justify-center">
+                <span class="inline-block px-4 py-1.5 rounded-full bg-brand-gold/10 text-brand-gold text-xs font-bold uppercase tracking-widest mb-6">Start your design plan</span>
+                <h3 class="text-4xl font-display font-bold text-brand-dark leading-tight mb-6">Get a tailored interior quote.</h3>
+                <p class="text-brand-dark/60 text-lg mb-10">Tell us your space type, budget, and timeline. Our team will respond with a clear plan.</p>
+                
+                <div class="space-y-6">
+                    <div class="flex items-center gap-4 text-brand-dark/80 font-medium">
+                        <div class="w-10 h-10 rounded-full bg-brand-soft flex items-center justify-center text-brand-gold">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        Scope clarity
+                    </div>
+                    <div class="flex items-center gap-4 text-brand-dark/80 font-medium">
+                        <div class="w-10 h-10 rounded-full bg-brand-soft flex items-center justify-center text-brand-gold">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        Trusted studios
+                    </div>
+                    <div class="flex items-center gap-4 text-brand-dark/80 font-medium">
+                        <div class="w-10 h-10 rounded-full bg-brand-soft flex items-center justify-center text-brand-gold">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        Budget guidance
+                    </div>
+                </div>
+            </div>
 
-<section class="py-5 defer-render" id="packages">
-    <div class="container">
-        <div class="row align-items-end mb-4">
-            <div class="col-lg-6">
-                <p class="section-kicker reveal">Studio workflow</p>
-                <h2 class="fw-bold reveal">A professional process from brief to build.</h2>
-            </div>
-            <div class="col-lg-6">
-                <p class="text-muted reveal delay-1">Every project follows a clear sequence so clients and designers stay aligned on scope, schedule, and finish level.</p>
-            </div>
-        </div>
-        <div class="row g-3">
-            <div class="col-md-3">
-                <div class="process-card defer-card reveal">
-                    <div class="process-step">01</div>
-                    <h6 class="fw-bold">Discovery brief</h6>
-                    <p class="text-muted small mb-0">Site survey, lifestyle interview, budget alignment.</p>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="process-card defer-card reveal delay-1">
-                    <div class="process-step">02</div>
-                    <h6 class="fw-bold">Concept + visuals</h6>
-                    <p class="text-muted small mb-0">Moodboards, layouts, and 3D renders for approval.</p>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="process-card defer-card reveal delay-2">
-                    <div class="process-step">03</div>
-                    <h6 class="fw-bold">Execution</h6>
-                    <p class="text-muted small mb-0">Vendor coordination, site supervision, quality checks.</p>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="process-card defer-card reveal delay-3">
-                    <div class="process-step">04</div>
-                    <h6 class="fw-bold">Styling handover</h6>
-                    <p class="text-muted small mb-0">Final staging, punch list, and post-handover support.</p>
-                </div>
+            <div class="bg-brand-soft rounded-[3rem] p-8 md:p-12 border border-glass-border shadow-strong">
+                <form method="post" action="{{ url_for('contact') }}" class="space-y-6">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="interest" value="Interiors">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-brand-dark/40 uppercase tracking-widest ml-1">Name</label>
+                            <input type="text" name="name" required
+                                   class="w-full px-6 py-4 rounded-2xl bg-white border border-brand-dark/5 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/5 transition-all text-brand-dark placeholder:text-brand-dark/20"
+                                   placeholder="Your full name">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-brand-dark/40 uppercase tracking-widest ml-1">Phone or Email</label>
+                            <input type="text" name="contact" required
+                                   class="w-full px-6 py-4 rounded-2xl bg-white border border-brand-dark/5 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/5 transition-all text-brand-dark placeholder:text-brand-dark/20"
+                                   placeholder="01XXXXXXXXX or you@email.com">
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-brand-dark/40 uppercase tracking-widest ml-1">Estimated budget</label>
+                        <select name="budget" 
+                                class="w-full px-6 py-4 rounded-2xl bg-white border border-brand-dark/5 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/5 transition-all text-brand-dark appearance-none cursor-pointer">
+                            <option value="">Select budget range</option>
+                            <option value="Under 1 Lac">Under 1 Lac</option>
+                            <option value="1 Lac - 5 Lac">1 Lac - 5 Lac</option>
+                            <option value="5 Lac - 15 Lac">5 Lac - 15 Lac</option>
+                            <option value="15 Lac+">15 Lac+</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-brand-dark/40 uppercase tracking-widest ml-1">Message</label>
+                        <textarea name="message" required rows="4"
+                                  class="w-full px-6 py-4 rounded-2xl bg-white border border-brand-dark/5 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/5 transition-all text-brand-dark placeholder:text-brand-dark/20 resize-none"
+                                  placeholder="Space type, goals, and timeline..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-gold-tw w-full py-5 text-lg shadow-lg shadow-brand-gold/20">
+                        Request Quote
+                    </button>
+                    <p class="text-center text-[10px] font-bold text-brand-dark/40 uppercase tracking-widest">Response within 24 hours</p>
+                </form>
             </div>
         </div>
     </div>
 </section>
 
-<section class="py-5 defer-render">
-    <div class="container">
-        <div class="text-center mb-5">
-            <p class="section-kicker reveal">Packages</p>
-            <h2 class="fw-bold reveal">Choose a package that fits your space.</h2>
-            <p class="text-muted reveal delay-1">Flexible scopes for apartments, duplexes, and commercial interiors.</p>
+<section class="py-24 bg-brand-dark text-white overflow-hidden" id="packages">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-20">
+            <span class="inline-block px-4 py-1.5 rounded-full bg-white/10 text-brand-gold text-xs font-bold uppercase tracking-widest mb-6">Packages</span>
+            <h2 class="text-4xl md:text-5xl font-display font-bold mb-6">Choose a package that fits your space.</h2>
+            <p class="text-white/40 text-lg">Flexible scopes for apartments, duplexes, and commercial interiors.</p>
         </div>
-        <div class="row g-4">
-            <div class="col-lg-4 col-md-6">
-                <div class="package-card defer-card reveal">
-                    <h5 class="fw-bold">Essential</h5>
-                    <p class="text-muted small mb-3">Best for single rooms or small upgrades.</p>
-                    <div class="package-price">৳ 1.2 - 2.0 Lac</div>
-                    <ul class="package-list">
-                        <li><i class="fas fa-check text-gold"></i><span>Layout plan + 2 revisions</span></li>
-                        <li><i class="fas fa-check text-gold"></i><span>Material palette for core areas</span></li>
-                        <li><i class="fas fa-check text-gold"></i><span>Vendor shortlist and BOQ</span></li>
-                    </ul>
-                    <a href="tel:+8801712458794" class="btn btn-outline-secondary w-100 mt-4">Request Consultation</a>
-                </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Essential -->
+            <div class="p-10 rounded-[3rem] bg-white/5 border border-white/10 hover:bg-white/10 transition-all group">
+                <h5 class="text-2xl font-bold mb-2">Essential</h5>
+                <p class="text-white/40 text-sm mb-8">Best for single rooms or small upgrades.</p>
+                <div class="text-3xl font-bold text-brand-gold mb-10">৳ 1.2 - 2.0 Lac</div>
+                <ul class="space-y-4 mb-10">
+                    <li class="flex items-center gap-3 text-sm text-white/60">
+                        <i class="fas fa-check text-brand-gold"></i> Layout plan + 2 revisions
+                    </li>
+                    <li class="flex items-center gap-3 text-sm text-white/60">
+                        <i class="fas fa-check text-brand-gold"></i> Material palette
+                    </li>
+                    <li class="flex items-center gap-3 text-sm text-white/60">
+                        <i class="fas fa-check text-brand-gold"></i> Vendor shortlist & BOQ
+                    </li>
+                </ul>
+                <a href="tel:+8801712458794" class="block w-full py-4 rounded-2xl border border-white/20 text-center font-bold text-sm hover:bg-white hover:text-brand-dark transition-all">Request Consultation</a>
             </div>
-            <div class="col-lg-4 col-md-6">
-                <div class="package-card featured defer-card reveal delay-1">
-                    <span class="badge badge-premium">Most popular</span>
-                    <h5 class="fw-bold">Signature</h5>
-                    <p class="text-muted small mb-3">Full home design with curated finishes.</p>
-                    <div class="package-price">৳ 2.5 - 4.5 Lac</div>
-                    <ul class="package-list">
-                        <li><i class="fas fa-check text-gold"></i><span>Concept + 3D for all rooms</span></li>
-                        <li><i class="fas fa-check text-gold"></i><span>Material sourcing and BOQ</span></li>
-                        <li><i class="fas fa-check text-gold"></i><span>On-site supervision and QA</span></li>
-                    </ul>
-                    <a href="tel:+8801712458794" class="btn btn-gold w-100 mt-4">Start a Project</a>
-                </div>
+
+            <!-- Signature -->
+            <div class="p-10 rounded-[3rem] bg-gradient-to-br from-brand-gold to-brand-warm text-brand-dark relative shadow-2xl scale-105 z-10">
+                <span class="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-brand-dark text-white text-[10px] font-bold uppercase tracking-widest">Most popular</span>
+                <h5 class="text-2xl font-bold mb-2">Signature</h5>
+                <p class="text-brand-dark/60 text-sm mb-8">Full home design with curated finishes.</p>
+                <div class="text-3xl font-bold mb-10">৳ 2.5 - 4.5 Lac</div>
+                <ul class="space-y-4 mb-10">
+                    <li class="flex items-center gap-3 text-sm font-bold">
+                        <i class="fas fa-check text-brand-dark"></i> Concept + 3D for all rooms
+                    </li>
+                    <li class="flex items-center gap-3 text-sm font-bold">
+                        <i class="fas fa-check text-brand-dark"></i> Material sourcing & BOQ
+                    </li>
+                    <li class="flex items-center gap-3 text-sm font-bold">
+                        <i class="fas fa-check text-brand-dark"></i> On-site supervision
+                    </li>
+                </ul>
+                <a href="tel:+8801712458794" class="block w-full py-4 rounded-2xl bg-brand-dark text-white text-center font-bold text-sm shadow-xl">Start a Project</a>
             </div>
-            <div class="col-lg-4 col-md-6">
-                <div class="package-card defer-card reveal delay-2">
-                    <h5 class="fw-bold">Luxe</h5>
-                    <p class="text-muted small mb-3">Premium finishes with custom detailing.</p>
-                    <div class="package-price">৳ 5.0 Lac +</div>
-                    <ul class="package-list">
-                        <li><i class="fas fa-check text-gold"></i><span>Custom joinery and lighting plan</span></li>
-                        <li><i class="fas fa-check text-gold"></i><span>Procurement and vendor management</span></li>
-                        <li><i class="fas fa-check text-gold"></i><span>Styling and handover support</span></li>
-                    </ul>
-                    <a href="tel:+8801712458794" class="btn btn-outline-secondary w-100 mt-4">Schedule a Call</a>
-                </div>
+
+            <!-- Luxe -->
+            <div class="p-10 rounded-[3rem] bg-white/5 border border-white/10 hover:bg-white/10 transition-all group">
+                <h5 class="text-2xl font-bold mb-2">Luxe</h5>
+                <p class="text-white/40 text-sm mb-8">Premium finishes with custom detailing.</p>
+                <div class="text-3xl font-bold text-brand-gold mb-10">৳ 5.0 Lac +</div>
+                <ul class="space-y-4 mb-10">
+                    <li class="flex items-center gap-3 text-sm text-white/60">
+                        <i class="fas fa-check text-brand-gold"></i> Custom joinery & lighting
+                    </li>
+                    <li class="flex items-center gap-3 text-sm text-white/60">
+                        <i class="fas fa-check text-brand-gold"></i> Project management
+                    </li>
+                    <li class="flex items-center gap-3 text-sm text-white/60">
+                        <i class="fas fa-check text-brand-gold"></i> Styling & handover
+                    </li>
+                </ul>
+                <a href="tel:+8801712458794" class="block w-full py-4 rounded-2xl border border-white/20 text-center font-bold text-sm hover:bg-white hover:text-brand-dark transition-all">Schedule a Call</a>
             </div>
         </div>
     </div>
 </section>
 
-<section class="py-5 interior-faq defer-render">
-    <div class="container">
-        <div class="row align-items-end mb-4">
-            <div class="col-lg-6">
-                <p class="section-kicker reveal">FAQ</p>
-                <h2 class="fw-bold reveal">Answers to common interior questions.</h2>
+<section class="py-24 bg-white" id="workflow">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col lg:flex-row items-end justify-between mb-16 gap-8">
+            <div class="max-w-2xl">
+                <span class="inline-block px-4 py-1.5 rounded-full bg-brand-gold/10 text-brand-gold text-xs font-bold uppercase tracking-widest mb-6">Studio workflow</span>
+                <h2 class="text-4xl font-display font-bold text-brand-dark leading-tight">A professional process from brief to build.</h2>
             </div>
-            <div class="col-lg-6">
-                <p class="text-muted reveal delay-1">Clear expectations help you plan faster and avoid surprises.</p>
+            <p class="text-brand-dark/60 text-lg max-w-md">
+                Every project follows a clear sequence so clients and designers stay aligned.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="p-8 rounded-3xl bg-brand-soft border border-glass-border relative overflow-hidden group">
+                <div class="text-5xl font-display font-bold text-brand-dark/5 absolute -top-2 -right-2 tracking-tighter group-hover:text-brand-gold/10 transition-colors">01</div>
+                <h6 class="font-bold text-brand-dark mb-3 text-lg relative z-10">Discovery brief</h6>
+                <p class="text-brand-dark/60 text-sm leading-relaxed relative z-10">Site survey, lifestyle interview, budget alignment.</p>
+            </div>
+            <div class="p-8 rounded-3xl bg-brand-soft border border-glass-border relative overflow-hidden group">
+                <div class="text-5xl font-display font-bold text-brand-dark/5 absolute -top-2 -right-2 tracking-tighter group-hover:text-brand-gold/10 transition-colors">02</div>
+                <h6 class="font-bold text-brand-dark mb-3 text-lg relative z-10">Concept + visuals</h6>
+                <p class="text-brand-dark/60 text-sm leading-relaxed relative z-10">Moodboards, layouts, and 3D renders for approval.</p>
+            </div>
+            <div class="p-8 rounded-3xl bg-brand-soft border border-glass-border relative overflow-hidden group">
+                <div class="text-5xl font-display font-bold text-brand-dark/5 absolute -top-2 -right-2 tracking-tighter group-hover:text-brand-gold/10 transition-colors">03</div>
+                <h6 class="font-bold text-brand-dark mb-3 text-lg relative z-10">Execution</h6>
+                <p class="text-brand-dark/60 text-sm leading-relaxed relative z-10">Vendor coordination, site supervision, quality checks.</p>
+            </div>
+            <div class="p-8 rounded-3xl bg-brand-soft border border-glass-border relative overflow-hidden group">
+                <div class="text-5xl font-display font-bold text-brand-dark/5 absolute -top-2 -right-2 tracking-tighter group-hover:text-brand-gold/10 transition-colors">04</div>
+                <h6 class="font-bold text-brand-dark mb-3 text-lg relative z-10">Handover</h6>
+                <p class="text-brand-dark/60 text-sm leading-relaxed relative z-10">Final staging, punch list, and support.</p>
             </div>
         </div>
-        <div class="accordion" id="interiorFaq">
-            <div class="accordion-item reveal">
-                <h2 class="accordion-header" id="faqOne">
-                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapseOne" aria-expanded="true" aria-controls="faqCollapseOne">
-                        How long does a full interior project take?
-                    </button>
-                </h2>
-                <div id="faqCollapseOne" class="accordion-collapse collapse show" aria-labelledby="faqOne" data-bs-parent="#interiorFaq">
-                    <div class="accordion-body">
-                        Most apartments complete in 6-12 weeks depending on scope, approvals, and material lead times.
+    </div>
+</section>
+
+<section class="py-24 bg-brand-soft" id="faq">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <span class="inline-block px-4 py-1.5 rounded-full bg-brand-gold/10 text-brand-gold text-xs font-bold uppercase tracking-widest mb-6">FAQ</span>
+            <h2 class="text-4xl font-display font-bold text-brand-dark mb-4">Answers to common interior questions.</h2>
+            <p class="text-brand-dark/60 text-lg">Clear expectations help you plan faster and avoid surprises.</p>
+        </div>
+
+        <div class="space-y-4" x-data="{ active: 1 }">
+            <div class="bg-white rounded-[2rem] border border-glass-border overflow-hidden">
+                <button @click="active = active === 1 ? null : 1" 
+                        class="w-full px-8 py-6 text-left flex items-center justify-between text-brand-dark font-bold hover:bg-brand-soft transition-all">
+                    <span>How long does a full interior project take?</span>
+                    <i class="fas fa-chevron-down transition-transform duration-300" :class="active === 1 ? 'rotate-180' : ''"></i>
+                </button>
+                <div x-show="active === 1" x-collapse>
+                    <div class="px-8 pb-8 pt-2 text-brand-dark/60 text-sm leading-relaxed">
+                        Most apartments complete in 6-12 weeks depending on scope, approvals, and material lead times. Large luxury projects may take up to 16 weeks.
                     </div>
                 </div>
             </div>
-            <div class="accordion-item reveal delay-1">
-                <h2 class="accordion-header" id="faqTwo">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapseTwo" aria-expanded="false" aria-controls="faqCollapseTwo">
-                        What is included in the starting price?
-                    </button>
-                </h2>
-                <div id="faqCollapseTwo" class="accordion-collapse collapse" aria-labelledby="faqTwo" data-bs-parent="#interiorFaq">
-                    <div class="accordion-body">
-                        The starting price covers concept planning, visuals, and base finishes. Final quotes depend on materials and custom work.
+
+            <div class="bg-white rounded-[2rem] border border-glass-border overflow-hidden">
+                <button @click="active = active === 2 ? null : 2" 
+                        class="w-full px-8 py-6 text-left flex items-center justify-between text-brand-dark font-bold hover:bg-brand-soft transition-all">
+                    <span>What is included in the starting price?</span>
+                    <i class="fas fa-chevron-down transition-transform duration-300" :class="active === 2 ? 'rotate-180' : ''"></i>
+                </button>
+                <div x-show="active === 2" x-collapse>
+                    <div class="px-8 pb-8 pt-2 text-brand-dark/60 text-sm leading-relaxed">
+                        The starting price covers concept planning, detailed 3D visuals, and base finishes. Final quotes depend on material selections, custom joinery, and specific technical requirements.
                     </div>
                 </div>
             </div>
-            <div class="accordion-item reveal delay-2">
-                <h2 class="accordion-header" id="faqThree">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapseThree" aria-expanded="false" aria-controls="faqCollapseThree">
-                        Do you provide on-site supervision?
-                    </button>
-                </h2>
-                <div id="faqCollapseThree" class="accordion-collapse collapse" aria-labelledby="faqThree" data-bs-parent="#interiorFaq">
-                    <div class="accordion-body">
-                        Yes. We manage vendor coordination, quality checks, and progress updates through every execution phase.
+
+            <div class="bg-white rounded-[2rem] border border-glass-border overflow-hidden">
+                <button @click="active = active === 3 ? null : 3" 
+                        class="w-full px-8 py-6 text-left flex items-center justify-between text-brand-dark font-bold hover:bg-brand-soft transition-all">
+                    <span>Do you provide on-site supervision?</span>
+                    <i class="fas fa-chevron-down transition-transform duration-300" :class="active === 3 ? 'rotate-180' : ''"></i>
+                </button>
+                <div x-show="active === 3" x-collapse>
+                    <div class="px-8 pb-8 pt-2 text-brand-dark/60 text-sm leading-relaxed">
+                        Yes. We manage vendor coordination, perform regular quality checks, and provide weekly progress updates throughout the execution phase.
                     </div>
                 </div>
             </div>
-            <div class="accordion-item reveal delay-3">
-                <h2 class="accordion-header" id="faqFour">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapseFour" aria-expanded="false" aria-controls="faqCollapseFour">
-                        Can I use my own vendors or materials?
-                    </button>
-                </h2>
-                <div id="faqCollapseFour" class="accordion-collapse collapse" aria-labelledby="faqFour" data-bs-parent="#interiorFaq">
-                    <div class="accordion-body">
-                        Absolutely. We can integrate your preferred vendors and still provide guidance on quality and coordination.
+
+            <div class="bg-white rounded-[2rem] border border-glass-border overflow-hidden">
+                <button @click="active = active === 4 ? null : 4" 
+                        class="w-full px-8 py-6 text-left flex items-center justify-between text-brand-dark font-bold hover:bg-brand-soft transition-all">
+                    <span>Can I use my own vendors or materials?</span>
+                    <i class="fas fa-chevron-down transition-transform duration-300" :class="active === 4 ? 'rotate-180' : ''"></i>
+                </button>
+                <div x-show="active === 4" x-collapse>
+                    <div class="px-8 pb-8 pt-2 text-brand-dark/60 text-sm leading-relaxed">
+                        Absolutely. We can integrate your preferred vendors into our process while still providing professional guidance on quality control and site coordination.
                     </div>
                 </div>
             </div>
@@ -641,29 +686,4 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const filterButtons = document.querySelectorAll('#filterGroup [data-filter]');
-        const serviceCards = document.querySelectorAll('.designer-card');
-
-        filterButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                // Update active state
-                filterButtons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-
-                const filter = button.getAttribute('data-filter');
-
-                serviceCards.forEach(card => {
-                    const tag = card.querySelector('.service-tag').textContent;
-                    if (filter === 'all' || tag.toLowerCase().includes(filter.toLowerCase())) {
-                        card.parentElement.style.display = 'block';
-                    } else {
-                        card.parentElement.style.display = 'none';
-                    }
-                });
-            });
-        });
-    });
-</script>
 {% endblock %}

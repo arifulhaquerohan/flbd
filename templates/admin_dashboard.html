@@ -2,499 +2,786 @@
 
 {% block title %}Admin Dashboard - FlatlandBD{% endblock %}
 
-{% block extra_css %}
-<style>
-    .admin-sidebar {
-        background: rgba(255, 255, 255, 0.75);
-        border-right: 1px solid var(--glass-border);
-        min-height: calc(100vh - 76px);
-        min-height: calc(100svh - 76px);
-        padding: 2rem 1rem;
-        box-shadow: var(--shadow-soft);
-    }
-    .stat-card {
-        background: var(--surface);
-        border: 1px solid var(--glass-border);
-        border-radius: 16px;
-        padding: 24px;
-        transition: transform 0.3s ease;
-        box-shadow: var(--shadow-soft);
-        height: 100%;
-    }
-    .stat-card:hover {
-        transform: translateY(-5px);
-        border-color: rgba(213, 123, 76, 0.4);
-    }
-    .table-dark-custom {
-        background: var(--surface);
-        border: 1px solid var(--glass-border);
-        border-radius: 16px;
-        overflow: hidden;
-        box-shadow: var(--shadow-soft);
-    }
-    .table-dark-custom th {
-        background: rgba(29, 37, 51, 0.06);
-        border: none;
-        color: var(--primary-dark);
-        padding: 15px;
-    }
-    .table-dark-custom td {
-        border-color: var(--glass-border);
-        padding: 15px;
-        vertical-align: middle;
-        color: var(--primary-dark);
-    }
-
-    .admin-toolbar {
-        background: var(--surface);
-        border: 1px solid var(--glass-border);
-        border-radius: 16px;
-        padding: 14px;
-        box-shadow: var(--shadow-soft);
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-        align-items: center;
-    }
-
-    .admin-toolbar .input-group-text {
-        background: rgba(29, 37, 51, 0.06);
-        border: 1px solid var(--glass-border);
-        color: var(--primary-dark);
-    }
-
-    .admin-table {
-        max-height: 70vh;
-        max-height: 70svh;
-        overflow-y: auto;
-    }
-
-    .admin-table thead th {
-        position: sticky;
-        top: 0;
-        z-index: 2;
-    }
-
-    .status-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        border-radius: 999px;
-        padding: 4px 10px;
-        font-size: 0.75rem;
-        font-weight: 600;
-    }
-
-    .status-pill.pending {
-        background: rgba(213, 123, 76, 0.18);
-        color: #9c3d2a;
-    }
-
-    .status-pill.active {
-        background: rgba(29, 37, 51, 0.16);
-        color: #0f534a;
-    }
-
-    .status-pill.rejected {
-        background: rgba(185, 28, 28, 0.12);
-        color: #b91c1c;
-    }
-
-    .status-pill.new {
-        background: rgba(59, 130, 246, 0.12);
-        color: #1d4ed8;
-    }
-
-    .status-pill.contacted {
-        background: rgba(16, 185, 129, 0.12);
-        color: #0f766e;
-    }
-
-    .status-pill.closed {
-        background: rgba(107, 114, 128, 0.12);
-        color: #374151;
-    }
-
-    .admin-sidebar .nav-link.active {
-        background: var(--accent-gold);
-        color: var(--primary-dark) !important;
-    }
-
-    .stat-link {
-        color: var(--accent-gold);
-        font-size: 0.8rem;
-        font-weight: 600;
-        text-decoration: none;
-    }
-
-    .stat-link:hover {
-        color: var(--primary-dark);
-    }
-
-    @media (max-width: 768px) {
-        .admin-sidebar {
-            min-height: auto;
-        }
-
-        .admin-toolbar {
-            flex-direction: column;
-            align-items: stretch;
-        }
-
-        .admin-toolbar > * {
-            width: 100%;
-            min-width: 0 !important;
-        }
-
-        .admin-toolbar .input-group {
-            width: 100%;
-        }
-
-        .admin-table {
-            max-height: none;
-            overflow-y: visible;
-        }
-
-        .table-dark-custom table {
-            font-size: 0.88rem;
-        }
-
-        .table-dark-custom th,
-        .table-dark-custom td {
-            padding: 12px;
-        }
-
-        .table-dark-custom .btn {
-            font-size: 0.72rem;
-        }
-    }
-</style>
+{% block extra_js %}
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <!-- Sidebar / Navigation -->
-        <div class="col-md-2 admin-sidebar">
-            <div class="nav flex-column nav-pills d-none d-md-flex">
-                <a class="nav-link {% if active_tab == 'dashboard' %}active{% else %}text-dark{% endif %} mb-2" href="{{ url_for('admin_dashboard', tab='dashboard') }}"><i class="fas fa-chart-line me-2"></i> Dashboard</a>
-                <a class="nav-link {% if active_tab == 'flats' %}active{% else %}text-dark{% endif %} mb-2" href="{{ url_for('admin_dashboard', tab='flats') }}"><i class="fas fa-building me-2"></i> Manage Flats</a>
-                <a class="nav-link {% if active_tab == 'services' %}active{% else %}text-dark{% endif %} mb-2" href="{{ url_for('admin_dashboard', tab='services') }}"><i class="fas fa-palette me-2"></i> Interior Services</a>
-                <a class="nav-link {% if active_tab == 'leads' %}active{% else %}text-dark{% endif %} mb-2" href="{{ url_for('admin_dashboard', tab='leads') }}"><i class="fas fa-inbox me-2"></i> Leads</a>
-                <hr class="bg-secondary">
-                <a class="nav-link text-danger" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt me-2"></i> Logout</a>
+<div class="min-h-screen bg-[#F8FAFC] flex" x-data="{ 
+    selectedIds: [], 
+    selectAll: false,
+    leadModalOpen: false,
+    currentLead: null,
+    copiedId: null,
+    toggleAll() {
+        this.selectAll = !this.selectAll;
+        if (this.selectAll) {
+            this.selectedIds = Array.from(document.querySelectorAll('input[name=\'ids\']')).map(el => el.value);
+        } else {
+            this.selectedIds = [];
+        }
+    },
+    copyToClipboard(text, id) {
+        navigator.clipboard.writeText(text);
+        this.copiedId = id;
+        setTimeout(() => { if (this.copiedId === id) this.copiedId = null; }, 2000);
+    }
+}">
+    <!-- Sidebar -->
+    <aside class="hidden md:flex flex-col w-72 bg-brand-dark border-r border-white/5 fixed h-full z-20 shadow-2xl">
+        <div class="px-8 py-10">
+            <h1 class="text-2xl font-display font-medium text-white tracking-tight flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-gold to-brand-warm flex items-center justify-center text-brand-dark shadow-lg shadow-brand-gold/20">
+                    <i class="fas fa-layer-group"></i>
+                </div>
+                <span>Flatland<span class="text-brand-gold font-bold">Admin</span></span>
+            </h1>
+        </div>
+        
+        <nav class="flex-1 px-4 space-y-2">
+            <p class="px-4 text-[10px] font-bold text-white/20 uppercase tracking-widest mb-2 mt-4">Main Menu</p>
+            <a href="{{ url_for('admin_dashboard', tab='dashboard') }}" 
+               class="flex items-center gap-4 px-6 py-4 rounded-xl text-sm font-bold transition-all {% if active_tab == 'dashboard' %}bg-white/10 text-white shadow-inner border border-white/5{% else %}text-white/40 hover:bg-white/5 hover:text-white{% endif %} group">
+                <i class="fas fa-chart-pie w-5 {% if active_tab == 'dashboard' %}text-brand-gold{% else %}text-white/20 group-hover:text-white{% endif %}"></i>
+                Dashboard
+            </a>
+            <a href="{{ url_for('admin_dashboard', tab='flats') }}" 
+               class="flex items-center gap-4 px-6 py-4 rounded-xl text-sm font-bold transition-all {% if active_tab == 'flats' %}bg-white/10 text-white shadow-inner border border-white/5{% else %}text-white/40 hover:bg-white/5 hover:text-white{% endif %} group">
+                <i class="fas fa-building w-5 {% if active_tab == 'flats' %}text-brand-gold{% else %}text-white/20 group-hover:text-white{% endif %}"></i>
+                Property Listings
+            </a>
+            <a href="{{ url_for('admin_dashboard', tab='services') }}" 
+               class="flex items-center gap-4 px-6 py-4 rounded-xl text-sm font-bold transition-all {% if active_tab == 'services' %}bg-white/10 text-white shadow-inner border border-white/5{% else %}text-white/40 hover:bg-white/5 hover:text-white{% endif %} group">
+                <i class="fas fa-swatchbook w-5 {% if active_tab == 'services' %}text-brand-gold{% else %}text-white/20 group-hover:text-white{% endif %}"></i>
+                Interior Services
+            </a>
+            
+            <p class="px-4 text-[10px] font-bold text-white/20 uppercase tracking-widest mb-2 mt-8">CRM</p>
+            <a href="{{ url_for('admin_dashboard', tab='leads') }}" 
+               class="flex items-center gap-4 px-6 py-4 rounded-xl text-sm font-bold transition-all {% if active_tab == 'leads' %}bg-white/10 text-white shadow-inner border border-white/5{% else %}text-white/40 hover:bg-white/5 hover:text-white{% endif %} group">
+                <i class="fas fa-user-friends w-5 {% if active_tab == 'leads' %}text-brand-gold{% else %}text-white/20 group-hover:text-white{% endif %}"></i>
+                Leads & Inquiries
+                {% if stats.new_leads > 0 %}
+                <span class="ml-auto bg-brand-gold text-brand-dark px-2 py-0.5 rounded-full text-[10px]">{{ stats.new_leads }}</span>
+                {% endif %}
+            </a>
+        </nav>
+
+        <div class="p-6 border-t border-white/5">
+            <a href="{{ url_for('logout') }}" class="flex items-center gap-3 px-6 py-4 rounded-xl text-sm font-bold text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition-all">
+                <i class="fas fa-sign-out-alt w-5"></i>
+                Sign Out
+            </a>
+            <p class="text-center text-[10px] text-white/10 mt-4">&copy; 2026 FlatlandBD</p>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 md:ml-72 p-6 md:p-12 relative min-h-screen">
+        <!-- Background Pattern -->
+        <div class="fixed inset-0 z-0 bg-brand-soft pointer-events-none">
+            <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03]"></div>
+            <div class="absolute top-0 right-0 w-[800px] h-[800px] bg-brand-gold/5 rounded-full blur-[120px] -mr-64 -mt-64"></div>
+        </div>
+
+        <div class="relative z-10 max-w-7xl mx-auto">
+        <!-- Mobile Nav -->
+        <div class="md:hidden flex gap-2 overflow-x-auto pb-6 mb-6 border-b border-slate-200">
+            <a href="{{ url_for('admin_dashboard', tab='dashboard') }}" 
+               class="px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap {% if active_tab == 'dashboard' %}bg-brand-dark text-white{% else %}bg-white text-slate-500 border border-slate-200{% endif %}">Dashboard</a>
+            <a href="{{ url_for('admin_dashboard', tab='flats') }}" 
+               class="px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap {% if active_tab == 'flats' %}bg-brand-dark text-white{% else %}bg-white text-slate-500 border border-slate-200{% endif %}">Flats</a>
+            <a href="{{ url_for('admin_dashboard', tab='services') }}" 
+               class="px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap {% if active_tab == 'services' %}bg-brand-dark text-white{% else %}bg-white text-slate-500 border border-slate-200{% endif %}">Interior</a>
+            <a href="{{ url_for('admin_dashboard', tab='leads') }}" 
+               class="px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap {% if active_tab == 'leads' %}bg-brand-dark text-white{% else %}bg-white text-slate-500 border border-slate-200{% endif %}">Leads</a>
+        </div>
+
+        <header class="flex flex-col xl:flex-row xl:items-center justify-between gap-8 mb-16">
+            <div>
+                <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-dark/5 border border-brand-dark/10 text-brand-dark/60 text-[10px] font-bold uppercase tracking-widest mb-3">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    System Online
+                </span>
+                <h2 class="text-4xl md:text-5xl font-display font-medium text-brand-dark leading-tight">
+                    {% if active_tab == 'flats' %}Property <span class="text-brand-gold italic">Control</span>
+                    {% elif active_tab == 'services' %}Interior <span class="text-brand-gold italic">Curator</span>
+                    {% elif active_tab == 'leads' %}Client <span class="text-brand-gold italic">Inquiries</span>
+                    {% else %}Executive <span class="text-brand-gold italic">Overview</span>
+                    {% endif %}
+                </h2>
+                <p class="text-brand-dark/60 mt-3 text-lg font-light">
+                    {% if active_tab == 'leads' %}
+                        Manage high-value signals and potential client relationships.
+                    {% else %}
+                        Monitor performance metrics and manage platform assets.
+                    {% endif %}
+                </p>
             </div>
-            <!-- Mobile nav -->
-            <div class="d-md-none overflow-x-auto">
-                <div class="d-flex gap-2 pb-2" style="white-space: nowrap;">
-                    <a class="btn btn-sm {% if active_tab == 'dashboard' %}btn-gold{% else %}btn-outline-light{% endif %}" href="{{ url_for('admin_dashboard', tab='dashboard') }}">Dashboard</a>
-                    <a class="btn btn-sm {% if active_tab == 'flats' %}btn-gold{% else %}btn-outline-light{% endif %}" href="{{ url_for('admin_dashboard', tab='flats') }}">Flats</a>
-                    <a class="btn btn-sm {% if active_tab == 'services' %}btn-gold{% else %}btn-outline-light{% endif %}" href="{{ url_for('admin_dashboard', tab='services') }}">Interior</a>
-                    <a class="btn btn-sm {% if active_tab == 'leads' %}btn-gold{% else %}btn-outline-light{% endif %}" href="{{ url_for('admin_dashboard', tab='leads') }}">Leads</a>
+            
+            <div class="flex flex-wrap gap-4">
+                {% if active_tab != 'dashboard' and active_tab != 'leads' %}
+                <a href="{{ url_for('post_listing') }}" class="btn-gold-tw px-8 py-4 text-sm flex items-center gap-3 shadow-xl shadow-brand-gold/10 hover:shadow-brand-gold/20 transform hover:-translate-y-1 transition-all">
+                    <i class="fas fa-plus-circle"></i>
+                    Add {% if active_tab == 'services' %}Service{% else %}Property{% endif %}
+                </a>
+                {% endif %}
+                
+                {% if active_tab in ['flats', 'services', 'leads'] %}
+                <a class="px-8 py-4 rounded-xl bg-white border border-glass-border text-brand-dark font-bold text-sm hover:bg-brand-soft hover:border-brand-dark/10 transition-all flex items-center gap-3 shadow-sm" 
+                   href="{{ url_for('export_data', item_type=active_tab, status=admin_filters.status or 'all', q=admin_filters.q or '') }}">
+                    <i class="fas fa-file-csv text-brand-gold"></i> Export CSV
+                </a>
+                {% endif %}
+            </div>
+        </header>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-16">
+            <div class="bg-white/60 backdrop-blur-md p-8 rounded-[2rem] border border-white/40 shadow-soft group hover:bg-white/80 transition-all duration-500">
+                <div class="flex justify-between items-start mb-6">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-600 text-xl group-hover:scale-110 transition-transform">
+                        <i class="fas fa-hourglass-half"></i>
+                    </div>
+                    {% if stats.pending_flats > 0 %}<span class="w-2 h-2 rounded-full bg-amber-500"></span>{% endif %}
+                </div>
+                <div class="mb-2">
+                    <h3 class="text-4xl font-display font-medium text-brand-dark">{{ stats.pending_flats }}</h3>
+                    <p class="text-xs font-bold text-brand-dark/40 uppercase tracking-widest mt-1">Pending Flats</p>
+                </div>
+                <a href="{{ url_for('admin_dashboard', tab='flats', status='pending') }}" class="inline-flex items-center gap-2 text-xs font-bold text-amber-600 hover:text-amber-700 mt-2 group/link">
+                    Review Queue <i class="fas fa-arrow-right group-hover/link:translate-x-1 transition-transform"></i>
+                </a>
+            </div>
+
+            <div class="bg-white/60 backdrop-blur-md p-8 rounded-[2rem] border border-white/40 shadow-soft group hover:bg-white/80 transition-all duration-500">
+                <div class="flex justify-between items-start mb-6">
+                    <div class="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-600 text-xl group-hover:scale-110 transition-transform">
+                        <i class="fas fa-paint-brush"></i>
+                    </div>
+                    {% if stats.pending_services > 0 %}<span class="w-2 h-2 rounded-full bg-purple-500"></span>{% endif %}
+                </div>
+                <div class="mb-2">
+                    <h3 class="text-4xl font-display font-medium text-brand-dark">{{ stats.pending_services }}</h3>
+                    <p class="text-xs font-bold text-brand-dark/40 uppercase tracking-widest mt-1">Pending Services</p>
+                </div>
+                <a href="{{ url_for('admin_dashboard', tab='services', status='pending') }}" class="inline-flex items-center gap-2 text-xs font-bold text-purple-600 hover:text-purple-700 mt-2 group/link">
+                    Review Queue <i class="fas fa-arrow-right group-hover/link:translate-x-1 transition-transform"></i>
+                </a>
+            </div>
+
+            <div class="bg-white/60 backdrop-blur-md p-8 rounded-[2rem] border border-white/40 shadow-soft group hover:bg-white/80 transition-all duration-500">
+                <div class="flex justify-between items-start mb-6">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-600 text-xl group-hover:scale-110 transition-transform">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    {% if stats.new_leads > 0 %}<span class="w-2 h-2 rounded-full bg-emerald-500"></span>{% endif %}
+                </div>
+                <div class="mb-2">
+                    <h3 class="text-4xl font-display font-medium text-brand-dark">{{ stats.new_leads }}</h3>
+                    <p class="text-xs font-bold text-brand-dark/40 uppercase tracking-widest mt-1">New Leads</p>
+                </div>
+                <a href="{{ url_for('admin_dashboard', tab='leads', status='new') }}" class="inline-flex items-center gap-2 text-xs font-bold text-emerald-600 hover:text-emerald-700 mt-2 group/link">
+                    Open Inbox <i class="fas fa-arrow-right group-hover/link:translate-x-1 transition-transform"></i>
+                </a>
+            </div>
+
+            <div class="bg-brand-dark text-white p-8 rounded-[2rem] shadow-strong relative overflow-hidden group">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-brand-gold/10 rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-brand-gold/20 transition-all duration-700"></div>
+                
+                <div class="flex justify-between items-start mb-6 relative z-10">
+                    <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-brand-gold text-xl border border-white/5">
+                        <i class="fas fa-database"></i>
+                    </div>
+                </div>
+                <div class="mb-2 relative z-10">
+                    <h3 class="text-4xl font-display font-medium text-white">{{ stats.total_flats + stats.total_services }}</h3>
+                    <p class="text-xs font-bold text-white/40 uppercase tracking-widest mt-1">Total Assets</p>
+                </div>
+                <div class="flex gap-4 mt-4 text-[10px] font-bold uppercase tracking-widest text-white/60">
+                    <span><i class="fas fa-building mr-1"></i> {{ stats.total_flats }} Flats</span>
+                    <span><i class="fas fa-swatchbook mr-1"></i> {{ stats.total_services }} Studios</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Momentum / Visual Stats -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+            <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-soft">
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h3 class="text-lg font-display font-bold text-brand-dark">Marketplace Momentum</h3>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Daily Inquiries (Simulated)</p>
+                    </div>
+                    <div class="px-3 py-1 rounded-lg bg-emerald-50 text-emerald-600 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
+                        <i class="fas fa-caret-up"></i> 14% Growth
+                    </div>
+                </div>
+                
+                <div class="flex items-end gap-3 h-48 mb-4">
+                    {% for day in ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] %}
+                    <div class="flex-1 flex flex-col items-center gap-3 group">
+                        {% set heights = [45, 65, 55, 85, 75, 95, 80] %}
+                        <div class="w-full bg-slate-50 rounded-xl relative overflow-hidden h-full">
+                            <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-brand-gold to-brand-warm rounded-xl transition-all duration-1000 group-hover:brightness-110" 
+                                 style="height: {{ heights[loop.index0] }}%"></div>
+                        </div>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase">{{ day }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-soft flex flex-col">
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h3 class="text-lg font-display font-bold text-brand-dark">Inventory Health</h3>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Approval Throughput</p>
+                    </div>
+                </div>
+                
+                <div class="space-y-6 flex-1 flex flex-col justify-center">
+                    <div>
+                        <div class="flex justify-between text-[10px] font-bold uppercase tracking-widest mb-2">
+                            <span class="text-slate-400">Approved Listings</span>
+                            <span class="text-brand-dark">{{ stats.approved_flats + stats.approved_services }}</span>
+                        </div>
+                        {% set total_listed = stats.total_flats + stats.total_services %}
+                        {% set approved_percent = ((stats.approved_flats + stats.approved_services) / total_listed * 100) if total_listed > 0 else 0 %}
+                        <div class="w-full h-3 bg-slate-50 rounded-full overflow-hidden">
+                            <div class="h-full bg-emerald-400 rounded-full" style="width: {{ approved_percent }}%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-[10px] font-bold uppercase tracking-widest mb-2">
+                            <span class="text-slate-400">Queue Processing</span>
+                            <span class="text-brand-dark">{{ stats.pending_flats + stats.pending_services }} Pending</span>
+                        </div>
+                        <div class="w-full h-3 bg-slate-50 rounded-full overflow-hidden">
+                            <div class="h-full bg-amber-400 rounded-full" style="width: 35%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-[10px] font-bold uppercase tracking-widest mb-2">
+                            <span class="text-slate-400">Lead Conversion</span>
+                            <span class="text-brand-dark">{{ ((stats.total_leads - stats.new_leads) / stats.total_leads * 100) | round(1) if stats.total_leads > 0 else 0 }}% Worked</span>
+                        </div>
+                        <div class="w-full h-3 bg-slate-50 rounded-full overflow-hidden">
+                            <div class="h-full bg-brand-dark rounded-full" style="width: {{ ((stats.total_leads - stats.new_leads) / stats.total_leads * 100) if stats.total_leads > 0 else 0 }}%"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Main Content -->
-        <div class="col-md-10 p-4 p-md-5">
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
-                <div>
-                    <h2 class="fw-bold mb-1">Admin <span class="text-gold" style="color: var(--accent-gold);">
-                    {% if active_tab == 'flats' %}Property Management
-                    {% elif active_tab == 'services' %}Interior Management
-                    {% elif active_tab == 'leads' %}Lead Management
-                    {% else %}Dashboard{% endif %}
-                    </span></h2>
-                    <p class="text-muted mb-0">
-                        {% if active_tab == 'leads' %}
-                            Track contact requests and update their status.
-                        {% else %}
-                            Moderate listings, review approvals, and keep the marketplace clean.
-                        {% endif %}
-                    </p>
-                </div>
-                
-                {% if active_tab != 'dashboard' and active_tab != 'leads' %}
-                    <a href="{{ url_for('post_listing') }}" class="btn btn-gold px-4 py-2 fw-bold">
-                        <i class="fas fa-plus me-2"></i> Add New 
-                        {% if active_tab == 'flats' %}Property{% else %}Service{% endif %}
-                    </a>
-                {% endif %}
+        <!-- Toolbar -->
+        <div class="flex flex-col lg:flex-row gap-6 mb-8">
+            <div class="flex-1">
+                <form method="get" action="{{ url_for('admin_dashboard') }}" class="relative group">
+                    <input type="hidden" name="tab" value="{{ active_tab }}">
+                    <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand-gold transition-colors"></i>
+                    <input type="text" name="q" 
+                           class="w-full pl-12 pr-6 py-4 rounded-2xl bg-white border border-slate-200 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/5 transition-all outline-none text-sm text-brand-dark"
+                           placeholder="{% if active_tab == 'leads' %}Search name, phone, email...{% elif active_tab == 'services' %}Search provider or service...{% else %}Search title, location...{% endif %}" 
+                           value="{{ admin_filters.q or '' }}">
+                </form>
             </div>
-
-            <form class="admin-toolbar mb-4" method="get" action="{{ url_for('admin_dashboard') }}">
-                <input type="hidden" name="tab" value="{{ active_tab }}">
-                <div class="flex-grow-1" style="min-width: 220px;">
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fas fa-search"></i></span>
-                        <input type="text" name="q" class="form-control" placeholder="Search title, location, provider..." value="{{ admin_filters.q or '' }}">
-                    </div>
-                </div>
-                <div style="min-width: 180px;">
-                    <select class="form-select" name="status">
+            
+            <div class="flex flex-wrap items-center gap-4">
+                <form method="get" action="{{ url_for('admin_dashboard') }}" class="flex items-center gap-3">
+                    <input type="hidden" name="tab" value="{{ active_tab }}">
+                    <select name="status" onchange="this.form.submit()"
+                            class="pl-6 pr-10 py-4 rounded-2xl bg-white border border-slate-200 text-sm font-bold text-slate-600 focus:border-brand-gold outline-none appearance-none cursor-pointer">
                         {% for value, label in status_options %}
                         <option value="{{ value }}" {% if admin_filters.status == value or (value == 'all' and not admin_filters.status) %}selected{% endif %}>{{ label }}</option>
                         {% endfor %}
                     </select>
-                </div>
-                <button class="btn btn-gold px-4" type="submit">Apply</button>
+                </form>
+
                 {% if filters_applied %}
-                <a class="btn btn-outline-light" href="{{ url_for('admin_dashboard', tab=active_tab) }}">Reset</a>
+                <a href="{{ url_for('admin_dashboard', tab=active_tab) }}" 
+                   class="px-6 py-4 rounded-2xl bg-slate-100 text-slate-600 text-sm font-bold hover:bg-slate-200 transition-all">Reset</a>
                 {% endif %}
+            </div>
+        </div>
+
+        <!-- Bulk Actions -->
+        <div x-show="selectedIds.length > 0" x-transition
+             class="mb-6 p-4 rounded-2xl bg-brand-dark text-white flex flex-col md:flex-row items-center justify-between gap-4 shadow-xl">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-brand-gold flex items-center justify-center text-brand-dark">
+                    <i class="fas fa-check-double text-xs"></i>
+                </div>
+                <span class="text-sm font-bold"><span x-text="selectedIds.length"></span> items selected</span>
+            </div>
+
+            <form class="flex flex-wrap items-center gap-3" method="post" 
+                  :action="active_tab === 'leads' ? '{{ url_for('bulk_update_leads') }}' : '{{ url_for('bulk_update_listings', item_type='flat' if active_tab == 'flats' else 'interior') }}'">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <template x-for="id in selectedIds" :key="id">
+                    <input type="hidden" name="ids" :value="id">
+                </template>
+                
+                <select name="action" required
+                        class="px-4 py-2 rounded-xl bg-white/10 border border-white/10 text-xs font-bold text-white focus:border-brand-gold outline-none cursor-pointer">
+                    <option value="" class="text-brand-dark">Bulk Actions</option>
+                    {% if active_tab == 'leads' %}
+                        <option value="new" class="text-brand-dark">Mark New</option>
+                        <option value="contacted" class="text-brand-dark">Mark Contacted</option>
+                        <option value="closed" class="text-brand-dark">Mark Closed</option>
+                    {% else %}
+                        <option value="approved" class="text-brand-dark">Approve</option>
+                        <option value="pending" class="text-brand-dark">Set Pending</option>
+                        <option value="rejected" class="text-brand-dark">Reject</option>
+                    {% endif %}
+                    <option value="delete" class="text-brand-dark text-rose-500">Delete Permanently</option>
+                </select>
+                
+                <button type="submit" class="px-6 py-2 rounded-xl bg-brand-gold text-brand-dark text-xs font-bold hover:bg-brand-warm transition-all">
+                    Apply to Selected
+                </button>
+                <button type="button" @click="selectedIds = []; selectAll = false" class="text-white/40 hover:text-white transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
             </form>
-            
-            {% if active_tab == 'dashboard' %}
-            <div class="row g-3 g-md-4 mb-5">
-                <div class="col-6 col-md-3">
-                    <div class="stat-card">
-                        <small class="text-muted d-block mb-1">Pending Flats</small>
-                        <h4 class="fw-bold mb-2">{{ stats.pending_flats }}</h4>
-                        <a class="stat-link" href="{{ url_for('admin_dashboard', tab='flats', status='pending') }}">Review now</a>
+        </div>
+
+        <!-- Table Card -->
+        <div class="bg-white/60 backdrop-blur-md rounded-[2.5rem] border border-white/40 shadow-soft overflow-hidden">
+            <div class="px-8 py-8 border-b border-white/10 flex flex-col md:flex-row justify-between items-center gap-6 bg-white/40">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-xl bg-brand-dark flex items-center justify-center text-brand-gold shadow-lg shadow-brand-dark/10">
+                        {% if active_tab == 'leads' %}<i class="fas fa-inbox"></i>
+                        {% elif active_tab == 'services' %}<i class="fas fa-swatchbook"></i>
+                        {% else %}<i class="fas fa-building"></i>{% endif %}
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-display font-medium text-brand-dark">
+                            {% if active_tab == 'leads' %}Lead Queue
+                            {% elif active_tab == 'services' %}Interior Services
+                            {% else %}Flat Listings
+                            {% endif %}
+                        </h3>
+                        <p class="text-[10px] font-bold text-brand-dark/40 uppercase tracking-widest mt-0.5">Live Database</p>
                     </div>
                 </div>
-                <div class="col-6 col-md-3">
-                    <div class="stat-card">
-                        <small class="text-muted d-block mb-1">Pending Services</small>
-                        <h4 class="fw-bold mb-2">{{ stats.pending_services }}</h4>
-                        <a class="stat-link" href="{{ url_for('admin_dashboard', tab='services', status='pending') }}">Review now</a>
+                
+                <div class="flex flex-wrap gap-4">
+                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/50 border border-white/20">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                        <span class="text-[10px] font-bold text-brand-dark/60 uppercase tracking-widest">Pending</span>
                     </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="stat-card">
-                        <small class="text-muted d-block mb-1">Total Flats</small>
-                        <h4 class="fw-bold mb-0">{{ stats.total_flats }}</h4>
+                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/50 border border-white/20">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                        <span class="text-[10px] font-bold text-brand-dark/60 uppercase tracking-widest">Active</span>
                     </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="stat-card">
-                        <small class="text-muted d-block mb-1">Total Services</small>
-                        <h4 class="fw-bold mb-0">{{ stats.total_services }}</h4>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="stat-card">
-                        <small class="text-muted d-block mb-1">New Leads</small>
-                        <h4 class="fw-bold mb-2">{{ stats.new_leads }}</h4>
-                        <a class="stat-link" href="{{ url_for('admin_dashboard', tab='leads', status='new') }}">Review leads</a>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="stat-card">
-                        <small class="text-muted d-block mb-1">Total Leads</small>
-                        <h4 class="fw-bold mb-0">{{ stats.total_leads }}</h4>
+                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/50 border border-white/20">
+                        <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                        <span class="text-[10px] font-bold text-brand-dark/60 uppercase tracking-widest">Rejected</span>
                     </div>
                 </div>
             </div>
-            {% endif %}
-
-            <div class="table-dark-custom shadow-lg">
-                <div class="table-responsive admin-table">
-                    <table class="table table-hover mb-0">
-                        <thead>
-                            <tr>
-                                {% if active_tab == 'leads' %}
-                                    <th>ID</th>
-                                    <th>Name</th>
-                                    <th class="d-none d-lg-table-cell">Contact</th>
-                                    <th class="d-none d-lg-table-cell">Interest</th>
-                                    <th class="d-none d-xl-table-cell">Message</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                {% else %}
-                                    <th>ID</th>
-                                    <th>Title</th>
-                                    <th class="d-none d-lg-table-cell">Type</th>
-                                    {% if active_tab == 'dashboard' %}<th class="d-none d-md-table-cell">Posted By</th>{% endif %}
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                {% endif %}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% if active_tab == 'leads' %}
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-brand-dark/5 text-[10px] font-bold text-brand-dark/40 uppercase tracking-widest border-b border-white/10">
+                            <th class="px-8 py-5">
+                                <label class="flex items-center gap-3 cursor-pointer group">
+                                    <input type="checkbox" @click="toggleAll()" :checked="selectAll" class="w-4 h-4 rounded border-brand-dark/20 text-brand-gold focus:ring-brand-gold bg-transparent transition-all">
+                                    <span class="group-hover:text-brand-gold transition-colors">ID</span>
+                                </label>
+                            </th>
+                            <th class="px-6 py-5">{% if active_tab == 'leads' %}Client Name{% else %}Title / Provider{% endif %}</th>
+                            <th class="px-6 py-5 hidden lg:table-cell">{% if active_tab == 'leads' %}Contact Details{% else %}Category{% endif %}</th>
+                            {% if active_tab == 'dashboard' %}<th class="px-6 py-5 hidden md:table-cell">Posted By</th>{% endif %}
+                            <th class="px-6 py-5">Status</th>
+                            <th class="px-8 py-5 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/10">
+                        {% if active_tab == 'leads' %}
                             {% for lead in leads %}
-                            <tr>
-                                <td>#L{{ lead.id }}</td>
-                                <td>
-                                    <div class="fw-semibold">{{ lead.name }}</div>
-                                    <small class="text-muted d-block">{{ lead.created_at.strftime('%b %d, %Y') }}</small>
+                            <tr class="group hover:bg-white/40 transition-colors">
+                                <td class="px-8 py-6">
+                                    <label class="flex items-center gap-3 cursor-pointer">
+                                        <input type="checkbox" name="ids" value="{{ lead.id }}" x-model="selectedIds" class="w-4 h-4 rounded border-brand-dark/20 text-brand-gold focus:ring-brand-gold bg-transparent">
+                                        <span class="text-xs font-bold text-brand-dark/40 font-mono">#L{{ lead.id }}</span>
+                                    </label>
                                 </td>
-                                <td class="d-none d-lg-table-cell">
-                                    {% if lead.phone %}
-                                    <div><a class="text-decoration-none" href="tel:{{ lead.phone }}">{{ lead.phone }}</a></div>
-                                    {% endif %}
-                                    {% if lead.email %}
-                                    <div><a class="text-decoration-none" href="mailto:{{ lead.email }}">{{ lead.email }}</a></div>
-                                    {% endif %}
+                                <td class="px-6 py-6">
+                                    <div class="font-display font-bold text-brand-dark text-lg">{{ lead.name }}</div>
+                                    <div class="text-[10px] font-bold text-brand-dark/40 uppercase tracking-widest mt-1">{{ lead.created_at.strftime('%b %d, %Y • %I:%M %p') }}</div>
                                 </td>
-                                <td class="d-none d-lg-table-cell">{{ lead.interest or 'General' }}</td>
-                                <td class="d-none d-xl-table-cell">{{ lead.message | truncate(80, True, '...') }}</td>
-                                <td>
-                                    {% if lead.status == 'new' %}
-                                        <span class="status-pill new"><i class="fas fa-bolt"></i> New</span>
-                                    {% elif lead.status == 'contacted' %}
-                                        <span class="status-pill contacted"><i class="fas fa-phone"></i> Contacted</span>
-                                    {% else %}
-                                        <span class="status-pill closed"><i class="fas fa-check-circle"></i> Closed</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <div class="d-flex gap-1 flex-wrap">
-                                        {% if lead.status != 'contacted' %}
-                                        <form method="post" action="{{ url_for('update_lead_status', id=lead.id) }}">
-                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                            <input type="hidden" name="status" value="contacted">
-                                            <button type="submit" class="btn btn-xs btn-outline-secondary py-1 px-2" style="font-size: 0.75rem;">Contacted</button>
-                                        </form>
+                                <td class="px-6 py-6 hidden lg:table-cell">
+                                    <div class="text-sm font-medium">
+                                        {% if lead.phone %}
+                                        <div class="flex items-center gap-2 mb-1 group/item">
+                                            <div class="w-5 h-5 rounded-full bg-brand-dark/5 flex items-center justify-center text-[10px] text-brand-dark/40">
+                                                <i class="fas fa-phone"></i>
+                                            </div>
+                                            <span class="text-brand-dark/70">{{ lead.phone }}</span>
+                                            <button @click="copyToClipboard('{{ lead.phone }}', 'p{{ lead.id }}')" class="opacity-0 group-hover/item:opacity-100 transition-opacity text-brand-gold hover:scale-110">
+                                                <i class="fas" :class="copiedId === 'p{{ lead.id }}' ? 'fa-check' : 'fa-copy'"></i>
+                                            </button>
+                                        </div>
                                         {% endif %}
+                                        {% if lead.email %}
+                                        <div class="flex items-center gap-2 mb-2 group/item">
+                                            <div class="w-5 h-5 rounded-full bg-brand-dark/5 flex items-center justify-center text-[10px] text-brand-dark/40">
+                                                <i class="fas fa-envelope"></i>
+                                            </div>
+                                            <span class="text-brand-dark/70 truncate max-w-[150px]">{{ lead.email }}</span>
+                                            <button @click="copyToClipboard('{{ lead.email }}', 'e{{ lead.id }}')" class="opacity-0 group-hover/item:opacity-100 transition-opacity text-brand-gold hover:scale-110">
+                                                <i class="fas" :class="copiedId === 'e{{ lead.id }}' ? 'fa-check' : 'fa-copy'"></i>
+                                            </button>
+                                        </div>
+                                        {% endif %}
+                                        <div class="flex items-center justify-between mt-3">
+                                            <div class="px-3 py-1 rounded-full bg-brand-gold/10 border border-brand-gold/20 text-[10px] uppercase font-bold text-brand-dark">{{ lead.interest or 'General' }}</div>
+                                            <button data-lead="{{ {'id': lead.id, 'name': lead.name, 'phone': lead.phone, 'email': lead.email, 'interest': lead.interest or 'General', 'message': lead.message, 'date': lead.created_at.strftime('%b %d, %Y'), 'status': lead.status} | tojson | forceescape }}"
+                                                    @click="currentLead = JSON.parse($el.dataset.lead); leadModalOpen = true"
+                                                    class="text-[10px] font-bold text-brand-dark hover:text-brand-gold flex items-center gap-1 transition-colors">
+                                                <i class="fas fa-eye"></i> View Message
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-6">
+                                    {% if lead.status == 'new' %}
+                                        <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 text-amber-600 text-[10px] font-bold uppercase tracking-widest border border-amber-500/20">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> New
+                                        </span>
+                                    {% elif lead.status == 'contacted' %}
+                                        <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 text-blue-600 text-[10px] font-bold uppercase tracking-widest border border-blue-500/20">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Contacted
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-600 text-[10px] font-bold uppercase tracking-widest border border-emerald-500/20">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Closed
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-8 py-6 text-right">
+                                    <div class="flex items-center justify-end gap-2">
                                         {% if lead.status != 'closed' %}
                                         <form method="post" action="{{ url_for('update_lead_status', id=lead.id) }}">
                                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                             <input type="hidden" name="status" value="closed">
-                                            <button type="submit" class="btn btn-xs btn-outline-success py-1 px-2" style="font-size: 0.75rem;">Close</button>
-                                        </form>
-                                        {% endif %}
-                                        {% if lead.status != 'new' %}
-                                        <form method="post" action="{{ url_for('update_lead_status', id=lead.id) }}">
-                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                            <input type="hidden" name="status" value="new">
-                                            <button type="submit" class="btn btn-xs btn-outline-warning py-1 px-2" style="font-size: 0.75rem;">Reopen</button>
+                                            <button type="submit" class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-600 hover:bg-emerald-500 hover:text-white transition-all shadow-sm" title="Mark Closed">
+                                                <i class="fas fa-check"></i>
+                                            </button>
                                         </form>
                                         {% endif %}
                                         <form method="post" action="{{ url_for('delete_lead', id=lead.id) }}" onsubmit="return confirm('Delete this lead?')">
                                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                            <button type="submit" class="btn btn-xs btn-outline-danger py-1 px-2" style="font-size: 0.75rem;">
-                                                <i class="fas fa-trash"></i>
+                                            <button type="submit" class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-500 hover:bg-rose-500 hover:text-white transition-all shadow-sm" title="Delete">
+                                                <i class="fas fa-trash-alt"></i>
                                             </button>
                                         </form>
                                     </div>
                                 </td>
                             </tr>
                             {% endfor %}
-                            {% endif %}
-                            {% if active_tab == 'dashboard' or active_tab == 'flats' %}
+                        {% endif %}
+
+                        {% if active_tab == 'dashboard' or active_tab == 'flats' %}
                             {% for flat in flats %}
-                            <tr>
-                                <td>#F{{ flat.id }}</td>
-                                <td class="text-truncate" style="max-width: 150px;">{{ flat.title }}</td>
-                                <td class="d-none d-lg-table-cell">Flat</td>
-                                {% if active_tab == 'dashboard' %}<td class="d-none d-md-table-cell">{{ flat.owner.username }}</td>{% endif %}
-                                <td>
+                            <tr class="group hover:bg-white/40 transition-colors">
+                                <td class="px-8 py-6">
+                                    <label class="flex items-center gap-3 cursor-pointer">
+                                        <input type="checkbox" name="ids" value="{{ flat.id }}" x-model="selectedIds" class="w-4 h-4 rounded border-brand-dark/20 text-brand-gold focus:ring-brand-gold bg-transparent">
+                                        <span class="text-xs font-bold text-brand-dark/40 font-mono">#F{{ flat.id }}</span>
+                                    </label>
+                                </td>
+                                <td class="px-6 py-6">
+                                    <div class="flex items-center gap-4">
+                                        {% if flat.image_url %}
+                                            <img src="{{ flat.image_url }}" class="w-12 h-12 rounded-lg object-cover shadow-sm" alt="" loading="lazy" decoding="async">
+                                        {% else %}
+                                            <div class="w-12 h-12 rounded-lg bg-brand-dark/5 flex items-center justify-center text-brand-dark/20">
+                                                <i class="fas fa-home"></i>
+                                            </div>
+                                        {% endif %}
+                                        <div>
+                                            <div class="font-display font-medium text-brand-dark text-lg max-w-[200px] truncate">{{ flat.title }}</div>
+                                            <div class="text-[10px] font-bold text-brand-dark/40 uppercase tracking-widest mt-0.5">{{ flat.location }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-6 hidden lg:table-cell">
+                                    <span class="px-3 py-1 rounded-full bg-brand-dark/5 text-[10px] uppercase font-bold text-brand-dark/60 tracking-widest">Property</span>
+                                </td>
+                                {% if active_tab == 'dashboard' %}
+                                <td class="px-6 py-6 hidden md:table-cell">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 rounded-full bg-brand-gold text-brand-dark flex items-center justify-center text-[10px] font-bold">
+                                            {{ flat.owner.username[0] | upper }}
+                                        </div>
+                                        <span class="text-sm font-medium text-brand-dark">{{ flat.owner.username }}</span>
+                                    </div>
+                                </td>
+                                {% endif %}
+                                <td class="px-6 py-6">
                                     {% if flat.status == 'approved' %}
-                                        <span class="status-pill active"><i class="fas fa-check-circle"></i> Active</span>
+                                        <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-600 text-[10px] font-bold uppercase tracking-widest border border-emerald-500/20">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Active
+                                        </span>
                                     {% elif flat.status == 'rejected' %}
-                                        <span class="status-pill rejected"><i class="fas fa-times-circle"></i> Rejected</span>
+                                        <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-rose-500/10 text-rose-600 text-[10px] font-bold uppercase tracking-widest border border-rose-500/20">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Rejected
+                                        </span>
                                     {% else %}
-                                        <span class="status-pill pending"><i class="fas fa-clock"></i> Pending</span>
+                                        <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 text-amber-600 text-[10px] font-bold uppercase tracking-widest border border-amber-500/20">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> Pending
+                                        </span>
                                     {% endif %}
                                 </td>
-                                <td>
-                                    <div class="d-flex gap-1">
-                                        <a href="{{ url_for('flat_detail', id=flat.id) }}" class="btn btn-xs btn-outline-light py-1 px-2" style="font-size: 0.75rem;" target="_blank" rel="noopener">View</a>
-                                        <a href="{{ url_for('edit_listing', item_type='flat', id=flat.id) }}" class="btn btn-xs btn-outline-secondary py-1 px-2" style="font-size: 0.75rem;">Edit</a>
+                                <td class="px-8 py-6 text-right">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <a href="{{ url_for('flat_detail', id=flat.id) }}" target="_blank" class="w-8 h-8 rounded-lg bg-white border border-glass-border flex items-center justify-center text-brand-dark/40 hover:text-brand-dark hover:border-brand-dark/20 transition-all shadow-sm" title="View">
+                                            <i class="fas fa-external-link-alt"></i>
+                                        </a>
+                                        <a href="{{ url_for('edit_listing', item_type='flat', id=flat.id) }}" class="w-8 h-8 rounded-lg bg-white border border-glass-border flex items-center justify-center text-brand-dark/40 hover:text-brand-dark hover:border-brand-dark/20 transition-all shadow-sm" title="Edit">
+                                            <i class="fas fa-pen"></i>
+                                        </a>
                                         {% if flat.status != 'approved' %}
                                         <form method="post" action="{{ url_for('update_listing_status', item_type='flat', id=flat.id) }}">
                                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                             <input type="hidden" name="status" value="approved">
-                                            <button type="submit" class="btn btn-xs btn-gold py-1 px-2" style="font-size: 0.75rem;">Approve</button>
-                                        </form>
-                                        {% endif %}
-                                        {% if flat.status != 'rejected' %}
-                                        <form method="post" action="{{ url_for('update_listing_status', item_type='flat', id=flat.id) }}">
-                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                            <input type="hidden" name="status" value="rejected">
-                                            <button type="submit" class="btn btn-xs btn-outline-warning py-1 px-2" style="font-size: 0.75rem;">Reject</button>
-                                        </form>
-                                        {% endif %}
-                                        {% if flat.status == 'approved' %}
-                                        <form method="post" action="{{ url_for('update_listing_status', item_type='flat', id=flat.id) }}">
-                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                            <input type="hidden" name="status" value="pending">
-                                            <button type="submit" class="btn btn-xs btn-outline-secondary py-1 px-2" style="font-size: 0.75rem;">Unpublish</button>
+                                            <button type="submit" class="px-3 h-8 rounded-lg bg-brand-gold text-brand-dark text-[10px] font-bold uppercase tracking-widest hover:bg-brand-warm transition-all shadow-sm">Approve</button>
                                         </form>
                                         {% endif %}
                                         <form method="post" action="{{ url_for('delete_listing', item_type='flat', id=flat.id) }}" onsubmit="return confirm('Delete this listing?')">
                                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                            <button type="submit" class="btn btn-xs btn-outline-danger py-1 px-2" style="font-size: 0.75rem;">
-                                                <i class="fas fa-trash"></i>
+                                            <button type="submit" class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-500 hover:bg-rose-500 hover:text-white transition-all shadow-sm">
+                                                <i class="fas fa-trash-alt"></i>
                                             </button>
                                         </form>
                                     </div>
                                 </td>
                             </tr>
                             {% endfor %}
-                            {% endif %}
-                            
-                            {% if active_tab == 'dashboard' or active_tab == 'services' %}
+                        {% endif %}
+
+                        {% if active_tab == 'dashboard' or active_tab == 'services' %}
                             {% for service in services %}
-                            <tr>
-                                <td>#I{{ service.id }}</td>
-                                <td class="text-truncate" style="max-width: 150px;">{{ service.provider_name }}</td>
-                                <td class="d-none d-lg-table-cell">Interior</td>
-                                {% if active_tab == 'dashboard' %}<td class="d-none d-md-table-cell">{{ service.provider.username }}</td>{% endif %}
-                                <td>
+                            <tr class="group hover:bg-white/40 transition-colors">
+                                <td class="px-8 py-6">
+                                    <label class="flex items-center gap-3 cursor-pointer">
+                                        <input type="checkbox" name="ids" value="{{ service.id }}" x-model="selectedIds" class="w-4 h-4 rounded border-brand-dark/20 text-brand-gold focus:ring-brand-gold bg-transparent">
+                                        <span class="text-xs font-bold text-brand-dark/40 font-mono">#I{{ service.id }}</span>
+                                    </label>
+                                </td>
+                                <td class="px-6 py-6">
+                                    <div class="flex items-center gap-4">
+                                        {% if service.image_url %}
+                                            <img src="{{ service.image_url }}" class="w-12 h-12 rounded-lg object-cover shadow-sm" alt="" loading="lazy" decoding="async">
+                                        {% else %}
+                                            <div class="w-12 h-12 rounded-lg bg-brand-dark/5 flex items-center justify-center text-brand-dark/20">
+                                                <i class="fas fa-swatchbook"></i>
+                                            </div>
+                                        {% endif %}
+                                        <div>
+                                            <div class="font-display font-medium text-brand-dark text-lg max-w-[200px] truncate">{{ service.provider_name }}</div>
+                                            <div class="text-[10px] font-bold text-brand-dark/40 uppercase tracking-widest mt-0.5">{{ service.service_type }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-6 hidden lg:table-cell">
+                                    <span class="px-3 py-1 rounded-full bg-brand-dark/5 text-[10px] uppercase font-bold text-brand-dark/60 tracking-widest">Interior</span>
+                                </td>
+                                {% if active_tab == 'dashboard' %}
+                                <td class="px-6 py-6 hidden md:table-cell">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 rounded-full bg-brand-gold text-brand-dark flex items-center justify-center text-[10px] font-bold">
+                                            {{ service.provider.username[0] | upper }}
+                                        </div>
+                                        <span class="text-sm font-medium text-brand-dark">{{ service.provider.username }}</span>
+                                    </div>
+                                </td>
+                                {% endif %}
+                                <td class="px-6 py-6">
                                     {% if service.status == 'approved' %}
-                                        <span class="status-pill active"><i class="fas fa-check-circle"></i> Active</span>
+                                        <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-600 text-[10px] font-bold uppercase tracking-widest border border-emerald-500/20">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Active
+                                        </span>
                                     {% elif service.status == 'rejected' %}
-                                        <span class="status-pill rejected"><i class="fas fa-times-circle"></i> Rejected</span>
+                                        <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-rose-500/10 text-rose-600 text-[10px] font-bold uppercase tracking-widest border border-rose-500/20">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Rejected
+                                        </span>
                                     {% else %}
-                                        <span class="status-pill pending"><i class="fas fa-clock"></i> Pending</span>
+                                        <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 text-amber-600 text-[10px] font-bold uppercase tracking-widest border border-amber-500/20">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> Pending
+                                        </span>
                                     {% endif %}
                                 </td>
-                                <td>
-                                    <div class="d-flex gap-1">
-                                        <a href="{{ url_for('interior_detail', id=service.id) }}" class="btn btn-xs btn-outline-light py-1 px-2" style="font-size: 0.75rem;" target="_blank" rel="noopener">View</a>
-                                        <a href="{{ url_for('edit_listing', item_type='interior', id=service.id) }}" class="btn btn-xs btn-outline-secondary py-1 px-2" style="font-size: 0.75rem;">Edit</a>
+                                <td class="px-8 py-6 text-right">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <a href="{{ url_for('interior_detail', id=service.id) }}" target="_blank" class="w-8 h-8 rounded-lg bg-white border border-glass-border flex items-center justify-center text-brand-dark/40 hover:text-brand-dark hover:border-brand-dark/20 transition-all shadow-sm" title="View">
+                                            <i class="fas fa-external-link-alt"></i>
+                                        </a>
+                                        <a href="{{ url_for('edit_listing', item_type='interior', id=service.id) }}" class="w-8 h-8 rounded-lg bg-white border border-glass-border flex items-center justify-center text-brand-dark/40 hover:text-brand-dark hover:border-brand-dark/20 transition-all shadow-sm" title="Edit">
+                                            <i class="fas fa-pen"></i>
+                                        </a>
                                         {% if service.status != 'approved' %}
                                         <form method="post" action="{{ url_for('update_listing_status', item_type='interior', id=service.id) }}">
                                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                             <input type="hidden" name="status" value="approved">
-                                            <button type="submit" class="btn btn-xs btn-gold py-1 px-2" style="font-size: 0.75rem;">Approve</button>
+                                            <button type="submit" class="px-3 h-8 rounded-lg bg-brand-gold text-brand-dark text-[10px] font-bold uppercase tracking-widest hover:bg-brand-warm transition-all shadow-sm">Approve</button>
                                         </form>
                                         {% endif %}
-                                        {% if service.status != 'rejected' %}
-                                        <form method="post" action="{{ url_for('update_listing_status', item_type='interior', id=service.id) }}">
+                                        <form method="post" action="{{ url_for('delete_listing', item_type='interior', id=service.id) }}" onsubmit="return confirm('Delete this service?')">
                                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                            <input type="hidden" name="status" value="rejected">
-                                            <button type="submit" class="btn btn-xs btn-outline-warning py-1 px-2" style="font-size: 0.75rem;">Reject</button>
-                                        </form>
-                                        {% endif %}
-                                        {% if service.status == 'approved' %}
-                                        <form method="post" action="{{ url_for('update_listing_status', item_type='interior', id=service.id) }}">
-                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                            <input type="hidden" name="status" value="pending">
-                                            <button type="submit" class="btn btn-xs btn-outline-secondary py-1 px-2" style="font-size: 0.75rem;">Unpublish</button>
-                                        </form>
-                                        {% endif %}
-                                        <form method="post" action="{{ url_for('delete_listing', item_type='interior', id=service.id) }}" onsubmit="return confirm('Delete this listing?')">
-                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                                            <button type="submit" class="btn btn-xs btn-outline-danger py-1 px-2" style="font-size: 0.75rem;">
-                                                <i class="fas fa-trash"></i>
+                                            <button type="submit" class="w-8 h-8 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-500 hover:bg-rose-500 hover:text-white transition-all shadow-sm">
+                                                <i class="fas fa-trash-alt"></i>
                                             </button>
                                         </form>
                                     </div>
                                 </td>
                             </tr>
                             {% endfor %}
-                            {% endif %}
-                            
-                            {% if not flats and active_tab != 'services' and active_tab != 'leads' %}
-                            <tr>
-                                <td colspan="6" class="text-center text-muted py-5">No flats found in the database.</td>
-                            </tr>
-                            {% endif %}
-                            {% if not services and active_tab == 'services' %}
-                            <tr>
-                                <td colspan="6" class="text-center text-muted py-5">No interior services found in the database.</td>
-                            </tr>
-                            {% endif %}
-                            {% if not leads and active_tab == 'leads' %}
-                            <tr>
-                                <td colspan="7" class="text-center text-muted py-5">No leads found yet.</td>
-                            </tr>
-                            {% endif %}
-                        </tbody>
-                    </table>
+                        {% endif %}
+
+                        {% if not flats and active_tab != 'services' and active_tab != 'leads' %}
+                        <tr>
+                            <td colspan="6" class="px-8 py-20 text-center">
+                                <div class="flex flex-col items-center gap-4">
+                                    <div class="w-20 h-20 rounded-[2rem] bg-brand-dark/5 flex items-center justify-center text-brand-dark/20 text-3xl">
+                                        <i class="fas fa-building"></i>
+                                    </div>
+                                    <p class="text-sm font-bold text-brand-dark/40 uppercase tracking-widest">No property listings found.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endif %}
+                        {% if not services and active_tab == 'services' %}
+                        <tr>
+                            <td colspan="6" class="px-8 py-20 text-center">
+                                <div class="flex flex-col items-center gap-4">
+                                    <div class="w-20 h-20 rounded-[2rem] bg-brand-dark/5 flex items-center justify-center text-brand-dark/20 text-3xl">
+                                        <i class="fas fa-palette"></i>
+                                    </div>
+                                    <p class="text-sm font-bold text-brand-dark/40 uppercase tracking-widest">No interior services found.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endif %}
+                        {% if not leads and active_tab == 'leads' %}
+                        <tr>
+                            <td colspan="6" class="px-8 py-20 text-center">
+                                <div class="flex flex-col items-center gap-4">
+                                    <div class="w-20 h-20 rounded-[2rem] bg-brand-dark/5 flex items-center justify-center text-brand-dark/20 text-3xl">
+                                        <i class="fas fa-inbox"></i>
+                                    </div>
+                                    <p class="text-sm font-bold text-brand-dark/40 uppercase tracking-widest">No leads found yet.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Lead Details Modal -->
+    <div x-show="leadModalOpen" 
+         class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6"
+         style="display: none;"
+         x-cloak>
+        <!-- Overlay -->
+        <div x-show="leadModalOpen" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             @click="leadModalOpen = false"
+             class="fixed inset-0 bg-brand-dark/40 backdrop-blur-sm"></div>
+
+        <!-- Modal Content -->
+        <div x-show="leadModalOpen" 
+             x-transition:enter="transition ease-out duration-500"
+             x-transition:enter-start="opacity-0 scale-90 translate-y-8"
+             x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-300"
+             x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+             x-transition:leave-end="opacity-0 scale-90 translate-y-8"
+             class="relative bg-white rounded-[2.5rem] shadow-strong max-w-2xl w-full overflow-hidden border border-white/50">
+            
+            <div class="absolute top-0 right-0 p-6 z-10">
+                <button @click="leadModalOpen = false" 
+                        class="w-10 h-10 rounded-full bg-black/5 hover:bg-black/10 flex items-center justify-center text-brand-dark transition-all">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="flex flex-col md:flex-row">
+                <!-- Sidebar Info -->
+                <div class="bg-brand-dark text-white p-8 md:w-80 flex flex-col justify-between relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-brand-gold/10 rounded-full blur-[80px] -mr-20 -mt-20"></div>
+                    
+                    <div class="relative z-10">
+                        <div class="w-16 h-16 rounded-[1.5rem] bg-gradient-to-br from-brand-gold to-brand-warm flex items-center justify-center text-brand-dark text-3xl shadow-lg shadow-brand-gold/20 mb-6">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <h2 class="text-3xl font-display font-medium leading-tight mb-2" x-text="currentLead?.name"></h2>
+                        <p class="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-6">Inquired: <span x-text="currentLead?.date"></span></p>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-brand-gold text-xs">
+                                    <i class="fas fa-phone"></i>
+                                </div>
+                                <span class="text-sm font-medium opacity-90" x-text="currentLead?.phone || 'No phone'"></span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-brand-gold text-xs">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                                <span class="text-sm font-medium opacity-90 break-all" x-text="currentLead?.email || 'No email'"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 relative z-10">
+                        <p class="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-3">Interest Type</p>
+                        <span class="inline-block px-4 py-2 rounded-xl bg-white/10 border border-white/10 text-xs font-bold text-brand-gold" x-text="currentLead?.interest"></span>
+                    </div>
+                </div>
+
+                <!-- Message Body -->
+                <div class="p-8 md:p-10 flex-1 bg-white relative">
+                    <h3 class="text-xs font-bold text-brand-dark/40 uppercase tracking-widest mb-6 flex items-center gap-2">
+                        <i class="fas fa-comment-alt"></i> Client Message
+                    </h3>
+                    
+                    <div class="prose prose-sm max-w-none text-brand-dark/80 relative mb-8">
+                        <i class="fas fa-quote-left absolute -top-4 -left-4 text-4xl text-brand-dark/5"></i>
+                        <p class="whitespace-pre-wrap relative z-10 text-lg leading-relaxed font-light" x-text="currentLead?.message"></p>
+                    </div>
+
+                    <div class="flex flex-col gap-3 mt-auto">
+                        <div class="grid grid-cols-2 gap-3">
+                            <form method="post" :action="'{{ url_for('update_lead_status', id=0) }}'.replace('0', currentLead?.id)">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="status" value="contacted">
+                                <button type="submit" x-show="currentLead?.status === 'new'" class="w-full py-4 rounded-xl bg-brand-dark text-white font-bold text-xs uppercase tracking-widest hover:bg-brand-gold hover:text-brand-dark transition-all">
+                                    Mark Contacted
+                                </button>
+                            </form>
+                            <form method="post" :action="'{{ url_for('update_lead_status', id=0) }}'.replace('0', currentLead?.id)">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="status" value="closed">
+                                <button type="submit" x-show="currentLead?.status !== 'closed'" class="w-full py-4 rounded-xl bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 font-bold text-xs uppercase tracking-widest hover:bg-emerald-500 hover:text-white transition-all">
+                                    Mark Closed
+                                </button>
+                            </form>
+                        </div>
+                        <a :href="'tel:' + currentLead?.phone" x-show="currentLead?.phone" class="w-full py-4 rounded-xl bg-brand-gold text-brand-dark font-bold text-sm flex items-center justify-center gap-2 hover:bg-brand-warm hover:shadow-lg transition-all shadow-brand-gold/20">
+                            <i class="fas fa-phone-alt"></i> Call Now
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
