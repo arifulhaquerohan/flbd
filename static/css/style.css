@@ -1381,6 +1381,34 @@ h6 {
     .preview-stage {
         -webkit-overflow-scrolling: touch;
     }
+
+    .admin-table-card {
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .min-h-screen {
+        min-height: calc(var(--vh, 1vh) * 100);
+    }
+
+    .h-screen {
+        height: calc(var(--vh, 1vh) * 100);
+    }
+
+    .min-h-\[50vh\] {
+        min-height: calc(var(--vh, 1vh) * 50);
+    }
+
+    .min-h-\[70vh\] {
+        min-height: calc(var(--vh, 1vh) * 70);
+    }
+
+    .min-h-\[80vh\] {
+        min-height: calc(var(--vh, 1vh) * 80);
+    }
+
+    .max-h-\[90vh\] {
+        max-height: calc(var(--vh, 1vh) * 90);
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1746,6 +1774,7 @@ h6 {
     border-radius: 28px;
     box-shadow: var(--shadow-soft);
     padding: 1.5rem;
+    overflow-x: auto;
 }
 
 .admin-table-card__header {
@@ -1761,6 +1790,48 @@ h6 {
     margin: 0;
     font-size: 1.25rem;
     font-weight: 600;
+}
+
+.admin-form-card {
+    background: #ffffff;
+    border: 1px solid var(--glass-border);
+    border-radius: 32px;
+    padding: clamp(1.75rem, 3vw, 3rem);
+    box-shadow: var(--shadow-soft);
+}
+
+.admin-form label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.28em;
+    font-weight: 700;
+    color: rgba(17, 17, 19, 0.45);
+}
+
+.admin-input,
+.admin-select,
+.admin-textarea {
+    width: 100%;
+    padding: 0.85rem 1.5rem;
+    border-radius: 999px;
+    border: 1px solid rgba(17, 17, 19, 0.1);
+    background: #ffffff;
+    color: var(--primary-dark);
+    font-weight: 600;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-textarea {
+    border-radius: 24px;
+    min-height: 140px;
+}
+
+.admin-input:focus,
+.admin-select:focus,
+.admin-textarea:focus {
+    outline: none;
+    border-color: var(--accent-gold);
+    box-shadow: 0 0 0 4px rgba(255, 90, 61, 0.12);
 }
 
 .admin-table-card__legend {
@@ -2154,6 +2225,16 @@ h6 {
     display: flex;
     flex-direction: column;
     height: 100%;
+}
+
+.product-card--link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.product-card--link:focus-visible {
+    outline: 2px solid var(--accent-gold);
+    outline-offset: 4px;
 }
 
 .product-card:hover {

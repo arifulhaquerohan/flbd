@@ -19,36 +19,36 @@
             </a>
         </header>
 
-        <div class="bg-white/80 backdrop-blur-xl rounded-[3rem] p-8 md:p-14 border border-glass-border shadow-strong">
-            <form method="POST" enctype="multipart/form-data" class="space-y-8">
+        <div class="admin-form-card">
+            <form method="POST" enctype="multipart/form-data" class="space-y-8 admin-form">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div class="md:col-span-2 space-y-2">
-                        <label class="text-xs font-bold text-brand-dark/40 uppercase tracking-widest ml-1">Property Title</label>
+                        <label>Property Title</label>
                         <input type="text" name="title" value="{{ item.title }}" required
-                               class="w-full px-6 py-4 rounded-2xl bg-white border border-brand-dark/5 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/5 transition-all text-brand-dark font-medium"
+                               class="admin-input"
                                placeholder="e.g., Luxury 3BHK Apartment">
                     </div>
 
                     <div class="space-y-2">
-                        <label class="text-xs font-bold text-brand-dark/40 uppercase tracking-widest ml-1">Price (৳)</label>
+                        <label>Price (৳)</label>
                         <input type="number" name="price" step="any" value="{{ item.price }}" required
-                               class="w-full px-6 py-4 rounded-2xl bg-white border border-brand-dark/5 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/5 transition-all text-brand-dark font-medium"
+                               class="admin-input"
                                placeholder="Total price">
                     </div>
 
                     <div class="space-y-2">
-                        <label class="text-xs font-bold text-brand-dark/40 uppercase tracking-widest ml-1">Location</label>
+                        <label>Location</label>
                         <input type="text" name="location" value="{{ item.location }}" required
-                               class="w-full px-6 py-4 rounded-2xl bg-white border border-brand-dark/5 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/5 transition-all text-brand-dark font-medium"
+                               class="admin-input"
                                placeholder="Area, City">
                     </div>
 
                     <div class="space-y-2">
-                        <label class="text-xs font-bold text-brand-dark/40 uppercase tracking-widest ml-1">BHK Selection</label>
+                        <label>BHK Selection</label>
                         <select name="bhk" required
-                                class="w-full px-6 py-4 rounded-2xl bg-white border border-brand-dark/5 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/5 transition-all text-brand-dark appearance-none cursor-pointer font-medium">
+                                class="admin-select">
                             <option value="1" {% if item.bhk == 1 %}selected{% endif %}>1 BHK</option>
                             <option value="2" {% if item.bhk == 2 %}selected{% endif %}>2 BHK</option>
                             <option value="3" {% if item.bhk == 3 %}selected{% endif %}>3 BHK</option>
@@ -57,16 +57,16 @@
                     </div>
 
                     <div class="space-y-2">
-                        <label class="text-xs font-bold text-brand-dark/40 uppercase tracking-widest ml-1">Area (Sqft)</label>
+                        <label>Area (Sqft)</label>
                         <input type="number" name="area_sqft" value="{{ item.area_sqft }}"
-                               class="w-full px-6 py-4 rounded-2xl bg-white border border-brand-dark/5 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/5 transition-all text-brand-dark font-medium"
+                               class="admin-input"
                                placeholder="Total floor area">
                     </div>
 
                     <div class="md:col-span-2 space-y-2">
-                        <label class="text-xs font-bold text-brand-dark/40 uppercase tracking-widest ml-1">Status Control</label>
+                        <label>Status Control</label>
                         <select name="status" required
-                                class="w-full px-6 py-4 rounded-2xl bg-white border border-brand-dark/5 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/5 transition-all text-brand-dark appearance-none cursor-pointer font-bold">
+                                class="admin-select">
                             <option value="pending" {% if item.status == 'pending' %}selected{% endif %} class="text-amber-500">Pending Approval</option>
                             <option value="approved" {% if item.status == 'approved' %}selected{% endif %} class="text-emerald-500">Approved & Live</option>
                             <option value="rejected" {% if item.status == 'rejected' %}selected{% endif %} class="text-rose-500">Rejected / Archived</option>
@@ -74,14 +74,14 @@
                     </div>
 
                     <div class="md:col-span-2 space-y-2">
-                        <label class="text-xs font-bold text-brand-dark/40 uppercase tracking-widest ml-1">Description</label>
+                        <label>Description</label>
                         <textarea name="description" rows="4"
-                                  class="w-full px-6 py-4 rounded-2xl bg-white border border-brand-dark/5 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/5 transition-all text-brand-dark font-medium"
+                                  class="admin-textarea"
                                   placeholder="Full property details...">{{ item.description }}</textarea>
                     </div>
 
                     <div class="md:col-span-2 space-y-2">
-                        <label class="text-xs font-bold text-brand-dark/40 uppercase tracking-widest ml-1">Property Media</label>
+                        <label>Property Media</label>
                         {% if item.image_url %}
                         <div class="mb-4 relative group w-48 aspect-video rounded-xl overflow-hidden border border-glass-border shadow-soft">
                             <img src="{{ item.image_url }}" alt="Existing image" class="w-full h-full object-cover" loading="lazy" decoding="async">
@@ -103,16 +103,43 @@
                             </div>
                         </div>
                         <input type="text" name="image_url" value="{{ item.image_url or '' }}"
-                               class="w-full px-6 py-4 rounded-2xl bg-white border border-brand-dark/5 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/5 transition-all text-brand-dark text-sm mt-4 font-medium"
+                               class="admin-input mt-4"
                                placeholder="Or update image URL">
+
+                        {% if item.images %}
+                        <div class="mt-6">
+                            <p class="text-xs font-bold uppercase tracking-widest text-brand-dark/40 mb-3">Gallery Images</p>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                {% for image in item.images %}
+                                <label class="relative group rounded-2xl overflow-hidden border border-glass-border">
+                                    <img src="{{ image.image_url }}" alt="Gallery image" class="w-full h-28 object-cover" loading="lazy" decoding="async">
+                                    <div class="absolute inset-0 bg-brand-dark/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] uppercase tracking-widest font-bold">
+                                        Remove
+                                    </div>
+                                    <input type="checkbox" name="remove_image_ids" value="{{ image.id }}" class="absolute top-3 right-3 w-4 h-4 accent-brand-gold">
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="mt-6 space-y-2">
+                            <label>Add Gallery Images</label>
+                            <p class="text-brand-dark/40 text-[10px] uppercase tracking-widest font-bold">Up to 3 images total</p>
+                            <input type="file" name="image_files" accept="image/png,image/jpeg,image/webp" multiple
+                                   class="admin-input">
+                            <textarea name="image_urls" rows="3"
+                                      class="admin-textarea"
+                                      placeholder="Add multiple image URLs, one per line"></textarea>
+                        </div>
                     </div>
 
                     <div class="md:col-span-2 space-y-2">
-                        <label class="text-xs font-bold text-brand-dark/40 uppercase tracking-widest ml-1">YouTube Video (optional)</label>
+                        <label>YouTube Video (optional)</label>
                         <div class="relative">
                             <i class="fab fa-youtube absolute left-6 top-1/2 -translate-y-1/2 text-brand-dark/20"></i>
                             <input type="url" name="video_url" value="{{ item.video_url or '' }}"
-                                   class="w-full pl-12 pr-6 py-4 rounded-2xl bg-white border border-brand-dark/5 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/5 transition-all text-brand-dark text-sm font-medium"
+                                   class="admin-input"
                                    placeholder="https://www.youtube.com/watch?v=...">
                         </div>
                     </div>

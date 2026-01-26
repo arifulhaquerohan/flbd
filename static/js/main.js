@@ -1,5 +1,12 @@
 // Main JavaScript
 document.addEventListener('DOMContentLoaded', function() {
+    setViewportUnits();
+    window.addEventListener('resize', setViewportUnits);
+    window.addEventListener('orientationchange', setViewportUnits);
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', setViewportUnits);
+    }
+
     const runEnhancements = () => {
         initReveal();
         initLightbox();
@@ -52,4 +59,11 @@ function initLightbox() {
             detail: { src, alt } 
         }));
     });
+}
+
+function setViewportUnits() {
+    const vh = window.innerHeight * 0.01;
+    const vw = window.innerWidth * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+    document.documentElement.style.setProperty('--vw', `${vw}px`);
 }

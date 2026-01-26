@@ -1,6 +1,7 @@
 import os
 import time
 import re
+
 from urllib.parse import urlparse, parse_qs
 from flask import Flask, render_template, request, redirect, url_for, flash, abort, Response
 from datetime import timedelta, datetime
@@ -9,7 +10,7 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from flask_compress import Compress
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from models import db, User, Flat, InteriorService, Lead
+from models import db, User, Flat, InteriorService, Lead, FlatImage, InteriorImage
 from sqlalchemy import or_, text
 from sqlalchemy.orm import load_only, joinedload
 
@@ -60,7 +61,11 @@ limiter = Limiter(
     default_limits=["2000 per day", "500 per hour"],
     storage_uri="memory://",
 )
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-key-7755')
+secret_key = os.getenv('SECRET_KEY')
+if not secret_key:
+    # Generate an ephemeral key if not provided to avoid insecure defaults.
+    secret_key = os.urandom(32)
+app.config['SECRET_KEY'] = secret_key
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = os.getenv('SESSION_COOKIE_SAMESITE', 'Lax')
 app.config['SESSION_COOKIE_SECURE'] = os.getenv('SESSION_COOKIE_SECURE', '0') == '1'
@@ -69,6 +74,8 @@ app.config['REMEMBER_COOKIE_SAMESITE'] = os.getenv('SESSION_COOKIE_SAMESITE', 'L
 app.config['REMEMBER_COOKIE_SECURE'] = os.getenv('SESSION_COOKIE_SECURE', '0') == '1'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=6)
 app.config['MAX_CONTENT_LENGTH'] = 6 * 1024 * 1024
+app.config['WTF_CSRF_TIME_LIMIT'] = int(os.getenv('WTF_CSRF_TIME_LIMIT', '3600'))
+app.config['WTF_CSRF_SSL_STRICT'] = True
 app.config['COMPRESS_MIN_SIZE'] = int(os.getenv('COMPRESS_MIN_SIZE', '512'))
 app.config['COMPRESS_LEVEL'] = int(os.getenv('COMPRESS_LEVEL', '6'))
 app.config['COMPRESS_MIMETYPES'] = [
@@ -105,6 +112,7 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 31536000 # Cache static files for 1 year
 app.config['LISTINGS_PER_PAGE'] = int(os.getenv('LISTINGS_PER_PAGE', '9'))
 app.config['ALLOWED_IMAGE_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'webp'}
+app.config['MAX_GALLERY_IMAGES'] = int(os.getenv('MAX_GALLERY_IMAGES', '10'))
 app.config['DEFAULT_META_DESCRIPTION'] = (
     'FlatlandBD is a trusted platform for buying and selling flats, plus premium interior design services in Bangladesh.'
 )
@@ -157,10 +165,30 @@ def is_allowed_image(filename):
     ext = filename.rsplit('.', 1)[1].lower()
     return ext in app.config['ALLOWED_IMAGE_EXTENSIONS']
 
+def get_image_type(header):
+    if header.startswith(b'\xff\xd8\xff'):
+        return 'jpeg'
+    if header.startswith(b'\x89PNG\r\n\x1a\n'):
+        return 'png'
+    if header.startswith(b'RIFF') and header[8:12] == b'WEBP':
+        return 'webp'
+    return None
+
 def save_uploaded_image(file_storage):
     if not file_storage or not file_storage.filename:
         return None
     if not is_allowed_image(file_storage.filename):
+        return None
+    if file_storage.mimetype and not file_storage.mimetype.startswith('image/'):
+        return None
+    try:
+        header = file_storage.stream.read(512)
+        file_storage.stream.seek(0)
+        kind = get_image_type(header)
+    except Exception:
+        file_storage.stream.seek(0)
+        return None
+    if kind not in {'jpeg', 'png', 'webp'}:
         return None
     upload_dir = os.path.join(app.static_folder, 'uploads')
     os.makedirs(upload_dir, exist_ok=True)
@@ -169,6 +197,25 @@ def save_uploaded_image(file_storage):
     filename = f"{timestamp}_{safe_name}"
     file_storage.save(os.path.join(upload_dir, filename))
     return url_for('static', filename=f'uploads/{filename}')
+
+def parse_image_urls(raw_text):
+    if not raw_text:
+        return []
+    parts = re.split(r'[,\n\r]+', raw_text)
+    return [part.strip() for part in parts if part.strip()]
+
+def collect_uploaded_images(files):
+    urls = []
+    invalid = False
+    for file_storage in files:
+        if not file_storage or not file_storage.filename:
+            continue
+        uploaded = save_uploaded_image(file_storage)
+        if uploaded:
+            urls.append(uploaded)
+        else:
+            invalid = True
+    return urls, invalid
 
 def coerce_float(value, fallback=0.0):
     try:
@@ -319,6 +366,8 @@ def add_security_headers(response):
         response.headers.setdefault('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
     if request.path.startswith('/static/'):
         response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
+    elif request.path.startswith(f'/{ADMIN_PATH}') or current_user.is_authenticated:
+        response.headers['Cache-Control'] = 'no-store'
     if (
         request.method == 'GET'
         and not current_user.is_authenticated
@@ -799,6 +848,8 @@ def edit_listing(item_type, id):
             item.status = status
 
         image_file = request.files.get('image_file')
+        gallery_files = request.files.getlist('image_files')
+        gallery_urls = parse_image_urls(request.form.get('image_urls', ''))
         uploaded_url = save_uploaded_image(image_file)
         if image_file and image_file.filename and not uploaded_url:
             flash('Unsupported image type. Use PNG, JPG, or WEBP.', 'warning')
@@ -823,12 +874,34 @@ def edit_listing(item_type, id):
                     flash('Invalid YouTube link. Keeping the previous video.', 'warning')
             else:
                 item.video_url = None
+            remove_ids = request.form.getlist('remove_image_ids')
+            if remove_ids:
+                FlatImage.query.filter(FlatImage.flat_id == item.id, FlatImage.id.in_(remove_ids)).delete(synchronize_session='fetch')
+            extra_urls, invalid = collect_uploaded_images(gallery_files)
+            if invalid:
+                flash('Some gallery images were not accepted. Use PNG, JPG, or WEBP.', 'warning')
+            existing_count = FlatImage.query.filter_by(flat_id=item.id).count()
+            remaining_slots = max(0, app.config['MAX_GALLERY_IMAGES'] - existing_count)
+            for url in (extra_urls + gallery_urls)[:remaining_slots]:
+                if url and url != item.image_url:
+                    db.session.add(FlatImage(flat=item, image_url=url))
         else:
             item.provider_name = request.form.get('provider_name', '').strip()
             item.service_type = request.form.get('service_type', '').strip()
             item.description = request.form.get('description', '').strip()
             item.portfolio_url = request.form.get('portfolio_url', '').strip()
             item.starting_price = coerce_float(request.form.get('starting_price'), item.starting_price or 0)
+            remove_ids = request.form.getlist('remove_image_ids')
+            if remove_ids:
+                InteriorImage.query.filter(InteriorImage.service_id == item.id, InteriorImage.id.in_(remove_ids)).delete(synchronize_session='fetch')
+            extra_urls, invalid = collect_uploaded_images(gallery_files)
+            if invalid:
+                flash('Some gallery images were not accepted. Use PNG, JPG, or WEBP.', 'warning')
+            existing_count = InteriorImage.query.filter_by(service_id=item.id).count()
+            remaining_slots = max(0, app.config['MAX_GALLERY_IMAGES'] - existing_count)
+            for url in (extra_urls + gallery_urls)[:remaining_slots]:
+                if url and url != item.image_url:
+                    db.session.add(InteriorImage(service=item, image_url=url))
 
         db.session.commit()
         flash('Listing updated successfully!', 'success')
@@ -1091,6 +1164,8 @@ def post_listing():
         form_type = request.form.get('form_type')
         status = 'pending'
         image_file = request.files.get('image_file')
+        gallery_files = request.files.getlist('image_files')
+        gallery_urls = parse_image_urls(request.form.get('image_urls', ''))
         uploaded_url = save_uploaded_image(image_file)
         if image_file and image_file.filename and not uploaded_url:
             flash('Unsupported image type. Use PNG, JPG, or WEBP.', 'warning')
@@ -1114,6 +1189,12 @@ def post_listing():
             new_flat.status = status
                 
             db.session.add(new_flat)
+            extra_urls, invalid = collect_uploaded_images(gallery_files)
+            if invalid:
+                flash('Some gallery images were not accepted. Use PNG, JPG, or WEBP.', 'warning')
+            for url in (extra_urls + gallery_urls)[:app.config['MAX_GALLERY_IMAGES']]:
+                if url and url != new_flat.image_url:
+                    db.session.add(FlatImage(flat=new_flat, image_url=url))
         elif form_type == 'interior':
             new_service = InteriorService(
                 provider_name=request.form.get('provider_name', '').strip(),
@@ -1127,6 +1208,12 @@ def post_listing():
             new_service.status = status
                 
             db.session.add(new_service)
+            extra_urls, invalid = collect_uploaded_images(gallery_files)
+            if invalid:
+                flash('Some gallery images were not accepted. Use PNG, JPG, or WEBP.', 'warning')
+            for url in (extra_urls + gallery_urls)[:app.config['MAX_GALLERY_IMAGES']]:
+                if url and url != new_service.image_url:
+                    db.session.add(InteriorImage(service=new_service, image_url=url))
         else:
             abort(400)
         
@@ -1142,3 +1229,7 @@ def page_not_found(e):
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5001))
     app.run(debug=True, host='0.0.0.0', port=port)
+# Force HTTPS cookies when behind HTTPS terminators.
+if os.getenv('FORCE_HTTPS', '0') == '1':
+    app.config['SESSION_COOKIE_SECURE'] = True
+    app.config['REMEMBER_COOKIE_SECURE'] = True

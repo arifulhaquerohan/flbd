@@ -42,7 +42,7 @@
             {% if services %}
                 {% for service in services %}
                 {% set price_label = "৳ {:,.0f}".format(service.starting_price | float) if service.starting_price else "Price on Request" %}
-                <article class="product-card reveal">
+                <a href="{{ url_for('interior_detail', id=service.id) }}" class="product-card product-card--link reveal" aria-label="View {{ service.provider_name }}">
                     <div class="product-card__media">
                         <img src="{{ service.image_url or 'https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=900&q=80' }}" alt="{{ service.provider_name }}" loading="lazy" decoding="async">
                         <span class="badge-soft absolute top-4 left-4">{{ service.service_type }}</span>
@@ -50,15 +50,15 @@
                     <div class="product-card__body">
                         <div class="product-meta">Interior • {{ service.service_type }}</div>
                         <h3 class="text-xl font-display text-brand-dark">
-                            <a href="{{ url_for('interior_detail', id=service.id) }}">{{ service.provider_name }}</a>
+                            <span>{{ service.provider_name }}</span>
                         </h3>
                         <p class="text-sm text-brand-dark/60">{{ service.description | truncate(120, True) }}</p>
                         <div class="product-price">{{ price_label }}</div>
                         <div class="product-actions">
-                            <a href="{{ url_for('interior_detail', id=service.id) }}" class="btn-outline">View studio</a>
+                            <span class="btn-outline">View studio</span>
                         </div>
                     </div>
-                </article>
+                </a>
                 {% endfor %}
             {% else %}
                 <div class="card-minimal p-10 text-center text-brand-dark/70">

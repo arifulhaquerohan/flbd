@@ -19,36 +19,36 @@
             </a>
         </header>
 
-        <div class="bg-white/80 backdrop-blur-xl rounded-[3rem] p-8 md:p-14 border border-glass-border shadow-strong">
-            <form method="POST" enctype="multipart/form-data" class="space-y-8">
+        <div class="admin-form-card">
+            <form method="POST" enctype="multipart/form-data" class="space-y-8 admin-form">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div class="md:col-span-2 space-y-2">
-                        <label class="text-xs font-bold text-brand-dark/40 uppercase tracking-widest ml-1">Company/Designer Name</label>
+                        <label>Company/Designer Name</label>
                         <input type="text" name="provider_name" value="{{ item.provider_name }}" required
-                               class="w-full px-6 py-4 rounded-2xl bg-white border border-brand-dark/5 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/5 transition-all text-brand-dark font-medium"
+                               class="admin-input"
                                placeholder="e.g., Studio 48 Architects">
                     </div>
 
                     <div class="md:col-span-2 space-y-2">
-                        <label class="text-xs font-bold text-brand-dark/40 uppercase tracking-widest ml-1">Service Type</label>
+                        <label>Service Type</label>
                         <input type="text" name="service_type" value="{{ item.service_type }}" required
-                               class="w-full px-6 py-4 rounded-2xl bg-white border border-brand-dark/5 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/5 transition-all text-brand-dark font-medium"
+                               class="admin-input"
                                placeholder="e.g. Residential Interior">
                     </div>
 
                     <div class="space-y-2">
-                        <label class="text-xs font-bold text-brand-dark/40 uppercase tracking-widest ml-1">Starting Price (৳)</label>
+                        <label>Starting Price (৳)</label>
                         <input type="number" name="starting_price" step="any" value="{{ item.starting_price }}"
-                               class="w-full px-6 py-4 rounded-2xl bg-white border border-brand-dark/5 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/5 transition-all text-brand-dark font-medium"
+                               class="admin-input"
                                placeholder="Base package">
                     </div>
 
                     <div class="space-y-2">
-                        <label class="text-xs font-bold text-brand-dark/40 uppercase tracking-widest ml-1">Status Control</label>
+                        <label>Status Control</label>
                         <select name="status" required
-                                class="w-full px-6 py-4 rounded-2xl bg-white border border-brand-dark/5 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/5 transition-all text-brand-dark appearance-none cursor-pointer font-bold">
+                                class="admin-select">
                             <option value="pending" {% if item.status == 'pending' %}selected{% endif %} class="text-amber-500">Pending Approval</option>
                             <option value="approved" {% if item.status == 'approved' %}selected{% endif %} class="text-emerald-500">Approved & Live</option>
                             <option value="rejected" {% if item.status == 'rejected' %}selected{% endif %} class="text-rose-500">Rejected / Archived</option>
@@ -56,21 +56,21 @@
                     </div>
 
                     <div class="md:col-span-2 space-y-2">
-                        <label class="text-xs font-bold text-brand-dark/40 uppercase tracking-widest ml-1">Portfolio or Website Link</label>
+                        <label>Portfolio or Website Link</label>
                         <input type="url" name="portfolio_url" value="{{ item.portfolio_url or '' }}"
-                               class="w-full px-6 py-4 rounded-2xl bg-white border border-brand-dark/5 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/5 transition-all text-brand-dark font-medium"
+                               class="admin-input"
                                placeholder="https://behance.net/yours">
                     </div>
 
                     <div class="md:col-span-2 space-y-2">
-                        <label class="text-xs font-bold text-brand-dark/40 uppercase tracking-widest ml-1">About Your Services</label>
+                        <label>About Your Services</label>
                         <textarea name="description" rows="4"
-                                  class="w-full px-6 py-4 rounded-2xl bg-white border border-brand-dark/5 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/5 transition-all text-brand-dark font-medium"
+                                  class="admin-textarea"
                                   placeholder="Describe your expertise...">{{ item.description }}</textarea>
                     </div>
 
                     <div class="md:col-span-2 space-y-2">
-                        <label class="text-xs font-bold text-brand-dark/40 uppercase tracking-widest ml-1">Featured Media</label>
+                        <label>Featured Media</label>
                         {% if item.image_url %}
                         <div class="mb-4 relative group w-48 aspect-video rounded-xl overflow-hidden border border-glass-border shadow-soft">
                             <img src="{{ item.image_url }}" alt="Existing portfolio" class="w-full h-full object-cover" loading="lazy" decoding="async">
@@ -92,8 +92,35 @@
                             </div>
                         </div>
                         <input type="text" name="image_url" value="{{ item.image_url or '' }}"
-                               class="w-full px-6 py-4 rounded-2xl bg-white border border-brand-dark/5 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/5 transition-all text-brand-dark text-sm mt-4 font-medium"
+                               class="admin-input mt-4"
                                placeholder="Or update image URL">
+
+                        {% if item.images %}
+                        <div class="mt-6">
+                            <p class="text-xs font-bold uppercase tracking-widest text-brand-dark/40 mb-3">Gallery Images</p>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                {% for image in item.images %}
+                                <label class="relative group rounded-2xl overflow-hidden border border-glass-border">
+                                    <img src="{{ image.image_url }}" alt="Gallery image" class="w-full h-28 object-cover" loading="lazy" decoding="async">
+                                    <div class="absolute inset-0 bg-brand-dark/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] uppercase tracking-widest font-bold">
+                                        Remove
+                                    </div>
+                                    <input type="checkbox" name="remove_image_ids" value="{{ image.id }}" class="absolute top-3 right-3 w-4 h-4 accent-brand-gold">
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="mt-6 space-y-2">
+                            <label>Add Gallery Images</label>
+                            <p class="text-brand-dark/40 text-[10px] uppercase tracking-widest font-bold">Up to 3 images total</p>
+                            <input type="file" name="image_files" accept="image/png,image/jpeg,image/webp" multiple
+                                   class="admin-input">
+                            <textarea name="image_urls" rows="3"
+                                      class="admin-textarea"
+                                      placeholder="Add multiple image URLs, one per line"></textarea>
+                        </div>
                     </div>
                 </div>
 

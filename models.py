@@ -40,6 +40,7 @@ class Flat(db.Model):
     status = db.Column(db.String(20), default='pending', index=True) # pending, approved, rejected
     created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    images = db.relationship('FlatImage', backref='flat', lazy=True, cascade='all, delete-orphan')
 
 class InteriorService(db.Model):
     __table_args__ = (
@@ -55,6 +56,19 @@ class InteriorService(db.Model):
     status = db.Column(db.String(20), default='pending', index=True) # pending, approved, rejected
     created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    images = db.relationship('InteriorImage', backref='service', lazy=True, cascade='all, delete-orphan')
+
+class FlatImage(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    flat_id = db.Column(db.Integer, db.ForeignKey('flat.id', ondelete='CASCADE'), nullable=False, index=True)
+    image_url = db.Column(db.String(500), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+
+class InteriorImage(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    service_id = db.Column(db.Integer, db.ForeignKey('interior_service.id', ondelete='CASCADE'), nullable=False, index=True)
+    image_url = db.Column(db.String(500), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
 
 class Lead(db.Model):
     id = db.Column(db.Integer, primary_key=True)
