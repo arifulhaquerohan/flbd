@@ -7,6 +7,170 @@
 {% endblock %}
 
 {% block extra_css %}
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+<style>
+    .detail-hero {
+        padding: 120px 0 90px;
+        background: linear-gradient(120deg, rgba(255, 255, 255, 0.9), rgba(247, 249, 252, 0.85)),
+                    url('{{ flat.image_url or "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1400&q=75" }}');
+        background-size: cover;
+        background-position: center;
+        border-radius: 0 0 32px 32px;
+        position: relative;
+        overflow: hidden;
+        isolation: isolate;
+    }
+
+    .detail-hero::before {
+        content: "";
+        position: absolute;
+        width: 360px;
+        height: 360px;
+        top: -190px;
+        right: -140px;
+        background: radial-gradient(circle, rgba(213, 123, 76, 0.22), transparent 65%);
+        filter: blur(6px);
+        opacity: 0.85;
+        animation: float-orb 20s ease-in-out infinite;
+        z-index: 0;
+    }
+
+    .detail-hero::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image:
+            radial-gradient(circle at 15% 30%, rgba(213, 123, 76, 0.18), transparent 60%),
+            linear-gradient(var(--grid-line) 1px, transparent 1px),
+            linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+        background-size: auto, 64px 64px, 64px 64px;
+        opacity: 0.7;
+        pointer-events: none;
+        animation: glow-pulse 7s ease-in-out infinite;
+    }
+
+    .detail-hero .container {
+        position: relative;
+        z-index: 1;
+    }
+
+    .detail-price-card {
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-lg);
+        padding: 26px;
+        box-shadow: var(--shadow-strong);
+        -webkit-backdrop-filter: blur(6px);
+        backdrop-filter: blur(6px);
+    }
+
+    .detail-price {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--accent-gold);
+    }
+
+    .detail-stats {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 18px;
+    }
+
+    .detail-stat {
+        background: var(--surface);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-md);
+        padding: 12px 14px;
+    }
+
+    .detail-stat small {
+        display: block;
+        color: rgba(29, 37, 51, 0.6);
+        font-size: 0.75rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+
+    .feature-tile {
+        background: var(--surface-strong);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-md);
+        padding: 20px;
+        text-align: left;
+        height: 100%;
+        box-shadow: var(--shadow-soft);
+    }
+
+    .feature-tile i {
+        font-size: 1.4rem;
+        color: var(--accent-gold);
+    }
+
+    .contact-box {
+        background: var(--surface-strong);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-lg);
+        padding: 30px;
+        position: sticky;
+        top: 100px;
+        box-shadow: var(--shadow-soft);
+    }
+
+    .contact-profile {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+
+    .contact-avatar {
+        width: 52px;
+        height: 52px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(213, 123, 76, 0.18);
+        color: var(--primary-dark);
+        font-size: 1.2rem;
+    }
+</style>
+=======
+{% endblock %}
+
+{% block extra_js %}
+<script type="application/ld+json">
+{{ {
+    "@context": "https://schema.org",
+    "@type": "Offer",
+    "price": flat.price,
+    "priceCurrency": "BDT",
+    "availability": "https://schema.org/InStock",
+    "itemOffered": {
+        "@type": "Apartment",
+        "name": flat.title,
+        "description": flat.description,
+        "image": flat.image_url or default_og_image,
+        "address": {
+            "@type": "PostalAddress",
+            "addressLocality": flat.location,
+            "addressCountry": "BD"
+        },
+        "floorSize": {
+            "@type": "QuantitativeValue",
+            "value": flat.area_sqft,
+            "unitText": "SQF"
+        },
+        "numberOfRooms": flat.bhk
+    }
+} | tojson }}
+</script>
+>>>>>>> 028daaa (major update)
+>>>>>>> 2ecb584 ( update)
 {% endblock %}
 
 {% block extra_js %}

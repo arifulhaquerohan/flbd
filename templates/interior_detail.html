@@ -3,6 +3,71 @@
 {% block title %}{{ service.provider_name }} - FlatlandBD{% endblock %}
 
 {% block extra_css %}
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+<style>
+    .interior-hero {
+        padding: 120px 0 90px;
+        background: linear-gradient(120deg, rgba(255, 255, 255, 0.9), rgba(247, 249, 252, 0.85)),
+                    url('{{ service.image_url or "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1600" }}');
+        background-size: cover;
+        background-position: center;
+        position: relative;
+        overflow: hidden;
+        isolation: isolate;
+    }
+
+    .interior-hero::before {
+        content: "";
+        position: absolute;
+        width: 340px;
+        height: 340px;
+        top: -180px;
+        left: -140px;
+        background: radial-gradient(circle, rgba(213, 123, 76, 0.2), transparent 65%);
+        filter: blur(6px);
+        opacity: 0.85;
+        animation: float-orb 21s ease-in-out infinite reverse;
+        z-index: 0;
+    }
+
+    .interior-hero::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(var(--grid-line) 1px, transparent 1px),
+            linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+        background-size: 64px 64px;
+        opacity: 0.35;
+        pointer-events: none;
+        animation: glow-pulse 8s ease-in-out infinite;
+=======
+{% endblock %}
+
+{% block extra_js %}
+<script type="application/ld+json">
+{{ {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": service.provider_name,
+    "description": service.description,
+    "image": service.image_url or default_og_image,
+    "provider": {
+        "@type": "Organization",
+        "name": service.provider_name
+    },
+    "areaServed": "BD",
+    "offers": {
+        "@type": "Offer",
+        "priceCurrency": "BDT",
+        "price": service.starting_price
+>>>>>>> 028daaa (major update)
+    }
+} | tojson }}
+</script>
+>>>>>>> 2ecb584 ( update)
 {% endblock %}
 
 {% block extra_js %}

@@ -1,4 +1,172 @@
 {% block extra_css %}
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+<style>
+    .preview-hero {
+        padding: 100px 0 80px;
+    }
+
+    .preview-header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 24px;
+        margin-bottom: 28px;
+    }
+
+    .preview-quick {
+        background: rgba(255, 255, 255, 0.72);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        padding: 16px;
+        box-shadow: var(--shadow-soft);
+        min-width: 240px;
+    }
+
+    .quick-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .preview-shell {
+        background: var(--surface);
+        border: 1px solid var(--glass-border);
+        border-radius: 28px;
+        padding: 24px;
+        box-shadow: var(--shadow-soft);
+    }
+
+    .preview-path {
+        margin-bottom: 18px;
+    }
+
+    .preview-note {
+        margin-top: 8px;
+        font-size: 0.82rem;
+        color: rgba(29, 37, 51, 0.55);
+    }
+
+    .preview-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+    }
+
+    .device-controls,
+    .preview-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .preview-stage {
+        margin-top: 20px;
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        padding: 24px;
+        background: rgba(255, 255, 255, 0.62);
+        min-height: 65vh;
+        min-height: 65svh;
+        min-height: calc(var(--app-vh, 1vh) * 65);
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        overflow: auto;
+        position: relative;
+    }
+
+    .stage-meta {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        display: flex;
+        gap: 8px;
+        z-index: 2;
+    }
+
+    .device-frame {
+        --device-width: 1280px;
+        --device-height: 720px;
+        background: #0d2724;
+        border-radius: 32px;
+        padding: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: var(--shadow-strong);
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .device-top {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+    }
+
+    .device-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.45);
+    }
+
+    .device-screen {
+        width: var(--device-width);
+        height: var(--device-height);
+        background: #ffffff;
+        border-radius: 22px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .device-screen iframe {
+        width: 100%;
+        height: 100%;
+        border: 0;
+        background: #ffffff;
+    }
+
+    @media (max-width: 992px) {
+        .preview-hero {
+            padding: 80px 0 60px;
+        }
+
+        .preview-shell {
+            padding: 20px;
+        }
+
+        .preview-stage {
+            min-height: 55vh;
+            min-height: 55svh;
+            min-height: calc(var(--app-vh, 1vh) * 55);
+        }
+    }
+
+    @media (max-width: 576px) {
+        .preview-shell {
+            padding: 18px;
+        }
+
+        .preview-stage {
+            padding: 16px;
+        }
+
+        .device-frame {
+            padding: 12px;
+            border-radius: 24px;
+        }
+    }
+</style>
+=======
+>>>>>>> 028daaa (major update)
+>>>>>>> 2ecb584 ( update)
 {% endblock %}
 
 {% block content %}

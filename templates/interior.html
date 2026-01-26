@@ -14,7 +14,14 @@
         background-image: linear-gradient(to bottom, rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.9)), url('https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1400&q=80');
         background-size: cover;
         background-position: center;
+<<<<<<< HEAD
         background-attachment: fixed;
+=======
+<<<<<<< HEAD
+        position: relative;
+        overflow: hidden;
+        isolation: isolate;
+>>>>>>> 2ecb584 ( update)
     }
 
     @media (max-width: 640px) {
@@ -23,6 +30,7 @@
         }
     }
 
+<<<<<<< HEAD
     @media (min-width: 1280px) {
         .interior-hero-bg {
             background-image: linear-gradient(to bottom, rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.9)), url('https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=2000&q=80');
@@ -34,6 +42,53 @@
         border: 1px solid rgba(255, 255, 255, 0.1);
         backdrop-filter: blur(10px);
     }
+=======
+    .interior-hero::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(var(--grid-line) 1px, transparent 1px),
+            linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+        background-size: 34px 34px;
+        opacity: 0.35;
+        pointer-events: none;
+        animation: glow-pulse 8s ease-in-out infinite;
+=======
+        background-attachment: fixed;
+    }
+
+    @media (max-width: 640px) {
+        .interior-hero-bg {
+            background-image: linear-gradient(to bottom, rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.9)), url('https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=900&q=80');
+        }
+>>>>>>> 028daaa (major update)
+    }
+
+    @media (min-width: 1280px) {
+        .interior-hero-bg {
+            background-image: linear-gradient(to bottom, rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.9)), url('https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=2000&q=80');
+        }
+    }
+<<<<<<< HEAD
+
+    .interior-hero-card {
+        background: rgba(255, 255, 255, 0.88);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-lg);
+        padding: 24px;
+        box-shadow: var(--shadow-strong);
+        -webkit-backdrop-filter: blur(6px);
+        backdrop-filter: blur(6px);
+=======
+    
+    .glass-tab {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+>>>>>>> 028daaa (major update)
+    }
+>>>>>>> 2ecb584 ( update)
     .glass-tab.active {
         background: #ffffff;
         color: var(--primary-dark);
@@ -459,6 +514,26 @@
                             <i class="fas fa-check"></i>
                         </div>
                         Budget guidance
+<<<<<<< HEAD
+=======
+                    </div>
+                </div>
+            </div>
+
+<<<<<<< HEAD
+<section class="lead-capture-section py-5 defer-render">
+    <div class="container">
+        <div class="row g-4 align-items-stretch">
+            <div class="col-lg-6">
+                <div class="lead-card h-100 reveal">
+                    <p class="section-kicker mb-2">Start your design plan</p>
+                    <h3 class="fw-bold mb-3">Get a tailored interior quote.</h3>
+                    <p class="text-muted mb-4">Tell us your space type, budget, and timeline. Our team will respond with a clear plan.</p>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="metric-pill">Scope clarity</span>
+                        <span class="metric-pill">Trusted studios</span>
+                        <span class="metric-pill">Budget guidance</span>
+>>>>>>> 2ecb584 ( update)
                     </div>
                 </div>
             </div>
@@ -559,6 +634,7 @@
                 </ul>
                 <a href="tel:+8801712458794" class="block w-full py-4 rounded-2xl bg-brand-dark text-white text-center font-bold text-sm shadow-xl">Start a Project</a>
             </div>
+<<<<<<< HEAD
 
             <!-- Luxe -->
             <div class="p-10 rounded-[3rem] bg-white/5 border border-white/10 hover:bg-white/10 transition-all group">
@@ -577,11 +653,186 @@
                     </li>
                 </ul>
                 <a href="tel:+8801712458794" class="block w-full py-4 rounded-2xl border border-white/20 text-center font-bold text-sm hover:bg-white hover:text-brand-dark transition-all">Schedule a Call</a>
+=======
+            <div class="col-md-3">
+                <div class="process-card defer-card reveal delay-2">
+                    <div class="process-step">03</div>
+                    <h6 class="fw-bold">Execution</h6>
+                    <p class="text-muted small mb-0">Vendor coordination, site supervision, quality checks.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="process-card defer-card reveal delay-3">
+                    <div class="process-step">04</div>
+                    <h6 class="fw-bold">Styling handover</h6>
+                    <p class="text-muted small mb-0">Final staging, punch list, and post-handover support.</p>
+                </div>
+=======
+            <div class="bg-brand-soft rounded-[3rem] p-8 md:p-12 border border-glass-border shadow-strong">
+                <form method="post" action="{{ url_for('contact') }}" class="space-y-6">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="interest" value="Interiors">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-brand-dark/40 uppercase tracking-widest ml-1">Name</label>
+                            <input type="text" name="name" required
+                                   class="w-full px-6 py-4 rounded-2xl bg-white border border-brand-dark/5 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/5 transition-all text-brand-dark placeholder:text-brand-dark/20"
+                                   placeholder="Your full name">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold text-brand-dark/40 uppercase tracking-widest ml-1">Phone or Email</label>
+                            <input type="text" name="contact" required
+                                   class="w-full px-6 py-4 rounded-2xl bg-white border border-brand-dark/5 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/5 transition-all text-brand-dark placeholder:text-brand-dark/20"
+                                   placeholder="01XXXXXXXXX or you@email.com">
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-brand-dark/40 uppercase tracking-widest ml-1">Estimated budget</label>
+                        <select name="budget" 
+                                class="w-full px-6 py-4 rounded-2xl bg-white border border-brand-dark/5 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/5 transition-all text-brand-dark appearance-none cursor-pointer">
+                            <option value="">Select budget range</option>
+                            <option value="Under 1 Lac">Under 1 Lac</option>
+                            <option value="1 Lac - 5 Lac">1 Lac - 5 Lac</option>
+                            <option value="5 Lac - 15 Lac">5 Lac - 15 Lac</option>
+                            <option value="15 Lac+">15 Lac+</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-brand-dark/40 uppercase tracking-widest ml-1">Message</label>
+                        <textarea name="message" required rows="4"
+                                  class="w-full px-6 py-4 rounded-2xl bg-white border border-brand-dark/5 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/5 transition-all text-brand-dark placeholder:text-brand-dark/20 resize-none"
+                                  placeholder="Space type, goals, and timeline..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-gold-tw w-full py-5 text-lg shadow-lg shadow-brand-gold/20">
+                        Request Quote
+                    </button>
+                    <p class="text-center text-[10px] font-bold text-brand-dark/40 uppercase tracking-widest">Response within 24 hours</p>
+                </form>
+>>>>>>> 028daaa (major update)
+>>>>>>> 2ecb584 ( update)
             </div>
         </div>
     </div>
 </section>
 
+<<<<<<< HEAD
+<section class="py-24 bg-white" id="workflow">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col lg:flex-row items-end justify-between mb-16 gap-8">
+            <div class="max-w-2xl">
+                <span class="inline-block px-4 py-1.5 rounded-full bg-brand-gold/10 text-brand-gold text-xs font-bold uppercase tracking-widest mb-6">Studio workflow</span>
+                <h2 class="text-4xl font-display font-bold text-brand-dark leading-tight">A professional process from brief to build.</h2>
+            </div>
+            <p class="text-brand-dark/60 text-lg max-w-md">
+                Every project follows a clear sequence so clients and designers stay aligned.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="p-8 rounded-3xl bg-brand-soft border border-glass-border relative overflow-hidden group">
+                <div class="text-5xl font-display font-bold text-brand-dark/5 absolute -top-2 -right-2 tracking-tighter group-hover:text-brand-gold/10 transition-colors">01</div>
+                <h6 class="font-bold text-brand-dark mb-3 text-lg relative z-10">Discovery brief</h6>
+                <p class="text-brand-dark/60 text-sm leading-relaxed relative z-10">Site survey, lifestyle interview, budget alignment.</p>
+            </div>
+            <div class="p-8 rounded-3xl bg-brand-soft border border-glass-border relative overflow-hidden group">
+                <div class="text-5xl font-display font-bold text-brand-dark/5 absolute -top-2 -right-2 tracking-tighter group-hover:text-brand-gold/10 transition-colors">02</div>
+                <h6 class="font-bold text-brand-dark mb-3 text-lg relative z-10">Concept + visuals</h6>
+                <p class="text-brand-dark/60 text-sm leading-relaxed relative z-10">Moodboards, layouts, and 3D renders for approval.</p>
+            </div>
+            <div class="p-8 rounded-3xl bg-brand-soft border border-glass-border relative overflow-hidden group">
+                <div class="text-5xl font-display font-bold text-brand-dark/5 absolute -top-2 -right-2 tracking-tighter group-hover:text-brand-gold/10 transition-colors">03</div>
+                <h6 class="font-bold text-brand-dark mb-3 text-lg relative z-10">Execution</h6>
+                <p class="text-brand-dark/60 text-sm leading-relaxed relative z-10">Vendor coordination, site supervision, quality checks.</p>
+            </div>
+            <div class="p-8 rounded-3xl bg-brand-soft border border-glass-border relative overflow-hidden group">
+                <div class="text-5xl font-display font-bold text-brand-dark/5 absolute -top-2 -right-2 tracking-tighter group-hover:text-brand-gold/10 transition-colors">04</div>
+                <h6 class="font-bold text-brand-dark mb-3 text-lg relative z-10">Handover</h6>
+                <p class="text-brand-dark/60 text-sm leading-relaxed relative z-10">Final staging, punch list, and support.</p>
+=======
+<section class="py-24 bg-brand-dark text-white overflow-hidden" id="packages">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-20">
+            <span class="inline-block px-4 py-1.5 rounded-full bg-white/10 text-brand-gold text-xs font-bold uppercase tracking-widest mb-6">Packages</span>
+            <h2 class="text-4xl md:text-5xl font-display font-bold mb-6">Choose a package that fits your space.</h2>
+            <p class="text-white/40 text-lg">Flexible scopes for apartments, duplexes, and commercial interiors.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Essential -->
+            <div class="p-10 rounded-[3rem] bg-white/5 border border-white/10 hover:bg-white/10 transition-all group">
+                <h5 class="text-2xl font-bold mb-2">Essential</h5>
+                <p class="text-white/40 text-sm mb-8">Best for single rooms or small upgrades.</p>
+                <div class="text-3xl font-bold text-brand-gold mb-10">৳ 1.2 - 2.0 Lac</div>
+                <ul class="space-y-4 mb-10">
+                    <li class="flex items-center gap-3 text-sm text-white/60">
+                        <i class="fas fa-check text-brand-gold"></i> Layout plan + 2 revisions
+                    </li>
+                    <li class="flex items-center gap-3 text-sm text-white/60">
+                        <i class="fas fa-check text-brand-gold"></i> Material palette
+                    </li>
+                    <li class="flex items-center gap-3 text-sm text-white/60">
+                        <i class="fas fa-check text-brand-gold"></i> Vendor shortlist & BOQ
+                    </li>
+                </ul>
+                <a href="tel:+8801712458794" class="block w-full py-4 rounded-2xl border border-white/20 text-center font-bold text-sm hover:bg-white hover:text-brand-dark transition-all">Request Consultation</a>
+            </div>
+
+            <!-- Signature -->
+            <div class="p-10 rounded-[3rem] bg-gradient-to-br from-brand-gold to-brand-warm text-brand-dark relative shadow-2xl scale-105 z-10">
+                <span class="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-brand-dark text-white text-[10px] font-bold uppercase tracking-widest">Most popular</span>
+                <h5 class="text-2xl font-bold mb-2">Signature</h5>
+                <p class="text-brand-dark/60 text-sm mb-8">Full home design with curated finishes.</p>
+                <div class="text-3xl font-bold mb-10">৳ 2.5 - 4.5 Lac</div>
+                <ul class="space-y-4 mb-10">
+                    <li class="flex items-center gap-3 text-sm font-bold">
+                        <i class="fas fa-check text-brand-dark"></i> Concept + 3D for all rooms
+                    </li>
+                    <li class="flex items-center gap-3 text-sm font-bold">
+                        <i class="fas fa-check text-brand-dark"></i> Material sourcing & BOQ
+                    </li>
+                    <li class="flex items-center gap-3 text-sm font-bold">
+                        <i class="fas fa-check text-brand-dark"></i> On-site supervision
+                    </li>
+                </ul>
+                <a href="tel:+8801712458794" class="block w-full py-4 rounded-2xl bg-brand-dark text-white text-center font-bold text-sm shadow-xl">Start a Project</a>
+            </div>
+
+            <!-- Luxe -->
+            <div class="p-10 rounded-[3rem] bg-white/5 border border-white/10 hover:bg-white/10 transition-all group">
+                <h5 class="text-2xl font-bold mb-2">Luxe</h5>
+                <p class="text-white/40 text-sm mb-8">Premium finishes with custom detailing.</p>
+                <div class="text-3xl font-bold text-brand-gold mb-10">৳ 5.0 Lac +</div>
+                <ul class="space-y-4 mb-10">
+                    <li class="flex items-center gap-3 text-sm text-white/60">
+                        <i class="fas fa-check text-brand-gold"></i> Custom joinery & lighting
+                    </li>
+                    <li class="flex items-center gap-3 text-sm text-white/60">
+                        <i class="fas fa-check text-brand-gold"></i> Project management
+                    </li>
+                    <li class="flex items-center gap-3 text-sm text-white/60">
+                        <i class="fas fa-check text-brand-gold"></i> Styling & handover
+                    </li>
+                </ul>
+                <a href="tel:+8801712458794" class="block w-full py-4 rounded-2xl border border-white/20 text-center font-bold text-sm hover:bg-white hover:text-brand-dark transition-all">Schedule a Call</a>
+>>>>>>> 2ecb584 ( update)
+            </div>
+        </div>
+    </div>
+</section>
+
+<<<<<<< HEAD
+<section class="py-24 bg-brand-soft" id="faq">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <span class="inline-block px-4 py-1.5 rounded-full bg-brand-gold/10 text-brand-gold text-xs font-bold uppercase tracking-widest mb-6">FAQ</span>
+            <h2 class="text-4xl font-display font-bold text-brand-dark mb-4">Answers to common interior questions.</h2>
+            <p class="text-brand-dark/60 text-lg">Clear expectations help you plan faster and avoid surprises.</p>
+        </div>
+=======
 <section class="py-24 bg-white" id="workflow">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col lg:flex-row items-end justify-between mb-16 gap-8">
@@ -626,6 +877,7 @@
             <h2 class="text-4xl font-display font-bold text-brand-dark mb-4">Answers to common interior questions.</h2>
             <p class="text-brand-dark/60 text-lg">Clear expectations help you plan faster and avoid surprises.</p>
         </div>
+>>>>>>> 2ecb584 ( update)
 
         <div class="space-y-4" x-data="{ active: 1 }">
             <div class="bg-white rounded-[2rem] border border-glass-border overflow-hidden">

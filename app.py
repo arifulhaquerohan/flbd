@@ -21,10 +21,44 @@ from werkzeug.utils import secure_filename
 
 load_dotenv()
 
+def resolve_instance_path():
+    explicit = os.getenv('INSTANCE_PATH')
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    default_path = os.path.join(base_dir, 'instance')
+    if explicit:
+        candidate = explicit
+    elif os.getenv('VERCEL') or os.getenv('AWS_LAMBDA_FUNCTION_NAME') or os.getenv('AWS_EXECUTION_ENV'):
+        candidate = '/tmp/instance'
+    else:
+        candidate = default_path
+    try:
+        os.makedirs(candidate, exist_ok=True)
+        return candidate
+    except OSError:
+        fallback = '/tmp/instance'
+        try:
+            os.makedirs(fallback, exist_ok=True)
+            return fallback
+        except OSError:
+            return default_path
+
 LISTING_STATUSES = {'pending', 'approved', 'rejected'}
 LEAD_STATUSES = {'new', 'contacted', 'closed'}
 
+<<<<<<< HEAD
 app = Flask(__name__)
+=======
+<<<<<<< HEAD
+instance_path = os.getenv('INSTANCE_PATH')
+if not instance_path and (os.getenv('VERCEL') or os.getenv('VERCEL_ENV')):
+    # Vercel's filesystem is read-only except /tmp.
+    instance_path = '/tmp/instance'
+
+app = Flask(__name__, instance_path=instance_path, instance_relative_config=True) if instance_path else Flask(__name__)
+=======
+app = Flask(__name__, instance_path=resolve_instance_path())
+>>>>>>> 028daaa (major update)
+>>>>>>> 2ecb584 ( update)
 compress = Compress()
 csrf = CSRFProtect()
 
@@ -92,6 +126,11 @@ app.config['DEFAULT_OG_IMAGE'] = os.getenv(
     'https://images.unsplash.com/photo-1505691938895-1758d7feb511?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80'
 )
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 2ecb584 ( update)
 PUBLIC_CACHE_ENDPOINTS = {
     'index',
     'flats',
@@ -104,6 +143,10 @@ PUBLIC_CACHE_ENDPOINTS = {
 PUBLIC_CACHE_TTL = 120
 PUBLIC_CACHE_TTL_LONG = 3600
 
+<<<<<<< HEAD
+=======
+>>>>>>> 028daaa (major update)
+>>>>>>> 2ecb584 ( update)
 compress.init_app(app)
 csrf.init_app(app)
 db.init_app(app)
@@ -296,6 +339,11 @@ def add_security_headers(response):
         response.headers.setdefault('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
     if request.path.startswith('/static/'):
         response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 2ecb584 ( update)
     if (
         request.method == 'GET'
         and not current_user.is_authenticated
@@ -304,6 +352,10 @@ def add_security_headers(response):
     ):
         ttl = PUBLIC_CACHE_TTL_LONG if request.endpoint in {'robots', 'sitemap'} else PUBLIC_CACHE_TTL
         response.headers.setdefault('Cache-Control', f'public, max-age={ttl}, stale-while-revalidate={ttl // 2}')
+<<<<<<< HEAD
+=======
+>>>>>>> 028daaa (major update)
+>>>>>>> 2ecb584 ( update)
     vary = response.headers.get('Vary')
     if vary:
         if 'Accept-Encoding' not in vary:
@@ -410,7 +462,15 @@ def export_data(item_type):
             like = f"%{search}%"
             query = query.filter(or_(Flat.title.ilike(like), Flat.location.ilike(like)))
         writer.writerow([
+<<<<<<< HEAD
             'id', 'title', 'location', 'price', 'bhk', 'area_sqft', 'status', 'owner', 'created_at', 'image_url', 'video_url'
+=======
+<<<<<<< HEAD
+            'id', 'title', 'location', 'price', 'bhk', 'area_sqft', 'status', 'owner', 'created_at', 'image_url'
+=======
+            'id', 'title', 'location', 'price', 'bhk', 'area_sqft', 'status', 'owner', 'created_at', 'image_url', 'video_url'
+>>>>>>> 028daaa (major update)
+>>>>>>> 2ecb584 ( update)
         ])
         for item in query.order_by(Flat.created_at.desc()).all():
             writer.writerow([
@@ -424,7 +484,14 @@ def export_data(item_type):
                 item.owner.username if item.owner else '',
                 item.created_at.isoformat() if item.created_at else '',
                 item.image_url or '',
+<<<<<<< HEAD
                 item.video_url or '',
+=======
+<<<<<<< HEAD
+=======
+                item.video_url or '',
+>>>>>>> 028daaa (major update)
+>>>>>>> 2ecb584 ( update)
             ])
         filename = 'flats.csv'
     elif item_type == 'services':
@@ -504,6 +571,15 @@ with app.app_context():
 
 @app.route('/')
 def index():
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+    stats = {
+        'flats': Flat.query.filter_by(status='approved').count(),
+        'studios': InteriorService.query.filter_by(status='approved').count(),
+    }
+=======
+>>>>>>> 2ecb584 ( update)
     stats = get_cached_value(
         'public_stats',
         60,
@@ -512,6 +588,10 @@ def index():
             'studios': InteriorService.query.filter_by(status='approved').count(),
         },
     )
+<<<<<<< HEAD
+=======
+>>>>>>> 028daaa (major update)
+>>>>>>> 2ecb584 ( update)
     return render_template(
         'index.html',
         stats=stats,

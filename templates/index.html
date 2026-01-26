@@ -8,6 +8,7 @@
 
 {% block extra_css %}
 <style>
+<<<<<<< HEAD
     .hero-bg {
         background-color: var(--primary-dark);
         background-image: linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.7)), url('https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1400&q=80');
@@ -21,6 +22,373 @@
     @media (max-width: 640px) {
         .hero-bg {
             background-image: linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.7)), url('https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=900&q=80');
+=======
+<<<<<<< HEAD
+    .hero-atelier {
+        min-height: 78vh;
+        min-height: 78svh;
+        min-height: calc(var(--app-vh, 1vh) * 78);
+        display: flex;
+        align-items: center;
+        position: relative;
+        padding: 120px 0 90px;
+        overflow: hidden;
+        isolation: isolate;
+        background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(247, 249, 252, 0.96)),
+            linear-gradient(var(--grid-line) 1px, transparent 1px),
+            linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+        background-size: auto, 72px 72px, 72px 72px;
+        border-bottom: 1px solid var(--glass-border);
+    }
+
+    .hero-atelier::before {
+        content: "";
+        position: absolute;
+        width: 420px;
+        height: 420px;
+        top: -200px;
+        right: -160px;
+        background: radial-gradient(circle, rgba(213, 123, 76, 0.22), transparent 60%);
+        filter: blur(6px);
+        z-index: 0;
+        animation: float-orb 18s ease-in-out infinite, glow-pulse 8s ease-in-out infinite;
+    }
+
+    .hero-atelier::after {
+        content: "";
+        position: absolute;
+        width: 320px;
+        height: 320px;
+        bottom: -140px;
+        left: -120px;
+        background: radial-gradient(circle, rgba(29, 37, 51, 0.18), transparent 60%);
+        z-index: 0;
+        animation: float-orb 22s ease-in-out infinite reverse;
+    }
+
+    .hero-atelier .container {
+        position: relative;
+        z-index: 1;
+    }
+
+    .hero-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 6px 12px;
+        border-radius: 10px;
+        border: 1px solid var(--glass-border);
+        background: rgba(255, 255, 255, 0.9);
+        font-size: 0.68rem;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+        font-weight: 600;
+        color: rgba(29, 37, 51, 0.7);
+        margin-bottom: 18px;
+    }
+
+    .hero-title {
+        font-size: clamp(2.8rem, 4vw, 4.8rem);
+        font-weight: 700;
+        line-height: 1.05;
+        margin-bottom: 20px;
+    }
+
+    .hero-subtitle {
+        font-size: 1.05rem;
+        color: rgba(29, 37, 51, 0.65);
+        max-width: 560px;
+        margin-bottom: 28px;
+    }
+
+    .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .hero-metrics {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 32px;
+    }
+
+    .hero-metric {
+        background: var(--surface-strong);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-md);
+        padding: 14px 16px;
+        box-shadow: var(--shadow-soft);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-metric::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--accent-gold), var(--accent-warm));
+        opacity: 0.9;
+    }
+
+    .hero-metric span {
+        font-weight: 600;
+        display: block;
+    }
+
+    .hero-metric small {
+        color: rgba(29, 37, 51, 0.6);
+    }
+
+    .hero-showcase {
+        display: grid;
+        grid-template-columns: 1.4fr 1fr;
+        gap: 20px;
+        align-items: stretch;
+    }
+
+    .showcase-main {
+        position: relative;
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        box-shadow: var(--shadow-strong);
+        min-height: 380px;
+    }
+
+    .showcase-main img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .showcase-overlay {
+        position: absolute;
+        left: 18px;
+        right: 18px;
+        bottom: 18px;
+        background: rgba(255, 255, 255, 0.94);
+        border: 1px solid var(--glass-border);
+        border-radius: 12px;
+        padding: 16px 18px;
+        -webkit-backdrop-filter: blur(6px);
+        backdrop-filter: blur(6px);
+    }
+
+    .showcase-stack {
+        display: grid;
+        gap: 16px;
+        height: 100%;
+    }
+
+    .showcase-card {
+        background: var(--surface-strong);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-md);
+        padding: 18px;
+        box-shadow: var(--shadow-soft);
+        position: relative;
+    }
+
+    .showcase-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 10px;
+        border-radius: 10px;
+        background: rgba(213, 123, 76, 0.14);
+        border: 1px solid rgba(213, 123, 76, 0.3);
+        font-size: 0.68rem;
+        font-weight: 600;
+    }
+
+    .service-rail {
+        margin-top: -40px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .trust-bar {
+        padding: 30px 0 60px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .trust-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .trust-card {
+        background: var(--surface-strong);
+        border: 1px solid var(--glass-border);
+        border-radius: 18px;
+        padding: 22px;
+        box-shadow: var(--shadow-soft);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .trust-card::after {
+        content: "";
+        position: absolute;
+        right: -60px;
+        top: -40px;
+        width: 140px;
+        height: 140px;
+        background: radial-gradient(circle, rgba(213, 123, 76, 0.18), transparent 65%);
+        opacity: 0.7;
+    }
+
+    .trust-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, rgba(213, 123, 76, 0.18), rgba(241, 182, 124, 0.4));
+        color: var(--primary-dark);
+        font-size: 1.1rem;
+        margin-bottom: 12px;
+    }
+
+    .trust-value {
+        font-size: 1.6rem;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .trust-label {
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+
+    .service-tile {
+        position: relative;
+        border-radius: 20px;
+        padding: 32px;
+        min-height: 260px;
+        overflow: hidden;
+        color: #ffffff;
+        display: flex;
+        align-items: flex-end;
+        text-decoration: none;
+        box-shadow: var(--shadow-strong);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    .service-tile::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(140deg, rgba(29, 37, 51, 0.85), rgba(29, 37, 51, 0.25));
+        z-index: 0;
+    }
+
+    .service-tile__content {
+        position: relative;
+        z-index: 1;
+        max-width: 320px;
+    }
+
+    .service-tile__content h3 {
+        margin-bottom: 10px;
+    }
+
+    .service-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        margin-top: 14px;
+    }
+
+    .service-tile--flats {
+        background: url('https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1200&q=75') center/cover no-repeat;
+    }
+
+    .service-tile--interior {
+        background: url('https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=1200&q=75') center/cover no-repeat;
+    }
+
+    .studio-split {
+        padding: 90px 0;
+    }
+
+    .studio-card {
+        background: var(--surface-strong);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-lg);
+        padding: 26px;
+        box-shadow: var(--shadow-soft);
+    }
+
+    .studio-list {
+        list-style: none;
+        padding: 0;
+        margin: 18px 0 0;
+        display: grid;
+        gap: 12px;
+    }
+
+    .studio-list li {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        color: rgba(29, 37, 51, 0.7);
+    }
+
+    .value-strip {
+        padding: 90px 0;
+    }
+
+    .value-card {
+        background: var(--surface-strong);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-md);
+        padding: 24px;
+        height: 100%;
+        box-shadow: var(--shadow-soft);
+    }
+
+    .value-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, rgba(213, 123, 76, 0.2), rgba(241, 182, 124, 0.4));
+        color: var(--primary-dark);
+        margin-bottom: 16px;
+        font-size: 1.2rem;
+    }
+
+    @media (max-width: 992px) {
+        .hero-showcase {
+            grid-template-columns: 1fr;
+=======
+    .hero-bg {
+        background-color: var(--primary-dark);
+        background-image: linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.7)), url('https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1400&q=80');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        min-height: calc(var(--vh, 1vh) * 100);
+        height: calc(var(--vh, 1vh) * 100);
+    }
+
+    @media (max-width: 640px) {
+        .hero-bg {
+            background-image: linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.7)), url('https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=900&q=80');
+>>>>>>> 028daaa (major update)
+>>>>>>> 2ecb584 ( update)
         }
     }
 
@@ -51,12 +419,19 @@
     @media (hover: none) and (pointer: coarse) {
         .hero-bg {
             background-attachment: scroll;
+<<<<<<< HEAD
+=======
+        }
+        .trust-grid {
+            grid-template-columns: 1fr;
+>>>>>>> 2ecb584 ( update)
         }
     }
 </style>
 {% endblock %}
 
 {% block content %}
+<<<<<<< HEAD
 <!-- Immersive Hero Section -->
 <section class="relative h-screen min-h-[600px] hero-bg flex items-center justify-center text-center px-4">
     <div class="relative z-10 max-w-5xl mx-auto space-y-8 animate-fade-in-up">
@@ -79,6 +454,56 @@
                 <div class="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
                     <i class="fas fa-search text-white/50 text-lg"></i>
                 </div>
+=======
+<<<<<<< HEAD
+<section class="hero-atelier">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <span class="hero-tag reveal">Bangladesh real estate + interior studio</span>
+                <h1 class="hero-title reveal">Verified flats and studio-grade interiors, built for <span class="text-gradient">modern living</span>.</h1>
+                <p class="hero-subtitle reveal delay-1">Search curated listings, compare budgets, and book interior consultations with direct WhatsApp or call support.</p>
+                <div class="hero-actions reveal delay-2">
+                    <a href="{{ url_for('flats') }}" class="btn btn-gold btn-lg">Explore Flats</a>
+                    <a href="{{ url_for('interior') }}" class="btn btn-outline-light btn-lg">Interior Studio</a>
+                </div>
+                <div class="hero-metrics reveal delay-3">
+                    <div class="hero-metric">
+                        <span>{{ stats.flats }}</span>
+                        <small>Verified flats available</small>
+                    </div>
+                    <div class="hero-metric">
+                        <span>{{ stats.studios }}</span>
+                        <small>Interior studios on-platform</small>
+                    </div>
+                    <div class="hero-metric">
+                        <span>Direct</span>
+                        <small>Call, WhatsApp, or form</small>
+                    </div>
+=======
+<!-- Immersive Hero Section -->
+<section class="relative h-screen min-h-[600px] hero-bg flex items-center justify-center text-center px-4">
+    <div class="relative z-10 max-w-5xl mx-auto space-y-8 animate-fade-in-up">
+        <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full glass-search text-white/90 text-sm font-medium tracking-wide border border-white/20">
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+            <span>Premium Real Estate & Interior Design</span>
+        </div>
+        
+        <h1 class="text-5xl md:text-7xl lg:text-8xl font-display font-medium text-white leading-tight drop-shadow-lg">
+            The Art of <br/> <i class="font-serif text-brand-gold">Living Well</i>
+        </h1>
+        
+        <p class="text-lg md:text-xl text-white/80 max-w-2xl mx-auto font-light leading-relaxed">
+            Curated residences and bespoke interior design for the discerning homeowner in Bangladesh.
+        </p>
+
+        <!-- Search Bar -->
+        <div class="max-w-2xl mx-auto mt-12">
+            <form action="{{ url_for('flats') }}" method="get" class="group relative">
+                <div class="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
+                    <i class="fas fa-search text-white/50 text-lg"></i>
+                </div>
+>>>>>>> 2ecb584 ( update)
                 <input type="text" name="search" 
                     class="block w-full pl-14 pr-6 py-5 rounded-full glass-search text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-brand-gold/50 focus:bg-white/10 transition-all text-lg font-light"
                     placeholder="Search by location, price, or style...">
@@ -108,6 +533,10 @@
                 <div class="hidden md:block">
                     <div class="text-3xl font-display font-medium">98%</div>
                     <div class="text-[10px] uppercase tracking-[0.2em] text-white/40">Satisfaction</div>
+<<<<<<< HEAD
+=======
+>>>>>>> 028daaa (major update)
+>>>>>>> 2ecb584 ( update)
                 </div>
             </div>
             <div class="flex items-center gap-4">
@@ -130,7 +559,179 @@
             <h2 class="text-4xl md:text-5xl font-display text-brand-dark mb-6">Designed for Excellence</h2>
             <div class="w-24 h-1 bg-brand-gold/30 mx-auto"></div>
         </div>
+<<<<<<< HEAD
 
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Card 1 -->
+            <a href="{{ url_for('flats') }}" class="group relative h-[500px] rounded-2xl overflow-hidden cursor-pointer">
+                <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style="background-image: url('https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=80');"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-70 transition-opacity"></div>
+                <div class="absolute bottom-0 left-0 right-0 p-8 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                    <div class="w-12 h-12 rounded-full border border-white/30 flex items-center justify-center text-white mb-6 backdrop-blur-sm">
+                        <i class="fas fa-home font-light text-lg"></i>
+                    </div>
+                    <h3 class="text-3xl font-display text-white mb-3">Buy Flats</h3>
+                    <p class="text-white/70 font-light leading-relaxed mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                        Discover verified, premium apartments in Dhaka's most sought-after neighborhoods.
+                    </p>
+                    <span class="text-brand-gold text-sm font-medium tracking-widest uppercase flex items-center gap-2">
+                        View Collection <i class="fas fa-arrow-right"></i>
+                    </span>
+                </div>
+            </a>
+
+            <!-- Card 2 -->
+            <a href="{{ url_for('interior') }}" class="group relative h-[500px] rounded-2xl overflow-hidden cursor-pointer md:-mt-12">
+                <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style="background-image: url('https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=800&q=80');"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-70 transition-opacity"></div>
+                <div class="absolute bottom-0 left-0 right-0 p-8 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                    <div class="w-12 h-12 rounded-full border border-white/30 flex items-center justify-center text-white mb-6 backdrop-blur-sm">
+                        <i class="fas fa-couch font-light text-lg"></i>
+                    </div>
+                    <h3 class="text-3xl font-display text-white mb-3">Interior Design</h3>
+                    <p class="text-white/70 font-light leading-relaxed mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                        Collaborate with top-tier studios to craft bespoke living spaces that reflect your taste.
+                    </p>
+                    <span class="text-brand-gold text-sm font-medium tracking-widest uppercase flex items-center gap-2">
+                        Find Designers <i class="fas fa-arrow-right"></i>
+                    </span>
+                </div>
+            </a>
+
+            <!-- Card 3 -->
+            <a href="#consult" class="group relative h-[500px] rounded-2xl overflow-hidden cursor-pointer">
+                <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style="background-image: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80');"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-70 transition-opacity"></div>
+                <div class="absolute bottom-0 left-0 right-0 p-8 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                    <div class="w-12 h-12 rounded-full border border-white/30 flex items-center justify-center text-white mb-6 backdrop-blur-sm">
+                        <i class="fas fa-file-contract font-light text-lg"></i>
+=======
+
+<<<<<<< HEAD
+<section class="trust-bar defer-render">
+    <div class="container">
+        <div class="trust-grid">
+            <div class="trust-card reveal">
+                <div class="trust-icon" aria-hidden="true"><i class="fas fa-building"></i></div>
+                <div class="trust-value">{{ stats.flats }}</div>
+                <div class="trust-label">Verified flats</div>
+                <p class="text-muted small mb-0">Admin-reviewed listings with clear location, price, and size details.</p>
+            </div>
+            <div class="trust-card reveal delay-1">
+                <div class="trust-icon" aria-hidden="true"><i class="fas fa-palette"></i></div>
+                <div class="trust-value">{{ stats.studios }}</div>
+                <div class="trust-label">Interior studios</div>
+                <p class="text-muted small mb-0">Portfolios, packages, and timelines so you can compare fast.</p>
+            </div>
+            <div class="trust-card reveal delay-2">
+                <div class="trust-icon" aria-hidden="true"><i class="fas fa-shield-alt"></i></div>
+                <div class="trust-value">Secure</div>
+                <div class="trust-label">Direct contact</div>
+                <p class="text-muted small mb-0">WhatsApp, phone, or form contact without leaving the page.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="studio-split defer-render">
+    <div class="container">
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-6 order-lg-2">
+                <div class="studio-card reveal">
+                    <p class="section-kicker mb-2">Studio dossier</p>
+                    <h4 class="mb-3">Lakeview Residence</h4>
+                    <img src="https://images.unsplash.com/photo-1505691938895-1758d7feb511?ixlib=rb-4.0.3&auto=format&fit=crop&w=900&q=80" alt="Interior dossier" class="img-fluid rounded-4 shadow-lg mb-3 img-expand" loading="lazy" decoding="async" width="900" height="700">
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="metric-pill">Full-scope</span>
+                        <span class="metric-pill">3D visuals</span>
+                        <span class="metric-pill">Material palette</span>
+                        <span class="metric-pill">BOQ</span>
+>>>>>>> 2ecb584 ( update)
+                    </div>
+                    <h3 class="text-3xl font-display text-white mb-3">Consultation</h3>
+                    <p class="text-white/70 font-light leading-relaxed mb-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                        Expert guidance on planning, budgeting, and executing your dream home project.
+                    </p>
+                    <span class="text-brand-gold text-sm font-medium tracking-widest uppercase flex items-center gap-2">
+                        Book Now <i class="fas fa-arrow-right"></i>
+                    </span>
+                </div>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Content Block: About -->
+<section class="py-24 bg-white overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col lg:flex-row items-center gap-20">
+            <div class="w-full lg:w-1/2 relative">
+                <div class="absolute -top-10 -left-10 w-full h-full border border-brand-dark/5 rounded-full rotate-6 scale-90"></div>
+                <img src="https://images.unsplash.com/photo-1616486338812-3dadae4b4f9d?auto=format&fit=crop&w=1000&q=80" alt="Modern Living" class="rounded-none shadow-2xl relative z-10 w-full aspect-[4/5] object-cover filter contrast-90" loading="lazy" decoding="async">
+                <div class="absolute bottom-12 -right-8 bg-white p-8 shadow-strong border border-gray-100 max-w-xs z-20 hidden md:block">
+                    <p class="font-display text-xl text-brand-dark italic">"Design is not just what it looks like and feels like. Design is how it works."</p>
+                </div>
+            </div>
+            <div class="w-full lg:w-1/2">
+                <h2 class="text-5xl lg:text-6xl font-display text-brand-dark mb-8 leading-tight">Elevating <br/> <span class="text-brand-gold italic">Everyday Living.</span></h2>
+                <p class="text-lg text-brand-dark/60 font-light leading-relaxed mb-8">
+                    FlatlandBD bridges the gap between premium real estate and world-class interior design. We don't just sell flats; we help you curate a lifestyle.
+                </p>
+                
+                <div class="space-y-8">
+                    <div class="flex gap-4">
+                        <div class="flex-shrink-0 w-12 h-12 rounded-full bg-brand-soft flex items-center justify-center text-brand-gold">01</div>
+                        <div>
+                            <h4 class="text-xl font-display text-brand-dark mb-2">Curated Listings</h4>
+                            <p class="text-brand-dark/60 font-light text-sm">Every property is hand-picked and verified for quality, location, and legal standing.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="flex-shrink-0 w-12 h-12 rounded-full bg-brand-soft flex items-center justify-center text-brand-gold">02</div>
+                        <div>
+                            <h4 class="text-xl font-display text-brand-dark mb-2">Bespoke Interiors</h4>
+                            <p class="text-brand-dark/60 font-light text-sm">Access a network of Bangladesh's finest architects and interior studios.</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="flex-shrink-0 w-12 h-12 rounded-full bg-brand-soft flex items-center justify-center text-brand-gold">03</div>
+                        <div>
+                            <h4 class="text-xl font-display text-brand-dark mb-2">Concierge Service</h4>
+                            <p class="text-brand-dark/60 font-light text-sm">Dedicated support from inquiry to handover, ensuring a seamless experience.</p>
+                        </div>
+                    </div>
+                </div>
+<<<<<<< HEAD
+
+                <div class="mt-12">
+                    <a href="{{ url_for('flats') }}" class="inline-block border-b border-brand-dark text-brand-dark uppercase tracking-[0.2em] text-xs font-bold pb-1 hover:text-brand-gold hover:border-brand-gold transition-colors">Read Our Story</a>
+=======
+            </div>
+            <div class="col-md-4">
+                <div class="testimonial-card defer-card reveal delay-1">
+                    <div class="testimonial-stars"><i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i></div>
+                    <p class="testimonial-quote mt-3">“Interior clients can see our scope clearly. The portfolio view helps us close faster.”</p>
+                    <div class="testimonial-meta">
+                        <div class="testimonial-avatar">TA</div>
+                        <div>
+                            <div class="fw-semibold">Tania Ahmed</div>
+                            <small class="text-muted">Studio Lead</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="testimonial-card defer-card reveal delay-2">
+                    <div class="testimonial-stars"><i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i> <i class="fas fa-star"></i></div>
+                    <p class="testimonial-quote mt-3">“The admin panel is simple. Approvals and edits take minutes instead of hours.”</p>
+                    <div class="testimonial-meta">
+                        <div class="testimonial-avatar">MS</div>
+                        <div>
+                            <div class="fw-semibold">Mehedi S.</div>
+                            <small class="text-muted">Property Manager</small>
+                        </div>
+                    </div>
+=======
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             <!-- Card 1 -->
             <a href="{{ url_for('flats') }}" class="group relative h-[500px] rounded-2xl overflow-hidden cursor-pointer">
@@ -232,6 +833,8 @@
 
                 <div class="mt-12">
                     <a href="{{ url_for('flats') }}" class="inline-block border-b border-brand-dark text-brand-dark uppercase tracking-[0.2em] text-xs font-bold pb-1 hover:text-brand-gold hover:border-brand-gold transition-colors">Read Our Story</a>
+>>>>>>> 028daaa (major update)
+>>>>>>> 2ecb584 ( update)
                 </div>
             </div>
         </div>
