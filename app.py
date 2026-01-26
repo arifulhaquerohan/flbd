@@ -667,6 +667,8 @@ def contact():
     interest = request.form.get('interest', '').strip()
     message = request.form.get('message', '').strip()
     budget = request.form.get('budget', '').strip()
+    service_type = request.form.get('service_type', '').strip()
+    timeline = request.form.get('timeline', '').strip()
 
     if contact_info and not phone and not email:
         if '@' in contact_info:
@@ -674,11 +676,22 @@ def contact():
         else:
             phone = contact_info
 
+    meta_lines = []
     if budget:
-        message = f"Budget: {budget}\n{message}" if message else f"Budget: {budget}"
+        meta_lines.append(f"Budget: {budget}")
+    if service_type:
+        meta_lines.append(f"Service: {service_type}")
+    if timeline:
+        meta_lines.append(f"Timeline: {timeline}")
+    if meta_lines:
+        message = "\n".join(meta_lines + ([message] if message else []))
 
-    if not name or not message or (not phone and not email):
-        flash('Please provide your name, a message, and a phone or email.', 'warning')
+    if not name or not message:
+        flash('Please provide your name and a message.', 'warning')
+        return redirect(request.referrer or url_for('index'))
+
+    if not phone:
+        flash('Please provide your phone number.', 'warning')
         return redirect(request.referrer or url_for('index'))
 
     lead = Lead(

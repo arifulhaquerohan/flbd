@@ -1,402 +1,121 @@
 {% extends "base.html" %}
 
-{% block title %}Property Listings - FlatlandBD{% endblock %}
+{% block title %}Buy Flats - FlatlandBD{% endblock %}
 
 {% block preload %}
-<link rel="preload" as="image" href="https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=1400&q=80" imagesrcset="https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=900&q=80 900w, https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=1400&q=80 1400w, https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=2000&q=80 2000w" imagesizes="100vw" fetchpriority="high">
-{% endblock %}
-
-{% block extra_css %}
-<style>
-    .listing-hero-bg {
-        background-color: var(--primary-dark);
-        background-image: linear-gradient(to bottom, rgba(15, 23, 42, 0.3), rgba(15, 23, 42, 0.9)), url('https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=1400&q=80');
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
-    }
-
-    @media (max-width: 640px) {
-        .listing-hero-bg {
-            background-image: linear-gradient(to bottom, rgba(15, 23, 42, 0.3), rgba(15, 23, 42, 0.9)), url('https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=900&q=80');
-        }
-    }
-
-    @media (min-width: 1280px) {
-        .listing-hero-bg {
-            background-image: linear-gradient(to bottom, rgba(15, 23, 42, 0.3), rgba(15, 23, 42, 0.9)), url('https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=2000&q=80');
-        }
-    }
-    
-    .glass-panel {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 20px 40px -10px rgba(0,0,0,0.3);
-    }
-
-    .glass-input {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        color: white;
-    }
-    .glass-input:focus {
-        background: rgba(255, 255, 255, 0.1);
-        border-color: var(--accent-gold);
-    }
-    .glass-input::placeholder {
-        color: rgba(255, 255, 255, 0.4);
-    }
-
-    /* Card styling override for listing page */
-    .listing-card {
-        background: rgba(255, 255, 255, 0.96);
-        border: 1px solid rgba(15, 23, 42, 0.08);
-        box-shadow: var(--shadow-card);
-        transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
-    }
-    .listing-card:hover {
-        transform: translateY(-6px);
-        box-shadow: var(--shadow-card-hover);
-        border-color: rgba(213, 123, 76, 0.35);
-    }
-
-    @media (hover: none) and (pointer: coarse) {
-        .listing-hero-bg {
-            background-attachment: scroll;
-        }
-    }
-</style>
+<link rel="preload" as="image" href="https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&w=1400&q=80" imagesrcset="https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&w=900&q=80 900w, https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&w=1400&q=80 1400w, https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&w=2000&q=80 2000w" imagesizes="100vw" fetchpriority="high">
 {% endblock %}
 
 {% block content %}
-<!-- Immersive Header -->
-<header class="relative pt-40 pb-32 listing-hero-bg text-center">
-    <div class="max-w-4xl mx-auto px-4 relative z-10 animate-fade-in-up">
-        <span class="inline-block px-4 py-1.5 rounded-full border border-white/20 text-white/80 text-xs font-bold uppercase tracking-[0.2em] mb-6 backdrop-blur-md">Curated Collection</span>
-        <h1 class="text-5xl md:text-6xl lg:text-7xl font-display text-white leading-tight mb-6 drop-shadow-lg">
-            Find Your <i class="font-serif text-brand-gold">Sanctuary</i>
-        </h1>
-        <p class="text-white/70 text-lg md:text-xl font-light max-w-2xl mx-auto leading-relaxed">
-            Explore verified flats in Dhaka's most prestigious neighborhoods.
-        </p>
-    </div>
-</header>
-
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-20">
-    <!-- Filter Panel -->
-    <!-- Luxury Glass Filter Panel -->
-    <div class="glass-panel rounded-[2rem] p-8 mb-16">
-        <form class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6 items-end" method="get" action="{{ url_for('flats') }}">
-            
-            <!-- Location -->
-            <div class="lg:col-span-3">
-                <label class="block text-[10px] font-bold text-white/60 uppercase tracking-widest mb-3 px-1">Location</label>
-                <div class="relative">
-                    <i class="fas fa-map-marker-alt absolute left-4 top-1/2 -translate-y-1/2 text-white/40"></i>
-                    <input type="text" name="search" class="w-full pl-10 pr-5 py-4 rounded-xl glass-input outline-none transition-all placeholder:text-white/30 text-sm font-light" placeholder="Gulshan, Banani..." value="{{ filters.search or '' }}">
-                </div>
-            </div>
-
-            <!-- Price Range (Combined for aesthetics) -->
-            <div class="lg:col-span-4 grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-[10px] font-bold text-white/60 uppercase tracking-widest mb-3 px-1">Min Price</label>
-                    <input type="number" name="min_price" class="w-full px-5 py-4 rounded-xl glass-input outline-none transition-all placeholder:text-white/30 text-sm font-light" placeholder="Min BDT" value="{{ filters.min_price or '' }}">
-                </div>
-                <div>
-                    <label class="block text-[10px] font-bold text-white/60 uppercase tracking-widest mb-3 px-1">Max Price</label>
-                    <input type="number" name="max_price" class="w-full px-5 py-4 rounded-xl glass-input outline-none transition-all placeholder:text-white/30 text-sm font-light" placeholder="Max BDT" value="{{ filters.max_price or '' }}">
-                </div>
-            </div>
-
-            <!-- Size -->
-            <div class="lg:col-span-2">
-                <label class="block text-[10px] font-bold text-white/60 uppercase tracking-widest mb-3 px-1">Size</label>
-                <div class="relative">
-                    <select name="bhk" class="w-full px-5 py-4 rounded-xl glass-input outline-none transition-all appearance-none cursor-pointer text-sm font-light text-white bg-brand-dark/90">
-                        <option value="all" {% if filters.bhk == 'all' or not filters.bhk %}selected{% endif %}>All Sizes</option>
-                        <option value="1" {% if filters.bhk == '1' %}selected{% endif %}>1 Bedroom</option>
-                        <option value="2" {% if filters.bhk == '2' %}selected{% endif %}>2 Bedrooms</option>
-                        <option value="3" {% if filters.bhk == '3' %}selected{% endif %}>3 Bedrooms</option>
-                        <option value="4plus" {% if filters.bhk == '4plus' %}selected{% endif %}>4+ Bedrooms</option>
-                    </select>
-                    <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-white/40 text-xs pointer-events-none"></i>
-                </div>
-            </div>
-
-            <!-- Action -->
-            <div class="lg:col-span-3 flex gap-3">
-                <div class="flex-1">
-                    <label class="block text-[10px] font-bold text-white/60 uppercase tracking-widest mb-3 px-1">Sort By</label>
-                    <div class="relative">
-                        <select name="sort" class="w-full px-5 py-4 rounded-xl glass-input outline-none transition-all appearance-none cursor-pointer text-sm font-light text-white bg-brand-dark/90">
-                            <option value="newest" {% if filters.sort == 'newest' %}selected{% endif %}>Newest First</option>
-                            <option value="price_low" {% if filters.sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
-                            <option value="price_high" {% if filters.sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
-                            <option value="area_high" {% if filters.sort == 'area_high' %}selected{% endif %}>Size: Large to Small</option>
-                        </select>
-                        <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-white/40 text-xs pointer-events-none"></i>
-                    </div>
-                </div>
-                <button type="submit" class="self-end h-[54px] px-8 rounded-xl bg-gradient-to-r from-brand-gold to-brand-warm text-brand-dark font-display font-bold text-sm tracking-wide hover:brightness-110 transition-all shadow-lg hover:shadow-brand-gold/30">
-                    Search
-                </button>
-            </div>
-        </form>
-        
-        <!-- Quick Tags -->
-        <div class="mt-8 pt-6 border-t border-white/10 flex flex-wrap items-center gap-4">
-            <span class="text-[10px] font-bold text-white/40 uppercase tracking-widest">Quick Filters:</span>
-            <div class="flex flex-wrap gap-2">
-                {% for b in ['2', '3', '4plus'] %}
-                <a href="{{ url_for('flats', bhk=b) }}" 
-                   class="px-4 py-1.5 rounded-full border text-[10px] font-bold uppercase tracking-wider transition-all
-                   {{ 'bg-white text-brand-dark border-white' if filters.bhk == b else 'bg-transparent text-white/60 border-white/20 hover:border-white/50 hover:text-white' }}">
-                    {{ b | replace('plus', '+') }} BHK
-                </a>
-                {% endfor %}
-                <a href="{{ url_for('flats', max_price='10000000') }}" 
-                   class="px-4 py-1.5 rounded-full border text-[10px] font-bold uppercase tracking-wider transition-all
-                   {{ 'bg-white text-brand-dark border-white' if filters.max_price == '10000000' else 'bg-transparent text-white/60 border-white/20 hover:border-white/50 hover:text-white' }}">
-                    Under 1 Cr
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Results Header -->
-    <div class="flex items-end justify-between mb-12 px-2">
-        <div>
-            <h2 class="text-brand-dark font-display text-3xl">Available Residences</h2>
-            <p class="text-brand-dark/50 font-light mt-1">Showing {{ total_results }} premium properties</p>
-        </div>
-        {% if total_results > 0 and (filters.search or filters.bhk != 'all' or filters.min_price or filters.max_price) %}
-        <a href="{{ url_for('flats') }}" class="text-xs font-bold text-brand-gold uppercase tracking-widest hover:underline underline-offset-4">
-            Clear All Filters <i class="fas fa-times ml-1"></i>
-        </a>
-        {% endif %}
-    </div>
-
-    <!-- Listings Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-        {% if flats %}
-            {% for flat in flats %}
-            <article class="listing-card defer-card luxe-card group rounded-[2rem] overflow-hidden relative flex flex-col h-full">
-                <!-- Image -->
-                <div class="relative h-64 overflow-hidden">
-                    <img src="{{ flat.image_url }}" alt="{{ flat.title }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy" decoding="async">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                    
-                    <span class="absolute top-4 left-4 bg-brand-gold text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full shadow-lg">
-                        {{ flat.status }}
-                    </span>
-
-                    <button @click.prevent="$store.wishlist.toggle({
-                                id: {{ flat.id }}, 
-                                type: 'flat', 
-                                title: '{{ flat.title }}', 
-                                price: '৳ {{ flat.price }}', 
-                                image: '{{ flat.image_url }}',
-                                desc: '{{ flat.bhk }} BHK • {{ flat.area_sqft }} sqft',
-                                url: '{{ url_for('flat_detail', id=flat.id) }}'
-                            })" 
-                            class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white hover:bg-white hover:text-red-500 transition-all shadow-lg"
-                            :class="$store.wishlist.has({{ flat.id }}, 'flat') ? '!bg-white !text-red-500' : ''">
-                        <i class="fas fa-heart text-lg" :class="$store.wishlist.has({{ flat.id }}, 'flat') ? 'fas' : 'far'"></i>
-                    </button>
-                    
-                    <div class="absolute bottom-4 left-4 text-white">
-                        <p class="text-xs font-medium opacity-80 uppercase tracking-widest mb-1">Asking Price</p>
-                        <div class="text-2xl font-display font-bold">
-                            {{ "৳ {:,.0f}".format(flat.price | float) if flat.price else 'Price on Request' }}
-                        </div>
-                        <div class="text-xs opacity-80 font-light mt-1"><i class="fas fa-map-marker-alt mr-1"></i> {{ flat.location }}</div>
-                    </div>
-                </div>
-
-                <!-- Content -->
-                <div class="p-8 flex-1 flex flex-col">
-                    <div class="mb-4">
-                        <h3 class="text-xl font-display text-brand-dark leading-snug mb-2 group-hover:text-brand-gold transition-colors">
-                            <a href="{{ url_for('flat_detail', id=flat.id) }}" class="stretched-link">
-                                {{ flat.title }}
-                            </a>
-                        </h3>
-                        <p class="text-brand-dark/50 text-sm font-light flex items-center gap-2">
-                            <i class="fas fa-map-marker-alt text-brand-gold/60"></i> {{ flat.location }}
-                        </p>
-                    </div>
-                    
-                    <div class="flex items-center gap-6 py-6 border-t border-brand-dark/5 mt-auto">
-                        <div class="flex items-center gap-2">
-                            <i class="fas fa-bed text-brand-dark/30"></i>
-                            <span class="text-sm text-brand-dark/70 font-medium">{{ flat.bhk }} Bed</span>
-                        </div>
-                        <div class="w-px h-4 bg-brand-dark/10"></div>
-                        <div class="flex items-center gap-2">
-                            <i class="fas fa-ruler-combined text-brand-dark/30"></i>
-                            <span class="text-sm text-brand-dark/70 font-medium">{{ flat.area_sqft }} Sqft</span>
-                        </div>
-                        <div class="w-px h-4 bg-brand-dark/10"></div>
-                        <div class="flex items-center gap-2">
-                            <i class="fas fa-check-circle text-brand-dark/30"></i>
-                            <span class="text-sm text-brand-dark/70 font-medium">Ready</span>
-                        </div>
-                    </div>
-
-                    <div class="pt-4 flex justify-between items-center">
-                        <span class="text-[10px] font-bold text-brand-gold uppercase tracking-widest group-hover:translate-x-1 transition-transform">
-                            View Details <i class="fas fa-arrow-right ml-1"></i>
-                        </span>
-                        <span class="text-[10px] font-bold text-brand-dark/20 uppercase tracking-widest">
-                            Ref: FL-{{ flat.id }}
-                        </span>
-                    </div>
-                </div>
-            </article>
-            {% endfor %}
-        {% else %}
-            <div class="col-span-full py-24 text-center">
-                <div class="w-24 h-24 rounded-full bg-brand-soft border border-brand-dark/5 flex items-center justify-center mx-auto mb-6 text-brand-dark/20 text-3xl">
-                    <i class="fas fa-search"></i>
-                </div>
-                <h3 class="text-3xl font-display text-brand-dark mb-3">No residences found</h3>
-                <p class="text-brand-dark/50 mb-8 max-w-sm mx-auto font-light">
-                    We couldn't find any properties matching your criteria. Try adjusting your filters.
-                </p>
-                <a href="{{ url_for('flats') }}" class="inline-block px-8 py-3 rounded-xl border border-brand-dark/20 text-brand-dark font-bold hover:bg-brand-dark hover:text-white transition-all text-sm uppercase tracking-widest">
-                    Clear Filters
-                </a>
-            </div>
-        {% endif %}
-    </div>
-
-    <!-- Pagination -->
-    {% if has_prev or has_next %}
-    <div class="flex justify-center items-center gap-4 my-20">
-        {% if has_prev %}
-        <a href="{{ prev_url }}" class="w-12 h-12 rounded-full border border-brand-dark/10 flex items-center justify-center text-brand-dark hover:bg-brand-gold hover:border-brand-gold hover:text-white transition-all">
-            <i class="fas fa-arrow-left"></i>
-        </a>
-        {% endif %}
-        <span class="text-sm font-bold text-brand-dark/40 uppercase tracking-widest">Page {{ page }}</span>
-        {% if has_next %}
-        <a href="{{ next_url }}" class="w-12 h-12 rounded-full border border-brand-dark/10 flex items-center justify-center text-brand-dark hover:bg-brand-gold hover:border-brand-gold hover:text-white transition-all">
-            <i class="fas fa-arrow-right"></i>
-        </a>
-        {% endif %}
-    </div>
-    {% endif %}
-</div>
-
-<!-- FAQ Section -->
-<section class="py-24" x-data="{ active: 1 }">
+<section class="section-shell pt-28 pb-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex flex-col lg:flex-row gap-16">
-            <div class="w-full lg:w-1/3">
-                <span class="inline-block px-4 py-1.5 rounded-full bg-brand-gold/10 text-brand-gold text-xs font-bold uppercase tracking-widest mb-6">FAQ</span>
-                <h2 class="text-4xl font-display font-bold text-brand-dark leading-tight mb-6">Buyer questions, answered.</h2>
-                <p class="text-brand-dark/60 leading-relaxed">Short answers to help you shortlist faster and book a viewing with confidence.</p>
+        <div class="grid lg:grid-cols-12 gap-10 items-end">
+            <div class="lg:col-span-7 space-y-6 reveal">
+                <p class="section-kicker">Buy Flats</p>
+                <h1 class="hero-title font-display text-brand-dark">Product grid built for quick decisions.</h1>
+                <p class="hero-lead">Filter by location, size, or budget and compare listings quickly.</p>
             </div>
-            
-            <div class="w-full lg:w-2/3 space-y-4">
-                {% set faqs = [
-                    ('How are listings verified?', 'Listings are reviewed for pricing, location details, and ownership before they are marked approved on the platform.'),
-                    ('How do I schedule a site visit?', 'Open any listing, tap the contact buttons, and our team will coordinate a visit with the owner or agent.'),
-                    ('Can I request a custom shortlist?', 'Yes. Use the shortlist request form and share your budget, location, and size preferences.'),
-                    ('Do you help with paperwork?', 'We can connect you with trusted professionals for document checks, financing, and handover guidance.')
-                ] %}
-                
-                {% for question, answer in faqs %}
-                <div class="rounded-2xl border border-glass-border overflow-hidden bg-brand-soft" :class="{ 'ring-2 ring-brand-gold/20 border-brand-gold/30 bg-white': active == {{ loop.index }} }">
-                    <button @click="active = (active === {{ loop.index }} ? null : {{ loop.index }})" 
-                            class="w-full p-6 text-left flex items-center justify-between group">
-                        <span class="text-lg font-bold text-brand-dark group-hover:text-brand-gold transition-colors">{{ question }}</span>
-                        <div class="w-8 h-8 rounded-lg bg-white shadow-soft flex items-center justify-center text-brand-dark transition-all"
-                             :class="{ 'rotate-180 bg-brand-gold text-white': active == {{ loop.index }} }">
-                            <i class="fas fa-chevron-down text-xs"></i>
-                        </div>
-                    </button>
-                    <div x-show="active == {{ loop.index }}" 
-                         x-transition:enter="transition ease-out duration-200"
-                         x-transition:enter-start="opacity-0 -translate-y-2"
-                         x-transition:enter-end="opacity-100 translate-y-0"
-                         class="px-6 pb-6 text-brand-dark/60 leading-relaxed border-t border-glass-border pt-4">
-                        {{ answer }}
-                    </div>
+            <div class="lg:col-span-5 reveal delay-1">
+                <div class="hero-frame">
+                    <img src="https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&w=1200&q=80" alt="Curated interior" class="w-full h-full object-cover" loading="lazy" decoding="async">
                 </div>
-                {% endfor %}
             </div>
         </div>
     </div>
 </section>
 
-<!-- Footer Lead Capture -->
-<section class="py-24 bg-brand-dark overflow-hidden relative">
-    <div class="absolute top-0 right-0 w-[600px] h-[600px] bg-brand-gold/5 rounded-full blur-3xl -z-0"></div>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div class="flex flex-col lg:flex-row items-stretch gap-12">
-            <div class="w-full lg:w-5/12 bg-white/5 backdrop-blur-md rounded-[3rem] p-10 md:p-12 border border-white/10 flex flex-col justify-center">
-                <span class="inline-block px-4 py-1.5 rounded-full bg-brand-gold/10 text-brand-gold text-xs font-bold uppercase tracking-widest mb-6 px-1">Need help shortlisting?</span>
-                <h3 class="text-3xl md:text-4xl font-display font-bold text-white mb-6 leading-tight">Get a curated flat shortlist.</h3>
-                <p class="text-white/60 text-lg mb-10 leading-relaxed">Share your location, budget, and preferred size. We will send the best matches.</p>
-                
-                <div class="flex flex-wrap gap-3 mb-12">
-                    <span class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white/80 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
-                        <i class="fas fa-check text-brand-gold"></i> Verified listings
-                    </span>
-                    <span class="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white/80 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
-                        <i class="fas fa-check text-brand-gold"></i> Fast response
-                    </span>
-                </div>
-
-                <div class="flex flex-wrap gap-4">
-                    <a href="tel:+8801712458794" class="px-8 py-3 rounded-xl border border-white/20 text-white font-bold hover:bg-white hover:text-brand-dark transition-all text-sm flex items-center gap-2">
-                        <i class="fas fa-phone-alt"></i> Call
-                    </a>
-                    <a href="https://wa.me/8801712458794" class="btn-gold-tw text-sm py-3 px-8">
-                        <i class="fab fa-whatsapp text-lg"></i> WhatsApp
-                    </a>
-                </div>
+<section class="section-shell pt-0">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <form class="filter-bar grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 items-end" method="get" action="{{ url_for('flats') }}">
+            <div class="lg:col-span-3">
+                <label class="section-kicker" for="search">Search</label>
+                <input class="filter-input mt-3" type="text" id="search" name="search" placeholder="Location or keyword" value="{{ filters.search or '' }}">
             </div>
+            <div class="lg:col-span-2">
+                <label class="section-kicker" for="min_price">Min price</label>
+                <input class="filter-input mt-3" type="number" id="min_price" name="min_price" placeholder="Min" value="{{ filters.min_price or '' }}">
+            </div>
+            <div class="lg:col-span-2">
+                <label class="section-kicker" for="max_price">Max price</label>
+                <input class="filter-input mt-3" type="number" id="max_price" name="max_price" placeholder="Max" value="{{ filters.max_price or '' }}">
+            </div>
+            <div class="lg:col-span-2">
+                <label class="section-kicker" for="bhk">Size</label>
+                <select class="filter-input mt-3" id="bhk" name="bhk">
+                    <option value="all" {% if filters.bhk == 'all' or not filters.bhk %}selected{% endif %}>All sizes</option>
+                    <option value="1" {% if filters.bhk == '1' %}selected{% endif %}>1 Bedroom</option>
+                    <option value="2" {% if filters.bhk == '2' %}selected{% endif %}>2 Bedrooms</option>
+                    <option value="3" {% if filters.bhk == '3' %}selected{% endif %}>3 Bedrooms</option>
+                    <option value="4plus" {% if filters.bhk == '4plus' %}selected{% endif %}>4+ Bedrooms</option>
+                </select>
+            </div>
+            <div class="lg:col-span-2">
+                <label class="section-kicker" for="sort">Sort</label>
+                <select class="filter-input mt-3" id="sort" name="sort">
+                    <option value="newest" {% if filters.sort == 'newest' %}selected{% endif %}>Newest</option>
+                    <option value="price_low" {% if filters.sort == 'price_low' %}selected{% endif %}>Price low to high</option>
+                    <option value="price_high" {% if filters.sort == 'price_high' %}selected{% endif %}>Price high to low</option>
+                    <option value="area_high" {% if filters.sort == 'area_high' %}selected{% endif %}>Largest first</option>
+                </select>
+            </div>
+            <div class="lg:col-span-1">
+                <button type="submit" class="btn-gold-tw w-full">Apply</button>
+            </div>
+        </form>
 
-            <div class="w-full lg:w-7/12">
-                <form class="bg-white rounded-[3rem] p-10 md:p-14 shadow-strong" method="post" action="{{ url_for('contact') }}">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <input type="hidden" name="interest" value="Flats">
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div>
-                            <label class="block text-[10px] font-bold text-brand-dark/40 uppercase tracking-widest mb-3 px-1">Name</label>
-                            <input type="text" name="name" class="w-full px-6 py-4 rounded-2xl bg-brand-soft border border-glass-border focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/10 outline-none transition-all placeholder:text-brand-dark/20" placeholder="Your full name" required>
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-brand-dark/40 uppercase tracking-widest mb-3 px-1">Phone or Email</label>
-                            <input type="text" name="contact" required class="w-full px-6 py-4 rounded-2xl bg-brand-soft border border-glass-border focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/10 outline-none transition-all placeholder:text-brand-dark/20" placeholder="01XXXXXXXXX">
-                        </div>
-                        <div class="md:col-span-2">
-                            <label class="block text-[10px] font-bold text-brand-dark/40 uppercase tracking-widest mb-3 px-1">Estimated budget</label>
-                            <select name="budget" class="w-full px-6 py-4 rounded-2xl bg-brand-soft border border-glass-border focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/10 outline-none transition-all appearance-none cursor-pointer">
-                                <option value="">Select range</option>
-                                <option value="Under 50 Lac">Under 50 Lac</option>
-                                <option value="50 Lac - 1 Cr">50 Lac - 1 Cr</option>
-                                <option value="1 Cr - 2 Cr">1 Cr - 2 Cr</option>
-                                <option value="2 Cr+">2 Cr+</option>
-                            </select>
-                        </div>
-                        <div class="md:col-span-2">
-                            <label class="block text-[10px] font-bold text-brand-dark/40 uppercase tracking-widest mb-3 px-1">Message</label>
-                            <textarea name="message" rows="4" class="w-full px-6 py-4 rounded-2xl bg-brand-soft border border-glass-border focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/10 outline-none transition-all placeholder:text-brand-dark/20 resize-none" placeholder="Area, size, and timeline..." required></textarea>
-                            <p class="mt-4 text-[10px] font-medium text-brand-dark/40 uppercase tracking-widest">Response within 24 hours.</p>
-                        </div>
-                        <div class="md:col-span-2 pt-4">
-                            <button type="submit" class="btn-gold-tw w-full py-4 text-lg">Request Shortlist</button>
+        <div class="mt-6 flex flex-wrap items-center gap-2">
+            <span class="section-kicker">Quick filters</span>
+            {% for b in ['2', '3', '4plus'] %}
+            <a href="{{ url_for('flats', bhk=b) }}" class="filter-chip {{ 'is-active' if filters.bhk == b else '' }}">
+                {{ b | replace('plus', '+') }} BHK
+            </a>
+            {% endfor %}
+            <a href="{{ url_for('flats', max_price='10000000') }}" class="filter-chip {{ 'is-active' if filters.max_price == '10000000' else '' }}">Under 1 Cr</a>
+        </div>
+    </div>
+</section>
+
+<section class="section-shell pt-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-wrap items-end justify-between gap-4 mb-8">
+            <div>
+                <p class="section-kicker">Results</p>
+                <h2 class="text-3xl md:text-4xl font-display text-brand-dark">{{ total_results }} curated listings</h2>
+                <p class="text-sm text-brand-dark/60 mt-2">A responsive grid with clear next steps.</p>
+            </div>
+            {% if total_results > 0 and (filters.search or filters.bhk != 'all' or filters.min_price or filters.max_price) %}
+            <a href="{{ url_for('flats') }}" class="btn-outline">Clear filters</a>
+            {% endif %}
+        </div>
+
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% if flats %}
+                {% for flat in flats %}
+                {% set price_label = "৳ {:,.0f}".format(flat.price | float) if flat.price else "Price on Request" %}
+                {% set status_label = 'Available' if flat.status == 'approved' else flat.status %}
+                <article class="product-card reveal">
+                    <div class="product-card__media">
+                        <img src="{{ flat.image_url }}" alt="{{ flat.title }}" loading="lazy" decoding="async">
+                        <span class="badge-soft absolute top-4 left-4">{{ status_label }}</span>
+                    </div>
+                    <div class="product-card__body">
+                        <div class="product-meta">{{ flat.location }} • {{ flat.bhk }} BHK</div>
+                        <h3 class="text-xl font-display text-brand-dark">
+                            <a href="{{ url_for('flat_detail', id=flat.id) }}">{{ flat.title }}</a>
+                        </h3>
+                        <p class="text-sm text-brand-dark/60">{{ flat.area_sqft }} sqft</p>
+                        <div class="product-price">{{ price_label }}</div>
+                        <div class="product-actions">
+                            <a href="{{ url_for('flat_detail', id=flat.id) }}" class="btn-outline">View</a>
                         </div>
                     </div>
-                </form>
-            </div>
+                </article>
+                {% endfor %}
+            {% else %}
+                <div class="card-minimal p-10 text-center text-brand-dark/70">
+                    No listings match your filters yet. Try adjusting the search or clearing filters.
+                </div>
+            {% endif %}
         </div>
     </div>
 </section>

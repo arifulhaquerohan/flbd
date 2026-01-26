@@ -39,111 +39,54 @@
 {% endblock %}
 
 {% block content %}
-<div class="relative min-h-[60vh] md:min-h-[70vh] flex items-center justify-center pt-32 pb-24 overflow-hidden">
-    <!-- Immersive Background -->
-    <div class="absolute inset-0 -z-10">
-        <div class="absolute inset-0 bg-gradient-to-b from-brand-dark/30 via-brand-dark/20 to-brand-dark/90"></div>
-        <img src="{{ flat.image_url or 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1400&q=75' }}" 
-             alt="" class="w-full h-full object-cover scale-105 animate-slow-zoom" loading="eager" decoding="async" fetchpriority="high">
-    </div>
-    
-    <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-    
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-end">
-            <div class="lg:col-span-12 mb-8">
-                <nav class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-brand-dark/40 mb-8">
-                    <a href="{{ url_for('flats') }}" class="hover:text-brand-gold transition-colors">Listings</a>
-                    <span>/</span>
-                    <span class="text-brand-gold font-light">{{ flat.title }}</span>
-                </nav>
-            </div>
-            
-            <div class="lg:col-span-8 relative z-10">
-                <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur border border-white/20 text-white text-[10px] font-bold uppercase tracking-[0.2em] mb-6 shadow-lg">
-                    <i class="fas fa-check-circle text-brand-gold"></i> Verified Listing
-                </span>
-                <h1 class="text-4xl md:text-6xl lg:text-7xl font-display text-white leading-[1.1] mb-6 drop-shadow-xl">
-                    {{ flat.title }}
-                </h1>
-                <div class="flex flex-wrap items-center gap-6">
-                    <div class="flex items-center gap-3 text-white/80">
-                        <div class="w-10 h-10 rounded-xl bg-white/10 backdrop-blur border border-white/20 flex items-center justify-center text-brand-gold shadow-lg">
-                            <i class="fas fa-map-marker-alt"></i>
-                        </div>
-                        <span class="font-light tracking-wide text-lg">{{ flat.location }}</span>
-                    </div>
+{% set price_label = "৳ {:,.0f}".format(flat.price | float) if flat.price else "Price on Request" %}
+<section class="section-shell pt-28 pb-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center gap-3 text-xs uppercase tracking-[0.24em] text-brand-dark/50 mb-6">
+            <a href="{{ url_for('flats') }}" class="hover:text-brand-dark">Buy Flats</a>
+            <span>/</span>
+            <span class="text-brand-dark">{{ flat.title }}</span>
+        </div>
+        <div class="grid lg:grid-cols-12 gap-10 items-end">
+            <div class="lg:col-span-7 space-y-6 reveal">
+                <p class="section-kicker">Property detail</p>
+                <h1 class="hero-title font-display text-brand-dark">{{ flat.title }}</h1>
+                <p class="hero-lead">{{ flat.location }} • {{ flat.bhk }} BHK • {{ flat.area_sqft }} sqft</p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="#contact" class="btn-gold-tw">Schedule visit</a>
                 </div>
-                
-                <div class="flex flex-wrap gap-3 mt-10">
-                    <div class="px-5 py-2.5 rounded-2xl bg-white/10 backdrop-blur border border-white/20 shadow-lg flex items-center gap-3">
-                        <i class="fas fa-bed text-brand-gold"></i>
-                        <span class="text-xs font-bold uppercase tracking-widest text-white">{{ flat.bhk }} Bedrooms</span>
-                    </div>
-                    <div class="px-5 py-2.5 rounded-2xl bg-white/10 backdrop-blur border border-white/20 shadow-lg flex items-center gap-3">
-                        <i class="fas fa-ruler-combined text-brand-gold"></i>
-                        <span class="text-xs font-bold uppercase tracking-widest text-white">{{ flat.area_sqft }} SQFT</span>
-                    </div>
-                    <button @click.prevent="$store.wishlist.toggle({
-                                id: {{ flat.id }}, 
-                                type: 'flat', 
-                                title: '{{ flat.title }}', 
-                                price: '৳ {{ flat.price }}', 
-                                image: '{{ flat.image_url }}',
-                                desc: '{{ flat.bhk }} BHK • {{ flat.area_sqft }} sqft',
-                                url: '{{ request.path }}'
-                            })"
-                            class="px-5 py-2.5 rounded-2xl bg-white/10 backdrop-blur border border-white/20 shadow-lg flex items-center gap-3 hover:bg-white hover:text-brand-dark transition-all group cursor-pointer"
-                            :class="$store.wishlist.has({{ flat.id }}, 'flat') ? '!bg-white !text-brand-dark' : ''">
-                        <i class="fas fa-heart" :class="$store.wishlist.has({{ flat.id }}, 'flat') ? 'text-red-500' : 'text-brand-gold group-hover:text-red-500'"></i>
-                        <span class="text-xs font-bold uppercase tracking-widest" x-text="$store.wishlist.has({{ flat.id }}, 'flat') ? 'Saved' : 'Save Property'"></span>
-                    </button>
+                <div class="flex flex-wrap gap-2 pt-4">
+                    <span class="badge-soft">Verified listing</span>
+                    <span class="badge-soft">Ready to move</span>
                 </div>
             </div>
-            
-            <div class="lg:col-span-4">
-                <div class="bg-white/80 backdrop-blur-xl rounded-[2.5rem] p-8 border border-glass-border shadow-strong">
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-brand-dark/40 block mb-2">Asking Price</span>
-                    <div class="text-4xl font-display font-bold text-brand-dark mb-8 flex items-baseline gap-2">
-                        <span class="text-brand-gold">৳</span>{{ flat.price }}
+            <div class="lg:col-span-5 reveal delay-1">
+                <div class="hero-frame">
+                    <img src="{{ flat.image_url or 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1200&q=80' }}" alt="{{ flat.title }}" class="w-full h-full object-cover" loading="lazy" decoding="async">
+                    <div class="absolute bottom-5 left-5 right-5 bg-white/90 backdrop-blur px-5 py-4 rounded-2xl border border-white/60">
+                        <p class="text-xs uppercase tracking-[0.28em] text-brand-dark/60 font-bold">Asking price</p>
+                        <p class="text-lg font-display text-brand-dark">{{ price_label }}</p>
                     </div>
-                    
-                    <div class="grid grid-cols-2 gap-3 mb-8">
-                        <div class="p-4 rounded-2xl bg-brand-soft/50 border border-brand-dark/5">
-                            <span class="text-[9px] font-bold uppercase tracking-widest text-brand-dark/40 block mb-1">Status</span>
-                            <span class="text-xs font-bold text-brand-dark">Available</span>
-                        </div>
-                        <div class="p-4 rounded-2xl bg-brand-soft/50 border border-brand-dark/5">
-                            <span class="text-[9px] font-bold uppercase tracking-widest text-brand-dark/40 block mb-1">Condition</span>
-                            <span class="text-xs font-bold text-brand-dark">Ready</span>
-                        </div>
-                    </div>
-                    
-                    <a href="#contact" class="btn-gold-tw w-full py-5 text-lg shadow-lg shadow-brand-gold/20">
-                        Schedule an Inspection
-                    </a>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-16">
-        <div class="lg:col-span-8">
-            <div class="rounded-[3rem] overflow-hidden shadow-strong mb-16 border-8 border-white/50">
-                <img src="{{ flat.image_url or 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1200&q=80' }}" 
-                     alt="Property" class="w-full h-auto object-cover aspect-video" loading="lazy" decoding="async">
-            </div>
+<section class="section-shell pt-0">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid lg:grid-cols-12 gap-10">
+            <div class="lg:col-span-8 space-y-10">
+                <div class="card-minimal p-8">
+                    <p class="section-kicker">Overview</p>
+                    <h2 class="text-3xl font-display text-brand-dark mt-3">Property description</h2>
+                    <p class="text-brand-dark/70 mt-4 whitespace-pre-wrap">{{ flat.description }}</p>
+                </div>
 
-            {% if video_embed_url %}
-            <section class="mb-16">
-                <header class="mb-8">
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-brand-gold">Video Tour</span>
-                    <h2 class="text-3xl font-display font-bold text-brand-dark mt-2">Walkthrough Preview</h2>
-                </header>
-                <div class="rounded-[3rem] overflow-hidden shadow-strong border-8 border-white/50 bg-black">
-                    <div class="aspect-video w-full">
+                {% if video_embed_url %}
+                <div class="card-minimal p-6">
+                    <p class="section-kicker">Video tour</p>
+                    <div class="mt-4 aspect-video rounded-2xl overflow-hidden bg-brand-dark">
                         <iframe src="{{ video_embed_url }}"
                                 title="Video tour of {{ flat.title }}"
                                 class="w-full h-full"
@@ -152,117 +95,60 @@
                                 allowfullscreen></iframe>
                     </div>
                 </div>
-                {% if video_watch_url %}
-                <div class="mt-4">
-                    <a href="{{ video_watch_url }}" target="_blank" rel="noopener"
-                       class="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-brand-dark text-white text-xs font-bold uppercase tracking-widest hover:bg-brand-gold hover:text-brand-dark transition-all">
-                        <i class="fab fa-youtube text-base"></i> Watch on YouTube
-                    </a>
-                </div>
                 {% endif %}
-            </section>
-            {% endif %}
 
-            <section class="mb-16">
-                <header class="mb-8">
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-brand-gold">Overview</span>
-                    <h2 class="text-3xl font-display font-bold text-brand-dark mt-2">Property Description</h2>
-                </header>
-                <div class="bg-white/50 backdrop-blur-sm rounded-[2rem] p-8 border border-glass-border">
-                    <p class="text-brand-dark/60 leading-relaxed text-lg whitespace-pre-wrap">{{ flat.description }}</p>
-                </div>
-            </section>
-
-            <section class="mb-16">
-                <header class="mb-8">
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-brand-gold">Amenities</span>
-                    <h2 class="text-3xl font-display font-bold text-brand-dark mt-2">Key Features</h2>
-                </header>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="p-6 rounded-3xl bg-white border border-glass-border shadow-soft group hover:translate-y-[-4px] transition-all">
-                        <i class="fas fa-parking text-2xl text-brand-gold mb-4"></i>
-                        <span class="text-[10px] font-bold uppercase tracking-widest text-brand-dark/40 block mb-1">Parking</span>
-                        <span class="text-sm font-bold text-brand-dark">Available</span>
-                    </div>
-                    <div class="p-6 rounded-3xl bg-white border border-glass-border shadow-soft group hover:translate-y-[-4px] transition-all">
-                        <i class="fas fa-shield-alt text-2xl text-brand-gold mb-4"></i>
-                        <span class="text-[10px] font-bold uppercase tracking-widest text-brand-dark/40 block mb-1">Security</span>
-                        <span class="text-sm font-bold text-brand-dark">24/7 Guard</span>
-                    </div>
-                    <div class="p-6 rounded-3xl bg-white border border-glass-border shadow-soft group hover:translate-y-[-4px] transition-all hover:border-brand-gold/30">
-                        <i class="fas fa-bolt text-2xl text-brand-gold mb-4 group-hover:scale-110 transition-transform"></i>
-                        <span class="text-[10px] font-bold uppercase tracking-widest text-brand-dark/40 block mb-1">Backup</span>
-                        <span class="text-sm font-bold text-brand-dark">Full Generator</span>
-                    </div>
-                    <div class="p-6 rounded-3xl bg-white border border-glass-border shadow-soft group hover:translate-y-[-4px] transition-all">
-                        <i class="fas fa-water text-2xl text-brand-gold mb-4"></i>
-                        <span class="text-[10px] font-bold uppercase tracking-widest text-brand-dark/40 block mb-1">Water</span>
-                        <span class="text-sm font-bold text-brand-dark">WASA/Deep</span>
-                    </div>
-                </div>
-            </section>
-
-            <section class="mb-16">
-                <div class="bg-brand-soft rounded-[2rem] p-10 border border-glass-border relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-64 h-64 bg-brand-gold/5 rounded-full blur-3xl -mr-16 -mt-16"></div>
-                    <h3 class="text-2xl font-display font-bold text-brand-dark mb-2 relative z-10">Interested in this property?</h3>
-                    <p class="text-brand-dark/60 mb-8 relative z-10">Send us an inquiry and we'll arrange a viewing for you.</p>
-                    
-                    <form action="{{ url_for('contact') }}" method="post" class="relative z-10 space-y-4">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                        <input type="hidden" name="interest" value="Flat ID: {{ flat.id }} - {{ flat.title }}">
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <input type="text" name="name" placeholder="Name" class="w-full px-6 py-4 rounded-xl bg-white border border-glass-border focus:border-brand-gold outline-none transition-all placeholder:text-brand-dark/30" required>
-                            <input type="text" name="contact" placeholder="Phone or Email" class="w-full px-6 py-4 rounded-xl bg-white border border-glass-border focus:border-brand-gold outline-none transition-all placeholder:text-brand-dark/30" required>
+                <div class="card-minimal p-8">
+                    <p class="section-kicker">Amenities</p>
+                    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+                        <div class="service-card">
+                            <span class="badge-soft">Parking</span>
+                            <p class="text-sm text-brand-dark/70 mt-3">Secure parking available</p>
                         </div>
-                        <textarea name="message" rows="3" required class="w-full px-6 py-4 rounded-xl bg-white border border-glass-border focus:border-brand-gold outline-none transition-all placeholder:text-brand-dark/30 resize-none" placeholder="I would like to schedule a viewing..."></textarea>
-                        
-                        <button type="submit" class="btn-gold-tw w-full py-4 text-lg shadow-lg text-brand-dark hover:brightness-105">Request Viewing</button>
-                    </form>
-                </div>
-            </section>
-        </div>
-
-        <aside class="lg:col-span-4">
-            <div class="sticky top-28 space-y-8" id="contact">
-                <div class="bg-brand-dark rounded-[2.5rem] p-8 text-white shadow-elevated relative overflow-hidden" x-data="{ revealed: false }">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-brand-gold/10 rounded-full blur-2xl -mr-16 -mt-16"></div>
-                    
-                    <header class="mb-8">
-                        <h4 class="text-xl font-display font-bold mb-1">Contact Agent</h4>
-                        <p class="text-white/40 text-xs font-bold uppercase tracking-widest">Official FlatlandBD Partner</p>
-                    </header>
-
-                    <div class="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 mb-8">
-                        <div class="w-12 h-12 rounded-xl bg-brand-gold/20 flex items-center justify-center text-brand-gold text-xl">
-                            <i class="fas fa-user-tie"></i>
+                        <div class="service-card">
+                            <span class="badge-soft">Security</span>
+                            <p class="text-sm text-brand-dark/70 mt-3">24/7 guard service</p>
                         </div>
-                        <div>
-                            <span class="text-[10px] font-bold uppercase tracking-widest text-white/40 block">Verified Agent</span>
-                            <span class="font-bold">FlatlandBD Support</span>
+                        <div class="service-card">
+                            <span class="badge-soft">Backup</span>
+                            <p class="text-sm text-brand-dark/70 mt-3">Generator support</p>
                         </div>
-                    </div>
-
-                    <div class="space-y-3">
-                        <button @click="revealed = !revealed" class="w-full py-4 rounded-2xl bg-white text-brand-dark font-bold hover:bg-brand-gold hover:text-white transition-all flex items-center justify-center gap-3 shadow-lg">
-                            <i class="fas" :class="revealed ? 'fa-headset' : 'fa-phone-alt'"></i>
-                            <span x-text="revealed ? '+880 1712 458 794' : 'Show Phone Number'"></span>
-                        </button>
-                        <a href="https://wa.me/8801712458794?text=Hi%20FlatlandBD,%20I%20am%20interested%20in%20property%20ID%20{{ flat.id }}:%20{{ flat.title }}" target="_blank" class="w-full py-4 rounded-2xl bg-white/10 border border-white/20 text-white font-bold hover:bg-white/20 transition-all flex items-center justify-center gap-3 text-center block decoration-0">
-                            <i class="fab fa-whatsapp text-lg"></i> Chat on WhatsApp
-                        </a>
-                    </div>
-
-                    <div class="mt-8 pt-8 border-t border-white/5">
-                        <div class="flex gap-4 p-4 rounded-2xl bg-amber-500/5 border border-amber-500/10">
-                            <i class="fas fa-shield-alt text-amber-500 mt-1"></i>
-                            <p class="text-[10px] font-bold uppercase tracking-widest text-amber-500/80 leading-relaxed">Safety Tip: Verify all documents before payments.</p>
+                        <div class="service-card">
+                            <span class="badge-soft">Water</span>
+                            <p class="text-sm text-brand-dark/70 mt-3">WASA + deep supply</p>
                         </div>
                     </div>
                 </div>
             </div>
-        </aside>
+
+            <aside class="lg:col-span-4" id="contact">
+                <div class="card-minimal p-8 sticky top-28">
+                    <p class="section-kicker">Schedule</p>
+                    <h3 class="text-2xl font-display text-brand-dark mt-3">Book a visit</h3>
+                    <p class="text-sm text-brand-dark/60 mt-3">Share your details and our team will confirm timing.</p>
+                    <form action="{{ url_for('contact') }}" method="post" class="mt-6 space-y-4">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="interest" value="Flat inquiry: {{ flat.title }}">
+                        <div>
+                            <label class="section-kicker" for="name">Name</label>
+                            <input class="filter-input mt-3" type="text" id="name" name="name" placeholder="Your name" required>
+                        </div>
+                        <div>
+                            <label class="section-kicker" for="phone">Phone number</label>
+                            <input class="filter-input mt-3" type="tel" id="phone" name="phone" placeholder="Your phone number" required>
+                        </div>
+                        <div>
+                            <label class="section-kicker" for="email">Email (optional)</label>
+                            <input class="filter-input mt-3" type="email" id="email" name="email" placeholder="hello@example.com">
+                        </div>
+                        <div>
+                            <label class="section-kicker" for="message">Message</label>
+                            <textarea class="filter-input mt-3 h-28" id="message" name="message" placeholder="Preferred time, questions, or priorities" required></textarea>
+                        </div>
+                        <button type="submit" class="btn-gold-tw w-full">Request visit</button>
+                    </form>
+                </div>
+            </aside>
+        </div>
     </div>
-</div>
+</section>
 {% endblock %}

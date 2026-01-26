@@ -41,104 +41,46 @@
     <link rel="preconnect" href="https://images.unsplash.com" crossorigin>
     {% block preload %}{% endblock %}
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400;500;600;700&display=swap" rel="stylesheet">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script>
-        document.addEventListener('alpine:init', () => {
-            const loadWishlist = () => {
-                try {
-                    const raw = localStorage.getItem('flatland_wishlist');
-                    if (!raw) {
-                        return [];
-                    }
-                    const parsed = JSON.parse(raw);
-                    return Array.isArray(parsed) ? parsed : [];
-                } catch (err) {
-                    try {
-                        localStorage.removeItem('flatland_wishlist');
-                    } catch (cleanupError) {
-                        return [];
-                    }
-                    return [];
-                }
-            };
-
-            Alpine.store('wishlist', {
-                items: loadWishlist(),
-                
-                add(item) {
-                    if (!this.has(item.id, item.type)) {
-                        this.items.push(item);
-                        this.save();
-                        
-                        // Show toast
-                        const event = new CustomEvent('flash-toast', {
-                            detail: { message: 'Added to shortlist', type: 'success' }
-                        });
-                        window.dispatchEvent(event);
-                    }
-                },
-                
-                remove(id, type) {
-                    this.items = this.items.filter(i => !(i.id === id && i.type === type));
-                    this.save();
-                },
-                
-                toggle(item) {
-                    if (this.has(item.id, item.type)) {
-                        this.remove(item.id, item.type);
-                    } else {
-                        this.add(item);
-                    }
-                },
-                
-                has(id, type) {
-                    return this.items.some(i => i.id === id && i.type === type);
-                },
-                
-                save() {
-                    try {
-                        localStorage.setItem('flatland_wishlist', JSON.stringify(this.items));
-                    } catch (err) {
-                        return;
-                    }
-                },
-                
-                count() {
-                    return this.items.length;
-                }
-            });
-        });
-
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
                         brand: {
-                            dark: '#1d2533',
-                            gold: '#d57b4c',
-                            warm: '#f1b67c',
-                            soft: '#f6f7fb',
+                            dark: '#111113',
+                            black: '#0b0b0f',
+                            gold: '#ff5a3d',
+                            'gold-light': '#ffe4dd',
+                            'gold-dark': '#d9482f',
+                            warm: '#fff4ee',
+                            soft: '#f6f4ef',
+                            ink: '#111113',
+                            muted: '#6b6b73',
                         },
                         glass: {
-                            bg: 'rgba(255, 255, 255, 0.78)',
-                            border: 'rgba(29, 37, 51, 0.12)',
+                            bg: 'rgba(255, 255, 255, 0.75)',
+                            border: 'rgba(17, 17, 19, 0.12)',
+                            'border-subtle': 'rgba(17, 17, 19, 0.08)',
                         }
                     },
                     fontFamily: {
-                        sans: ['DM Sans', 'sans-serif'],
-                        display: ['Playfair Display', 'serif'],
+                        sans: ['Space Grotesk', 'sans-serif'],
+                        display: ['Fraunces', 'serif'],
                     },
                     borderRadius: {
                         'xl': '24px',
                         '2xl': '32px',
+                        '3xl': '40px',
                     },
                     boxShadow: {
-                        'soft': '0 12px 28px rgba(29, 37, 51, 0.1)',
-                        'strong': '0 20px 45px rgba(29, 37, 51, 0.14)',
+                        'soft': '0 10px 30px rgba(16, 17, 21, 0.08)',
+                        'strong': '0 24px 60px rgba(16, 17, 21, 0.16)',
+                        'glow': '0 0 24px rgba(255, 90, 61, 0.25)',
                     },
                     keyframes: {
                         'fade-in-up': {
@@ -209,7 +151,7 @@
         [x-cloak] { display: none !important; }
     </style>
 </head>
-<body x-data="{ wishlistOpen: false }">
+<body>
     <a class="skip-link" href="#main">Skip to content</a>
 
     {% set active_endpoint = request.endpoint or '' %}
@@ -224,56 +166,42 @@
                 </div>
 
                 <!-- Desktop Menu -->
-                <div class="hidden md:flex items-center space-x-1">
-                    <a href="{{ url_for('index') }}" class="nav-link {{ 'is-active' if active_endpoint == 'index' else '' }}">Home</a>
-                    <a href="{{ url_for('flats') }}" class="nav-link {{ 'is-active' if active_endpoint in ['flats', 'flat_detail'] else '' }}">Buy Flats</a>
-                    <a href="{{ url_for('interior') }}" class="nav-link {{ 'is-active' if active_endpoint in ['interior', 'interior_detail'] else '' }}">Interior Design</a>
-                    
-                    <button @click="wishlistOpen = true" class="relative p-2 ml-2 rounded-xl text-brand-dark hover:text-brand-gold transition-colors group" aria-label="Shortlist">
-                        <i class="far fa-heart text-lg group-hover:scale-110 transition-transform"></i>
-                        <span class="absolute top-1 right-0 w-4 h-4 rounded-full bg-brand-gold text-[10px] font-bold text-white flex items-center justify-center animate-bounce-short"
-                              x-show="$store.wishlist.count() > 0"
-                              x-text="$store.wishlist.count()"
-                              x-transition:enter="transition ease-out duration-300"
-                              x-transition:enter-start="opacity-0 scale-0"
-                              x-transition:enter-end="opacity-100 scale-100">
-                        </span>
-                    </button>
+                <div class="hidden md:flex items-center gap-8">
+                    <div class="flex items-center gap-1">
+                        <a href="{{ url_for('index') }}" class="nav-link {{ 'is-active' if active_endpoint == 'index' else '' }}">Home</a>
+                        <a href="{{ url_for('index') }}#services" class="nav-link">Services</a>
+                        <a href="{{ url_for('interior') }}" class="nav-link {{ 'is-active' if active_endpoint in ['interior', 'interior_detail'] else '' }}">Interior</a>
+                        <a href="{{ url_for('flats') }}" class="nav-link {{ 'is-active' if active_endpoint in ['flats', 'flat_detail'] else '' }}">Buy Flats</a>
+                    </div>
 
-                    {% if current_user.is_authenticated %}
-                        {% if current_user.role == 'admin' %}
-                            <a href="{{ url_for('admin_dashboard') }}" class="nav-link {{ 'is-active' if active_endpoint == 'admin_dashboard' else '' }}">Admin Panel</a>
-                            <a href="{{ url_for('post_listing') }}" class="btn-gold-tw text-sm py-2 ml-2">New Listing</a>
-                        {% endif %}
-                        <a href="{{ url_for('logout') }}" class="ml-4 px-4 py-2 rounded-xl text-red-600 font-bold hover:bg-red-50 transition-all text-sm">Logout ({{ current_user.username }})</a>
-                    {% else %}
-                        <div class="relative ml-4" x-data="{ open: false }" @click.away="open = false">
-                            <button @click="open = !open" class="btn-gold-tw text-sm py-2 flex items-center gap-2">
-                                Request Quote
-                                <i class="fas fa-chevron-down text-[10px]" :class="open ? 'rotate-180' : ''"></i>
-                            </button>
-                            <div x-show="open" 
-                                 x-transition:enter="transition ease-out duration-200"
-                                 x-transition:enter-start="opacity-0 translate-y-2"
-                                 x-transition:enter-end="opacity-100 translate-y-0"
-                                 class="absolute right-0 mt-3 w-56 rounded-2xl bg-white shadow-strong border border-glass-border overflow-hidden">
-                                <a href="https://wa.me/8801712458794?text=Hello%20FlatlandBD%2C%20I%20need%20a%20flat%20quote." target="_blank" class="block px-4 py-3 text-sm text-brand-dark hover:bg-brand-gold/5 font-medium border-b border-glass-border">Need a flat</a>
-                                <a href="https://wa.me/8801712458794?text=Hello%20FlatlandBD%2C%20I%20need%20an%20interior%20design%20quote." target="_blank" class="block px-4 py-3 text-sm text-brand-dark hover:bg-brand-gold/5 font-medium">Need interior</a>
+                    <div class="flex items-center gap-3">
+                        {% if current_user.is_authenticated %}
+                            {% if current_user.role == 'admin' %}
+                                <a href="{{ url_for('admin_dashboard') }}" class="nav-link {{ 'is-active' if active_endpoint == 'admin_dashboard' else '' }}">Admin Panel</a>
+                                <a href="{{ url_for('post_listing') }}" class="btn-gold-tw text-sm py-2">New Listing</a>
+                            {% endif %}
+                            <a href="{{ url_for('logout') }}" class="ml-2 px-4 py-2 rounded-xl text-red-600 font-bold hover:bg-red-50 transition-all text-sm">Logout ({{ current_user.username }})</a>
+                        {% else %}
+                            <div class="relative" x-data="{ open: false }" @click.away="open = false">
+                                <button @click="open = !open" class="btn-gold-tw text-sm py-2 flex items-center gap-2">
+                                    Request Quote
+                                    <i class="fas fa-chevron-down text-[10px]" :class="open ? 'rotate-180' : ''"></i>
+                                </button>
+                                <div x-show="open" 
+                                     x-transition:enter="transition ease-out duration-200"
+                                     x-transition:enter-start="opacity-0 translate-y-2"
+                                     x-transition:enter-end="opacity-100 translate-y-0"
+                                     class="absolute right-0 mt-3 w-56 rounded-2xl bg-white shadow-strong border border-glass-border overflow-hidden">
+                                    <a href="https://wa.me/8801712458794?text=Hello%20FlatlandBD%2C%20I%20need%20a%20flat%20quote." target="_blank" class="block px-4 py-3 text-sm text-brand-dark hover:bg-brand-gold/5 font-medium border-b border-glass-border">Need flat</a>
+                                    <a href="https://wa.me/8801712458794?text=Hello%20FlatlandBD%2C%20I%20need%20an%20interior%20design%20quote." target="_blank" class="block px-4 py-3 text-sm text-brand-dark hover:bg-brand-gold/5 font-medium">Need interior</a>
+                                </div>
                             </div>
-                        </div>
-                    {% endif %}
+                        {% endif %}
+                    </div>
                 </div>
 
                 <!-- Mobile menu button -->
-                <div class="md:hidden flex items-center gap-4">
-                     <button @click="wishlistOpen = true" class="relative p-2 rounded-xl text-brand-dark hover:text-brand-gold transition-colors" aria-label="Shortlist">
-                        <i class="far fa-heart text-lg"></i>
-                        <span class="absolute top-1 right-0 w-4 h-4 rounded-full bg-brand-gold text-[10px] font-bold text-white flex items-center justify-center"
-                              x-show="$store.wishlist.count() > 0"
-                              x-text="$store.wishlist.count()">
-                        </span>
-                    </button>
-
+                <div class="md:hidden flex items-center gap-3">
                     <button @click="mobileMenuOpen = !mobileMenuOpen" class="inline-flex items-center justify-center p-2 rounded-xl text-brand-dark hover:bg-brand-gold/10 focus:outline-none transition-all">
                         <i class="fas" :class="mobileMenuOpen ? 'fa-times' : 'fa-bars'"></i>
                     </button>
@@ -289,8 +217,9 @@
              class="md:hidden border-t border-glass-border bg-white">
             <div class="px-4 pt-2 pb-6 space-y-1">
                 <a href="{{ url_for('index') }}" class="nav-link nav-link--mobile {{ 'is-active' if active_endpoint == 'index' else '' }}">Home</a>
+                <a href="{{ url_for('index') }}#services" class="nav-link nav-link--mobile">Services</a>
+                <a href="{{ url_for('interior') }}" class="nav-link nav-link--mobile {{ 'is-active' if active_endpoint in ['interior', 'interior_detail'] else '' }}">Interior</a>
                 <a href="{{ url_for('flats') }}" class="nav-link nav-link--mobile {{ 'is-active' if active_endpoint in ['flats', 'flat_detail'] else '' }}">Buy Flats</a>
-                <a href="{{ url_for('interior') }}" class="nav-link nav-link--mobile {{ 'is-active' if active_endpoint in ['interior', 'interior_detail'] else '' }}">Interior Design</a>
                 
                 {% if current_user.is_authenticated %}
                     {% if current_user.role == 'admin' %}
@@ -300,89 +229,14 @@
                     <a href="{{ url_for('logout') }}" class="block px-4 py-3 text-red-600 font-bold">Logout</a>
                 {% else %}
                     <div class="pt-4 space-y-2">
-                        <a href="https://wa.me/8801712458794?text=Hello%20FlatlandBD%2C%20I%20need%20a%20flat%20quote." class="block px-4 py-3 rounded-xl bg-brand-gold/10 text-brand-gold font-bold">Need a flat</a>
-                        <a href="https://wa.me/8801712458794?text=Hello%20FlatlandBD%2C%20I%20need%20an%20interior%20design%20quote." class="block px-4 py-3 rounded-xl bg-brand-warm/10 text-brand-warm font-bold">Need interior</a>
+                        <a href="https://wa.me/8801712458794?text=Hello%20FlatlandBD%2C%20I%20need%20a%20flat%20quote." class="block px-4 py-3 rounded-xl bg-brand-gold/10 text-brand-gold font-bold">Need flat</a>
+                        <a href="https://wa.me/8801712458794?text=Hello%20FlatlandBD%2C%20I%20need%20an%20interior%20design%20quote." class="block px-4 py-3 rounded-xl bg-brand-warm/10 text-brand-dark font-bold">Need interior</a>
                     </div>
                 {% endif %}
             </div>
         </div>
     </nav>
     
-    <!-- Shortlist Drawer -->
-    <div class="relative z-[70]" aria-labelledby="slide-over-title" role="dialog" aria-modal="true" x-show="wishlistOpen" x-cloak>
-        <div class="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity" 
-             x-show="wishlistOpen"
-             x-transition:enter="ease-in-out duration-500"
-             x-transition:enter-start="opacity-0"
-             x-transition:enter-end="opacity-100"
-             x-transition:leave="ease-in-out duration-500"
-             x-transition:leave-start="opacity-100"
-             x-transition:leave-end="opacity-0"
-             @click="wishlistOpen = false"></div>
-
-        <div class="fixed inset-0 overflow-hidden">
-            <div class="absolute inset-0 overflow-hidden">
-                <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
-                    <div class="pointer-events-auto w-screen max-w-md"
-                         x-show="wishlistOpen"
-                         x-transition:enter="transform transition ease-in-out duration-500 sm:duration-700"
-                         x-transition:enter-start="translate-x-full"
-                         x-transition:enter-end="translate-x-0"
-                         x-transition:leave="transform transition ease-in-out duration-500 sm:duration-700"
-                         x-transition:leave-start="translate-x-0"
-                         x-transition:leave-end="translate-x-full">
-                        <div class="flex h-full flex-col overflow-y-scroll no-scrollbar bg-white shadow-2xl">
-                            <div class="p-6 bg-brand-dark text-white flex items-center justify-between">
-                                <p class="text-white/60 text-sm font-medium uppercase tracking-widest" x-text="$store.wishlist.count() + ' Saved Items'"></p>
-                                <button @click="wishlistOpen = false" class="text-white/40 hover:text-white transition-colors">
-                                    <i class="fas fa-times text-xl"></i>
-                                </button>
-                            </div>
-
-                            <div class="flex-1 overflow-y-auto p-6 space-y-6">
-                                <template x-if="$store.wishlist.count() === 0">
-                                    <div class="text-center py-20 opacity-40">
-                                        <i class="far fa-heart text-5xl mb-4 text-brand-dark"></i>
-                                        <p class="font-bold text-brand-dark">No saved items yet.</p>
-                                        <p class="text-sm mt-2 text-brand-dark">Browse listings to add favorites.</p>
-                                    </div>
-                                </template>
-                                
-                                <template x-for="item in $store.wishlist.items" :key="item.id + item.type">
-                                    <div class="flex gap-4 p-4 rounded-2xl bg-white border border-glass-border shadow-soft group hover:border-brand-gold/30 transition-colors relative">
-                                        <div class="w-20 h-20 rounded-xl overflow-hidden shrink-0 bg-brand-soft">
-                                            <img :src="item.image" class="w-full h-full object-cover" loading="lazy" decoding="async">
-                                        </div>
-                                        <div class="flex-1 min-w-0">
-                                            <div class="flex justify-between items-start">
-                                                <div>
-                                                     <span class="text-[10px] font-bold uppercase tracking-widest text-brand-gold mb-1 block" x-text="item.type"></span>
-                                                    <h4 class="font-bold text-brand-dark truncate pr-4 text-sm" x-text="item.title"></h4>
-                                                </div>
-                                                <button @click="$store.wishlist.remove(item.id, item.type)" class="text-brand-dark/20 hover:text-red-500 transition-colors -mt-1 -mr-1 p-2 relative z-10 cursor-pointer">
-                                                    <i class="fas fa-times"></i>
-                                                </button>
-                                            </div>
-                                            <p class="text-brand-dark/60 text-xs mt-1" x-text="item.desc"></p>
-                                            <div class="mt-2 text-sm font-bold text-brand-dark" x-text="item.price"></div>
-                                            <a :href="item.url" class="absolute inset-0 z-0"></a>
-                                        </div>
-                                    </div>
-                                </template>
-                            </div>
-
-                            <div class="p-6 border-t border-glass-border bg-brand-soft/50" x-show="$store.wishlist.count() > 0">
-                                <a href="https://wa.me/8801712458794?text=Hi,%20I%20like%20items%20in%20my%20shortlist." target="_blank" class="btn-gold-tw w-full py-4 justify-center text-sm shadow-lg">
-                                    <i class="fab fa-whatsapp text-lg mr-2"></i> Inquire About All
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Flash Messages (Tailwind Toasts) -->
     <div class="fixed top-24 right-4 z-[60] flex flex-col gap-3 max-w-sm w-full pointer-events-none" 
          x-data="{ toasts: [] }" 
@@ -467,6 +321,8 @@
         {% block content %}{% endblock %}
     </main>
 
+    {% set is_admin_page = active_endpoint in ['admin_dashboard', 'admin_edit_flat', 'admin_edit_service', 'post_listing', 'preview'] %}
+    {% if not is_admin_page %}
     <!-- Modern Luxury Footer -->
     <footer class="bg-brand-dark text-white relative overflow-hidden mt-auto">
         <!-- Decor -->
@@ -482,7 +338,7 @@
                         <img src="{{ static_url('img/logo-mark.svg') }}" alt="FlatlandBD" class="h-12 w-auto brightness-0 invert" loading="lazy" decoding="async">
                     </a>
                     <p class="text-white/60 leading-relaxed text-lg font-light max-w-md">
-                        Redefining the standard of living in Dhaka. We curate premium flats and connect you with elite interior artisans.
+                        Flatland BD — curated flats and interior design across Bangladesh.
                     </p>
                     <div class="flex gap-4">
                         <a href="tel:+8801712458794" class="px-6 py-3 rounded-xl bg-white/5 border border-white/10 text-brand-gold font-bold hover:bg-brand-gold hover:text-brand-dark transition-all">
@@ -501,7 +357,7 @@
                         <li><a href="{{ url_for('flats') }}" class="text-white/60 hover:text-brand-gold transition-colors block py-1">Premium Flats</a></li>
                         <li><a href="{{ url_for('interior') }}" class="text-white/60 hover:text-brand-gold transition-colors block py-1">Interior Studios</a></li>
                         <li><a href="{{ url_for('post_listing') }}" class="text-white/60 hover:text-brand-gold transition-colors block py-1">List Property</a></li>
-                        <li><a href="{{ url_for('index') }}#consult" class="text-white/60 hover:text-brand-gold transition-colors block py-1">Request Quote</a></li>
+                        <li><a href="{{ url_for('index') }}#contact" class="text-white/60 hover:text-brand-gold transition-colors block py-1">Request Quote</a></li>
                     </ul>
                 </div>
 
@@ -526,7 +382,7 @@
             <!-- Bottom -->
             <div class="border-t border-white/10 pt-10 flex flex-col md:flex-row items-center justify-between gap-6">
                 <p class="text-white/40 text-sm font-medium">
-                    &copy; 2026 FlatlandBD.<i class=""></i>
+                    &copy; 2026 FlatlandBD.
                 </p>
                 <div class="flex gap-6">
                     <a href="#" class="text-white/40 hover:text-white transition-colors"><i class="fab fa-facebook-f"></i></a>
@@ -546,11 +402,12 @@
             <i class="fab fa-whatsapp"></i>
             <span class="contact-fab__label">WhatsApp</span>
         </a>
-        <a class="contact-fab__link contact-fab__link--quote" href="{{ url_for('index') }}#consult" aria-label="Request a quote">
+        <a class="contact-fab__link contact-fab__link--quote" href="{{ url_for('index') }}#contact" aria-label="Request a quote">
             <i class="fas fa-comment-dots"></i>
             <span class="contact-fab__label">Quote</span>
         </a>
     </div>
+    {% endif %}
 
 
 
