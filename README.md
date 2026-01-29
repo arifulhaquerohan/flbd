@@ -8,9 +8,9 @@ A premium web-based project for buying/selling flats and professional interior d
 - **Premium UI**: Editorial light theme with glassmorphism, motion, and responsive layouts.
 
 ## Tech Stack
-- **Backend**: Python (Flask)
+- **Backend**: Python (Django)
 - **Database**: PostgreSQL (Primary) / SQLite (Development)
-- **Frontend**: HTML5, CSS3, JS, Bootstrap 5
+- **Frontend**: HTML5, CSS3, JS (Tailwind CDN + Alpine)
 
 ## Getting Started
 
@@ -36,35 +36,39 @@ pip install -r requirements.txt
    ```env
    DATABASE_URL=postgresql://your_username:your_password@localhost:5432/flatland_db
    ```
-3. The app will automatically create tables on the first run.
+3. Run migrations:
+   ```bash
+   python manage.py makemigrations core
+   python manage.py migrate
+   ```
+4. If `ADMIN_EMAIL` and `ADMIN_PASSWORD` are set in `.env`, the first admin user is created automatically on migrate.
 
 ### 4. Running the App
 ```bash
-python app.py
+python manage.py runserver
 ```
-Open `http://localhost:5000` in your browser.
+Open `http://localhost:8000` in your browser.
 
 ### 5. Production (Gunicorn)
 ```bash
-gunicorn -w 2 -b 0.0.0.0:8000 wsgi:app
+gunicorn -w 2 -b 0.0.0.0:8000 wsgi:application
 ```
 Adjust workers based on CPU cores and traffic (e.g. `-w 4`).
 
-### 6. Database Migrations (Optional)
-If you already have a database and want new indexes, run:
-```bash
-flask --app app db migrate
-flask --app app db upgrade
-```
+### 6. Admin Access
+- Custom admin dashboard lives at `/{ADMIN_PATH}` (set in `.env`).
+- Django admin is available at `/django-admin/`.
 
 ## Security checklist
 - Set `SECRET_KEY` to a long random value in `.env`.
 - Use a non-guessable `ADMIN_PATH` and set `ADMIN_EMAIL` / `ADMIN_PASSWORD`.
 - In production, set `SESSION_COOKIE_SECURE=1` and serve over HTTPS.
-- If deploying behind a proxy (nginx, load balancer), set `TRUST_PROXY=1`.
 
 ## Project Structure
-- `app.py`: Main application logic and routes.
-- `models.py`: Database models for Users, Flats, and Interior Services.
+- `config/`: Django settings, URLs, WSGI/ASGI.
+- `core/`: Django app (models, views, utilities).
+- `manage.py`: Django management entrypoint.
+- `wsgi.py`: WSGI entrypoint for production.
+- `app.py` / `models.py`: Legacy Flask files kept for reference.
 - `templates/`: HTML templates (Jinja2).
 - `static/`: CSS, JS, and project images.

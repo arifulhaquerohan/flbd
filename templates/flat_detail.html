@@ -9,7 +9,28 @@
 {% block extra_css %}
 {% endblock %}
 
+{% endblock %}
+
 {% block extra_js %}
+<script>
+    function shareListing() {
+        if (navigator.share) {
+            navigator.share({
+                title: '{{ flat.title }}',
+                text: 'Check out this property on FlatlandBD: {{ flat.title }} in {{ flat.location }}',
+                url: window.location.href,
+            })
+            .catch((error) => console.log('Error sharing', error));
+        } else {
+            // Fallback: Copy to clipboard
+            navigator.clipboard.writeText(window.location.href).then(function() {
+                alert('Link copied to clipboard!');
+            }, function(err) {
+                console.error('Async: Could not copy text: ', err);
+            });
+        }
+    }
+</script>
 <script type="application/ld+json">
 {{ {
     "@context": "https://schema.org",
@@ -54,6 +75,9 @@
                 <p class="hero-lead">{{ flat.location }} • {{ flat.bhk }} BHK • {{ flat.area_sqft }} sqft</p>
                 <div class="flex flex-wrap gap-4">
                     <a href="#contact" class="btn-gold-tw">Schedule visit</a>
+                    <button onclick="shareListing()" class="btn-outline flex items-center gap-2">
+                        <i class="fas fa-share-alt"></i> Share
+                    </button>
                 </div>
                 <div class="flex flex-wrap gap-2 pt-4">
                     <span class="badge-soft">Verified listing</span>
@@ -83,12 +107,12 @@
                     <p class="text-brand-dark/70 mt-4 whitespace-pre-wrap">{{ flat.description }}</p>
                 </div>
 
-                {% if flat.images %}
+                {% if flat.images.all() %}
                 <div class="card-minimal p-8">
                     <p class="section-kicker">Gallery</p>
                     <h2 class="text-2xl font-display text-brand-dark mt-3">More photos</h2>
                     <div class="grid sm:grid-cols-2 gap-4 mt-6">
-                        {% for image in flat.images %}
+                        {% for image in flat.images.all() %}
                         <div class="rounded-2xl overflow-hidden border border-glass-border">
                             <img src="{{ image.image_url }}" alt="{{ flat.title }} photo" class="w-full h-56 object-cover img-expand" loading="lazy" decoding="async">
                         </div>
@@ -140,7 +164,7 @@
                     <h3 class="text-2xl font-display text-brand-dark mt-3">Book a visit</h3>
                     <p class="text-sm text-brand-dark/60 mt-3">Share your details and our team will confirm timing.</p>
                     <form action="{{ url_for('contact') }}" method="post" class="mt-6 space-y-4">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token() }}">
                         <input type="hidden" name="interest" value="Flat inquiry: {{ flat.title }}">
                         <div>
                             <label class="section-kicker" for="name">Name</label>

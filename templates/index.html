@@ -11,15 +11,60 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid lg:grid-cols-12 gap-10 items-end">
             <div class="lg:col-span-7 space-y-8 reveal">
-                <p class="section-kicker">Flatland Studio</p>
+                <div class="flex flex-wrap items-center gap-3">
+                    <p class="section-kicker">Flatland Studio</p>
+                    <span class="soft-pill">Dhaka • Chattogram</span>
+                </div>
                 <h1 class="hero-title font-display text-brand-dark">Clean spaces, bold stories.</h1>
                 <p class="hero-lead">
                     A minimal portfolio for modern living. We pair curated listings with design direction so every space feels intentional, calm, and confident.
                 </p>
+                <div class="flex flex-wrap gap-2">
+                    <span class="badge-soft">Verified legal review</span>
+                    <span class="badge-soft">Interior & build partners</span>
+                    <span class="badge-soft">WhatsApp updates</span>
+                </div>
                 <div class="flex flex-wrap gap-4">
                     <a href="#contact" class="btn-gold-tw">Request Quote</a>
                     <a href="{{ url_for('flats') }}" class="btn-outline">Browse flats</a>
                 </div>
+                <form action="{{ url_for('flats') }}" method="get" class="hero-search">
+                    <div class="hero-search__grid">
+                        <div>
+                            <label class="field-label" for="hero-search">Location</label>
+                            <input class="filter-input mt-3" type="text" id="hero-search" name="search" placeholder="Gulshan, Banani, Dhanmondi">
+                        </div>
+                        <div>
+                            <label class="field-label" for="hero-bhk">Bedrooms</label>
+                            <select class="filter-input mt-3" id="hero-bhk" name="bhk">
+                                <option value="all">Any size</option>
+                                <option value="1">1 Bedroom</option>
+                                <option value="2">2 Bedrooms</option>
+                                <option value="3">3 Bedrooms</option>
+                                <option value="4plus">4+ Bedrooms</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="field-label" for="hero-max">Budget max</label>
+                            <select class="filter-input mt-3" id="hero-max" name="max_price">
+                                <option value="">No limit</option>
+                                <option value="8000000">Under 80 Lakh</option>
+                                <option value="10000000">Under 1 Cr</option>
+                                <option value="15000000">Under 1.5 Cr</option>
+                                <option value="20000000">Under 2 Cr</option>
+                            </select>
+                        </div>
+                        <div class="hero-search__action">
+                            <button type="submit" class="btn-gold-tw w-full">Find flats</button>
+                            <span class="hero-search__hint">Try "Banani" or "Gulshan"</span>
+                        </div>
+                    </div>
+                    <div class="hero-search__meta">
+                        <span class="soft-pill">Verified listings</span>
+                        <span class="soft-pill">No hidden fees</span>
+                        <span class="soft-pill">Design-ready homes</span>
+                    </div>
+                </form>
                 <div class="grid sm:grid-cols-3 gap-3 pt-6">
                     <div class="metric-card">
                         <div class="metric-value">{{ stats.flats }}</div>
@@ -43,11 +88,21 @@
                         <p class="text-lg font-display text-brand-dark">Spring 2026 interiors</p>
                     </div>
                 </div>
-                <div class="card-minimal p-6">
+                <div class="card-minimal p-6 space-y-4">
                     <p class="section-kicker">Focus</p>
-                    <p class="text-sm text-brand-dark/70 mt-3">
+                    <p class="text-sm text-brand-dark/70">
                         Boutique interior direction, curated property selection, and a streamlined buying experience that makes the next step feel effortless.
                     </p>
+                    <div class="grid grid-cols-2 gap-3 text-sm">
+                        <div class="p-3 rounded-2xl border border-glass-border bg-white/60">
+                            <p class="text-[10px] uppercase tracking-[0.3em] text-brand-dark/40 font-bold">Avg handover</p>
+                            <p class="text-lg font-display text-brand-dark mt-1">90 days</p>
+                        </div>
+                        <div class="p-3 rounded-2xl border border-glass-border bg-white/60">
+                            <p class="text-[10px] uppercase tracking-[0.3em] text-brand-dark/40 font-bold">Projects in queue</p>
+                            <p class="text-lg font-display text-brand-dark mt-1">07 active</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

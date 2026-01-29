@@ -137,6 +137,30 @@ compress.init_app(app)
 csrf.init_app(app)
 db.init_app(app)
 
+@app.after_request
+def add_security_headers(response):
+    # Security Headers
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    
+    # HSTS (Strict-Transport-Security) - enforce HTTPS
+    # Only meaningful if served over HTTPS, but good practice to include
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+
+    # Content Security Policy (Basic)
+    # Allows scripts/styles from CDN sources we use (Tailwind, FontAwesome, Alpine, etc.)
+    # Note: 'unsafe-eval' is needed for Alpine.js
+    response.headers['Content-Security-Policy'] = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; "
+        "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; "
+        "img-src 'self' data: https://images.unsplash.com https://cdn.jsdelivr.net; "
+        "frame-src 'self' https://www.google.com https://www.youtube.com;"
+    )
+    return response
+
 def static_url(filename):
     if not filename:
         return ''
@@ -181,22 +205,56 @@ def save_uploaded_image(file_storage):
         return None
     if file_storage.mimetype and not file_storage.mimetype.startswith('image/'):
         return None
+    
     try:
-        header = file_storage.stream.read(512)
-        file_storage.stream.seek(0)
-        kind = get_image_type(header)
-    except Exception:
-        file_storage.stream.seek(0)
-        return None
-    if kind not in {'jpeg', 'png', 'webp'}:
-        return None
-    upload_dir = os.path.join(app.static_folder, 'uploads')
-    os.makedirs(upload_dir, exist_ok=True)
-    safe_name = secure_filename(file_storage.filename)
-    timestamp = int(time.time() * 1000)
-    filename = f"{timestamp}_{safe_name}"
-    file_storage.save(os.path.join(upload_dir, filename))
-    return url_for('static', filename=f'uploads/{filename}')
+        from PIL import Image, ImageOps
+        
+        # Open the image using Pillow
+        img = Image.open(file_storage.stream)
+        
+        # Correct orientation if EXIF data is present (e.g. from phones)
+        img = ImageOps.exif_transpose(img)
+        
+        # Convert to RGB if necessary (e.g. for PNGs with alpha channel being saved as JPEG)
+        if img.mode in ('RGBA', 'P'):
+            img = img.convert('RGB')
+            
+        # Resize if too large (max 1600px width/height)
+        max_size = 1600
+        if max(img.size) > max_size:
+            scale = max_size / float(max(img.size))
+            new_size = (int(img.size[0] * scale), int(img.size[1] * scale))
+            img = img.resize(new_size, Image.Resampling.LANCZOS)
+            
+        upload_dir = os.path.join(app.static_folder, 'uploads')
+        os.makedirs(upload_dir, exist_ok=True)
+        
+        safe_name = secure_filename(file_storage.filename)
+        timestamp = int(time.time() * 1000)
+        # Force saving as .webp or .jpg for better compression
+        name_root, _ = os.path.splitext(safe_name)
+        filename = f"{timestamp}_{name_root}.webp"
+        file_path = os.path.join(upload_dir, filename)
+        
+        # Save compressed
+        img.save(file_path, 'WEBP', quality=80, optimize=True)
+        
+        return url_for('static', filename=f'uploads/{filename}')
+        
+    except Exception as e:
+        print(f"Error optimizing image: {e}")
+        # Fallback to simple save if Pillow fails
+        try:
+            file_storage.stream.seek(0)
+            upload_dir = os.path.join(app.static_folder, 'uploads')
+            os.makedirs(upload_dir, exist_ok=True)
+            safe_name = secure_filename(file_storage.filename)
+            timestamp = int(time.time() * 1000)
+            filename = f"{timestamp}_{safe_name}"
+            file_storage.save(os.path.join(upload_dir, filename))
+            return url_for('static', filename=f'uploads/{filename}')
+        except:
+            return None
 
 def parse_image_urls(raw_text):
     if not raw_text:

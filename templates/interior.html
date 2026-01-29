@@ -116,7 +116,7 @@
             </div>
         </div>
         <form action="{{ url_for('contact') }}" method="post" class="card-minimal p-8 md:p-10">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token() }}">
             <input type="hidden" name="interest" value="Interior inquiry">
             <div class="grid md:grid-cols-2 gap-6">
                 <div>

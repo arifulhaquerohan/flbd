@@ -5,7 +5,28 @@
 {% block extra_css %}
 {% endblock %}
 
+{% endblock %}
+
 {% block extra_js %}
+<script>
+    function shareListing() {
+        if (navigator.share) {
+            navigator.share({
+                title: '{{ service.provider_name }}',
+                text: 'Check out this interior studio on FlatlandBD: {{ service.provider_name }}',
+                url: window.location.href,
+            })
+            .catch((error) => console.log('Error sharing', error));
+        } else {
+            // Fallback: Copy to clipboard
+            navigator.clipboard.writeText(window.location.href).then(function() {
+                alert('Link copied to clipboard!');
+            }, function(err) {
+                console.error('Async: Could not copy text: ', err);
+            });
+        }
+    }
+</script>
 <script type="application/ld+json">
 {{ {
     "@context": "https://schema.org",
@@ -43,6 +64,9 @@
                 <p class="hero-lead">{{ service.description }}</p>
                 <div class="flex flex-wrap gap-4">
                     <a href="#contact" class="btn-gold-tw">Request a brief</a>
+                    <button onclick="shareListing()" class="btn-outline flex items-center gap-2">
+                        <i class="fas fa-share-alt"></i> Share
+                    </button>
                 </div>
                 <div class="flex flex-wrap gap-2 pt-4">
                     <span class="badge-soft">{{ service.service_type }}</span>
@@ -95,9 +119,9 @@
                 <p class="section-subtitle">A snapshot of the studio's preferred look and feel.</p>
             </div>
         </div>
-        {% if service.images %}
+        {% if service.images.all() %}
         <div class="grid md:grid-cols-2 gap-6">
-            {% for image in service.images %}
+            {% for image in service.images.all() %}
             <div class="hero-frame">
                 <img src="{{ image.image_url }}" alt="Studio portfolio" class="w-full h-full object-cover img-expand" loading="lazy" decoding="async">
             </div>
@@ -131,7 +155,7 @@
             </div>
         </div>
         <form action="{{ url_for('contact') }}" method="post" class="card-minimal p-8 md:p-10">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token() }}">
             <input type="hidden" name="interest" value="Interior Service: {{ service.provider_name }}">
             <div class="grid md:grid-cols-2 gap-6">
                 <div>
