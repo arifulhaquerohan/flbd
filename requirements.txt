@@ -11,3 +11,4 @@ gunicorn
 wtforms
 email_validator
 Pillow
+redis

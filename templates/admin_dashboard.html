@@ -305,7 +305,7 @@
         </div>
 
         <!-- Bulk Actions -->
-        <div x-show="selectedIds.length > 0" x-transition
+        <div x-show="selectedIds.length > 0 && '{{ active_tab }}' !== 'dashboard'" x-transition
              class="mb-6 p-4 rounded-2xl bg-brand-dark text-white flex flex-col md:flex-row items-center justify-between gap-4 shadow-xl">
             <div class="flex items-center gap-3">
                 <div class="w-8 h-8 rounded-lg bg-brand-gold flex items-center justify-center text-brand-dark">
@@ -356,12 +356,18 @@
                     </div>
                     <div>
                         <h3 class="text-xl font-display font-medium text-brand-dark">
-                            {% if active_tab == 'leads' %}Lead Queue
+                            {% if active_tab == 'dashboard' %}Recent Assets
+                            {% elif active_tab == 'leads' %}Lead Queue
                             {% elif active_tab == 'services' %}Interior Services
                             {% else %}Flat Listings
                             {% endif %}
                         </h3>
-                        <p class="text-[10px] font-bold text-brand-dark/40 uppercase tracking-widest mt-0.5">Live Database</p>
+                        <p class="text-[10px] font-bold text-brand-dark/40 uppercase tracking-widest mt-0.5">
+                            {% if active_tab == 'dashboard' %}Recent Activity
+                            {% elif has_prev or has_next %}Page {{ page }}
+                            {% else %}Live Database
+                            {% endif %}
+                        </p>
                     </div>
                 </div>
                 
@@ -680,6 +686,19 @@
                     </tbody>
                 </table>
             </div>
+            {% if active_tab in ['flats', 'services', 'leads'] and (has_prev or has_next) %}
+            <div class="px-8 py-6 border-t border-white/10 flex items-center justify-between gap-4 bg-white/30">
+                <p class="text-[10px] font-bold uppercase tracking-widest text-brand-dark/40">Page {{ page }}</p>
+                <div class="flex items-center gap-3">
+                    {% if has_prev %}
+                    <a href="{{ prev_url }}" class="btn-outline">Previous</a>
+                    {% endif %}
+                    {% if has_next %}
+                    <a href="{{ next_url }}" class="btn-outline">Next</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
         </div>
     </main>
 

@@ -1,6 +1,7 @@
 import os
 import time
 import re
+import json
 
 from urllib.parse import urlparse, parse_qs
 from flask import Flask, render_template, request, redirect, url_for, flash, abort, Response
@@ -11,8 +12,8 @@ from flask_compress import Compress
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from models import db, User, Flat, InteriorService, Lead, FlatImage, InteriorImage
-from sqlalchemy import or_, text
-from sqlalchemy.orm import load_only, joinedload
+from sqlalchemy import or_, text, func
+from sqlalchemy.orm import load_only, joinedload, selectinload
 
 from flask_wtf.csrf import CSRFProtect
 from dotenv import load_dotenv
@@ -55,11 +56,12 @@ if os.getenv('TRUST_PROXY', '0') == '1':
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 
 # Brute-force protection
+rate_limit_storage_uri = os.getenv('RATELIMIT_STORAGE_URI') or os.getenv('REDIS_URL') or 'memory://'
 limiter = Limiter(
     key_func=get_remote_address,
     app=app,
     default_limits=["2000 per day", "500 per hour"],
-    storage_uri="memory://",
+    storage_uri=rate_limit_storage_uri,
 )
 secret_key = os.getenv('SECRET_KEY')
 if not secret_key:
@@ -111,6 +113,8 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
 }
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 31536000 # Cache static files for 1 year
 app.config['LISTINGS_PER_PAGE'] = int(os.getenv('LISTINGS_PER_PAGE', '9'))
+app.config['ADMIN_DASHBOARD_RECENT_LIMIT'] = int(os.getenv('ADMIN_DASHBOARD_RECENT_LIMIT', '8'))
+app.config['ADMIN_LISTINGS_PER_PAGE'] = int(os.getenv('ADMIN_LISTINGS_PER_PAGE', '20'))
 app.config['ALLOWED_IMAGE_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'webp'}
 app.config['MAX_GALLERY_IMAGES'] = int(os.getenv('MAX_GALLERY_IMAGES', '10'))
 app.config['DEFAULT_META_DESCRIPTION'] = (
@@ -130,36 +134,15 @@ PUBLIC_CACHE_ENDPOINTS = {
     'robots',
     'sitemap',
 }
-PUBLIC_CACHE_TTL = 120
-PUBLIC_CACHE_TTL_LONG = 3600
+PUBLIC_CACHE_TTL = int(os.getenv('PUBLIC_CACHE_TTL', '120'))
+PUBLIC_CACHE_TTL_LONG = int(os.getenv('PUBLIC_CACHE_TTL_LONG', '3600'))
+_CACHE_KEY_PREFIX = os.getenv('CACHE_KEY_PREFIX', 'flatlandbd')
+_redis_client = None
+_redis_checked = False
 
 compress.init_app(app)
 csrf.init_app(app)
 db.init_app(app)
-
-@app.after_request
-def add_security_headers(response):
-    # Security Headers
-    response.headers['X-Content-Type-Options'] = 'nosniff'
-    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
-    response.headers['X-XSS-Protection'] = '1; mode=block'
-    
-    # HSTS (Strict-Transport-Security) - enforce HTTPS
-    # Only meaningful if served over HTTPS, but good practice to include
-    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
-
-    # Content Security Policy (Basic)
-    # Allows scripts/styles from CDN sources we use (Tailwind, FontAwesome, Alpine, etc.)
-    # Note: 'unsafe-eval' is needed for Alpine.js
-    response.headers['Content-Security-Policy'] = (
-        "default-src 'self'; "
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; "
-        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; "
-        "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; "
-        "img-src 'self' data: https://images.unsplash.com https://cdn.jsdelivr.net; "
-        "frame-src 'self' https://www.google.com https://www.youtube.com;"
-    )
-    return response
 
 def static_url(filename):
     if not filename:
@@ -337,6 +320,65 @@ def build_youtube_watch(url):
         return None
     return f"https://youtu.be/{video_id}"
 
+
+def get_redis_client():
+    global _redis_client, _redis_checked
+
+    if _redis_checked:
+        return _redis_client
+
+    _redis_checked = True
+    redis_url = os.getenv('REDIS_URL')
+    if not redis_url:
+        return None
+
+    try:
+        from redis import Redis
+
+        client = Redis.from_url(redis_url, decode_responses=True)
+        client.ping()
+        _redis_client = client
+    except Exception:
+        _redis_client = None
+    return _redis_client
+
+
+def build_cache_key(key):
+    return f'{_CACHE_KEY_PREFIX}:{key}'
+
+
+def build_status_counts(model):
+    rows = db.session.query(model.status, func.count(model.id)).group_by(model.status).all()
+    counts = {status: total for status, total in rows}
+    counts['total'] = sum(counts.values())
+    return counts
+
+
+def collect_admin_stats():
+    flat_counts = build_status_counts(Flat)
+    service_counts = build_status_counts(InteriorService)
+    lead_counts = build_status_counts(Lead)
+    return {
+        'total_flats': flat_counts.get('total', 0),
+        'pending_flats': flat_counts.get('pending', 0),
+        'approved_flats': flat_counts.get('approved', 0),
+        'rejected_flats': flat_counts.get('rejected', 0),
+        'total_services': service_counts.get('total', 0),
+        'pending_services': service_counts.get('pending', 0),
+        'approved_services': service_counts.get('approved', 0),
+        'rejected_services': service_counts.get('rejected', 0),
+        'total_leads': lead_counts.get('total', 0),
+        'new_leads': lead_counts.get('new', 0),
+    }
+
+
+def paginate_query(query, page, per_page):
+    page = max(page, 1)
+    offset = (page - 1) * per_page
+    items = query.offset(offset).limit(per_page + 1).all()
+    has_next = len(items) > per_page
+    return items[:per_page], page > 1, has_next
+
 def ensure_schema_updates():
     table_name = Flat.__tablename__
     inspector = db.inspect(db.engine)
@@ -365,12 +407,29 @@ def load_user(user_id):
 _STATS_CACHE = {}
 
 def get_cached_value(key, ttl_seconds, factory):
+    cache_key = build_cache_key(key)
+    redis_client = get_redis_client()
+    if redis_client:
+        try:
+            cached = redis_client.get(cache_key)
+            if cached is not None:
+                return json.loads(cached)
+        except Exception:
+            pass
+
     now = time.monotonic()
     cached = _STATS_CACHE.get(key)
     if cached and cached['expires_at'] > now:
         return cached['value']
     value = factory()
     _STATS_CACHE[key] = {'value': value, 'expires_at': now + ttl_seconds}
+    if redis_client:
+        try:
+            redis_client.setex(cache_key, ttl_seconds, json.dumps(value))
+        except (TypeError, ValueError):
+            pass
+        except Exception:
+            pass
     return value
 
 def safe_next_path():
@@ -408,8 +467,8 @@ def add_security_headers(response):
         "object-src 'none'",
         "frame-ancestors 'self'",
         "form-action 'self'",
-        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://cdn.tailwindcss.com",
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://cdn.tailwindcss.com",
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com",
         "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com",
         "img-src 'self' data: https:",
         "frame-src 'self' https://www.google.com https://maps.google.com https://maps.gstatic.com https://www.youtube.com https://www.youtube-nocookie.com",
@@ -701,7 +760,21 @@ def logout():
 
 @app.route('/flat/<int:id>')
 def flat_detail(id):
-    flat = Flat.query.get_or_404(id)
+    flat = Flat.query.options(
+        load_only(
+            Flat.id,
+            Flat.title,
+            Flat.description,
+            Flat.price,
+            Flat.location,
+            Flat.area_sqft,
+            Flat.bhk,
+            Flat.image_url,
+            Flat.video_url,
+            Flat.status,
+        ),
+        selectinload(Flat.images).load_only(FlatImage.id, FlatImage.image_url),
+    ).get_or_404(id)
     if flat.status != 'approved':
         if not current_user.is_authenticated or current_user.role != 'admin':
             abort(404)
@@ -719,7 +792,19 @@ def flat_detail(id):
 
 @app.route('/interior/<int:id>')
 def interior_detail(id):
-    service = InteriorService.query.get_or_404(id)
+    service = InteriorService.query.options(
+        load_only(
+            InteriorService.id,
+            InteriorService.provider_name,
+            InteriorService.service_type,
+            InteriorService.description,
+            InteriorService.starting_price,
+            InteriorService.image_url,
+            InteriorService.portfolio_url,
+            InteriorService.status,
+        ),
+        selectinload(InteriorService.images).load_only(InteriorImage.id, InteriorImage.image_url),
+    ).get_or_404(id)
     if service.status != 'approved':
         if not current_user.is_authenticated or current_user.role != 'admin':
             abort(404)
@@ -972,39 +1057,86 @@ def edit_listing(item_type, id):
 @app.route(f'/{ADMIN_PATH}', strict_slashes=False)
 @admin_required
 def admin_dashboard():
-    
     tab = request.args.get('tab', 'dashboard')
     status_filter = request.args.get('status', 'all').strip().lower()
     search = request.args.get('q', '').strip()
+    page = request.args.get('page', 1, type=int)
+    if page < 1:
+        page = 1
     if tab == 'leads' and status_filter not in LEAD_STATUSES:
         status_filter = 'all'
     if tab != 'leads' and status_filter not in LISTING_STATUSES:
         status_filter = 'all'
 
+    recent_limit = app.config['ADMIN_DASHBOARD_RECENT_LIMIT']
+    per_page = app.config['ADMIN_LISTINGS_PER_PAGE']
     flats_all = []
     services_all = []
     leads_all = []
+    has_prev = False
+    has_next = False
+    prev_url = None
+    next_url = None
 
     if tab in {'dashboard', 'flats'}:
-        flats_query = Flat.query.options(joinedload(Flat.owner))
+        flats_query = Flat.query.options(
+            load_only(
+                Flat.id,
+                Flat.title,
+                Flat.location,
+                Flat.image_url,
+                Flat.status,
+                Flat.created_at,
+            ),
+            joinedload(Flat.owner).load_only(User.id, User.username),
+        )
         if status_filter in LISTING_STATUSES:
             flats_query = flats_query.filter_by(status=status_filter)
         if search:
             like = f"%{search}%"
             flats_query = flats_query.filter(or_(Flat.title.ilike(like), Flat.location.ilike(like)))
-        flats_all = flats_query.order_by(Flat.created_at.desc()).all()
+        flats_query = flats_query.order_by(Flat.created_at.desc())
+        if tab == 'dashboard':
+            flats_all = flats_query.limit(recent_limit).all()
+        else:
+            flats_all, has_prev, has_next = paginate_query(flats_query, page, per_page)
 
     if tab in {'dashboard', 'services'}:
-        services_query = InteriorService.query.options(joinedload(InteriorService.provider))
+        services_query = InteriorService.query.options(
+            load_only(
+                InteriorService.id,
+                InteriorService.provider_name,
+                InteriorService.service_type,
+                InteriorService.image_url,
+                InteriorService.status,
+                InteriorService.created_at,
+            ),
+            joinedload(InteriorService.provider).load_only(User.id, User.username),
+        )
         if status_filter in LISTING_STATUSES:
             services_query = services_query.filter_by(status=status_filter)
         if search:
             like = f"%{search}%"
             services_query = services_query.filter(InteriorService.provider_name.ilike(like))
-        services_all = services_query.order_by(InteriorService.created_at.desc()).all()
+        services_query = services_query.order_by(InteriorService.created_at.desc())
+        if tab == 'dashboard':
+            services_all = services_query.limit(recent_limit).all()
+        else:
+            services_all, has_prev, has_next = paginate_query(services_query, page, per_page)
 
     if tab == 'leads':
-        leads_query = Lead.query
+        leads_query = Lead.query.options(
+            load_only(
+                Lead.id,
+                Lead.name,
+                Lead.phone,
+                Lead.email,
+                Lead.interest,
+                Lead.message,
+                Lead.status,
+                Lead.created_at,
+            )
+        )
         if status_filter in LEAD_STATUSES:
             leads_query = leads_query.filter_by(status=status_filter)
         if search:
@@ -1017,28 +1149,28 @@ def admin_dashboard():
                     Lead.message.ilike(like),
                 )
             )
-        leads_all = leads_query.order_by(Lead.created_at.desc()).all()
+        leads_query = leads_query.order_by(Lead.created_at.desc())
+        leads_all, has_prev, has_next = paginate_query(leads_query, page, per_page)
 
     stats = get_cached_value(
         'admin_stats',
         30,
-        lambda: {
-            'total_flats': Flat.query.count(),
-            'pending_flats': Flat.query.filter_by(status='pending').count(),
-            'approved_flats': Flat.query.filter_by(status='approved').count(),
-            'rejected_flats': Flat.query.filter_by(status='rejected').count(),
-            'total_services': InteriorService.query.count(),
-            'pending_services': InteriorService.query.filter_by(status='pending').count(),
-            'approved_services': InteriorService.query.filter_by(status='approved').count(),
-            'rejected_services': InteriorService.query.filter_by(status='rejected').count(),
-            'total_leads': Lead.query.count(),
-            'new_leads': Lead.query.filter_by(status='new').count(),
-        },
+        collect_admin_stats,
     )
     admin_filters = {
         'status': status_filter,
         'q': search,
     }
+    if tab in {'flats', 'services', 'leads'}:
+        page_params = {'tab': tab}
+        if status_filter != 'all':
+            page_params['status'] = status_filter
+        if search:
+            page_params['q'] = search
+        if has_prev:
+            prev_url = url_for('admin_dashboard', page=page - 1, **page_params)
+        if has_next:
+            next_url = url_for('admin_dashboard', page=page + 1, **page_params)
     if tab == 'leads':
         filters_applied = bool(search or status_filter in LEAD_STATUSES)
         status_options = [
@@ -1064,7 +1196,12 @@ def admin_dashboard():
                             stats=stats,
                             admin_filters=admin_filters,
                             filters_applied=filters_applied,
-                            status_options=status_options)
+                            status_options=status_options,
+                            page=page,
+                            has_prev=has_prev,
+                            has_next=has_next,
+                            prev_url=prev_url,
+                            next_url=next_url)
 
 @app.route('/flats')
 def flats():
@@ -1129,7 +1266,6 @@ def flats():
     if max_price_value is not None:
         query = query.filter(Flat.price <= max_price_value)
 
-    total_results = query.order_by(None).count()
     sort_clause = sort_options[sort]
     if sort == 'newest':
         query = query.order_by(sort_clause)
@@ -1166,7 +1302,7 @@ def flats():
         flats=all_flats,
         filters=filters,
         filters_applied=filters_applied,
-        total_results=total_results,
+        page_listing_count=len(all_flats),
         sort=sort,
         page=page,
         has_prev=has_prev,

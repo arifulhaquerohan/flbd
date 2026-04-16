@@ -9,8 +9,6 @@
 {% block extra_css %}
 {% endblock %}
 
-{% endblock %}
-
 {% block extra_js %}
 <script>
     function shareListing() {
@@ -107,12 +105,12 @@
                     <p class="text-brand-dark/70 mt-4 whitespace-pre-wrap">{{ flat.description }}</p>
                 </div>
 
-                {% if flat.images.all() %}
+                {% if flat.images %}
                 <div class="card-minimal p-8">
                     <p class="section-kicker">Gallery</p>
                     <h2 class="text-2xl font-display text-brand-dark mt-3">More photos</h2>
                     <div class="grid sm:grid-cols-2 gap-4 mt-6">
-                        {% for image in flat.images.all() %}
+                        {% for image in flat.images %}
                         <div class="rounded-2xl overflow-hidden border border-glass-border">
                             <img src="{{ image.image_url }}" alt="{{ flat.title }} photo" class="w-full h-56 object-cover img-expand" loading="lazy" decoding="async">
                         </div>

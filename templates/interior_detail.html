@@ -5,8 +5,6 @@
 {% block extra_css %}
 {% endblock %}
 
-{% endblock %}
-
 {% block extra_js %}
 <script>
     function shareListing() {
@@ -119,9 +117,9 @@
                 <p class="section-subtitle">A snapshot of the studio's preferred look and feel.</p>
             </div>
         </div>
-        {% if service.images.all() %}
+        {% if service.images %}
         <div class="grid md:grid-cols-2 gap-6">
-            {% for image in service.images.all() %}
+            {% for image in service.images %}
             <div class="hero-frame">
                 <img src="{{ image.image_url }}" alt="Studio portfolio" class="w-full h-full object-cover img-expand" loading="lazy" decoding="async">
             </div>

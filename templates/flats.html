@@ -84,10 +84,16 @@
         <div class="flex flex-wrap items-end justify-between gap-4 mb-8">
             <div>
                 <p class="section-kicker">Results</p>
-                <h2 class="text-3xl md:text-4xl font-display text-brand-dark">{{ total_results }} curated listings</h2>
-                <p class="text-sm text-brand-dark/60 mt-2">A responsive grid with clear next steps.</p>
+                <h2 class="text-3xl md:text-4xl font-display text-brand-dark">{{ page_listing_count }} listings on this page</h2>
+                <p class="text-sm text-brand-dark/60 mt-2">
+                    {% if has_next %}
+                    Fast-loading results with more listings available on the next page.
+                    {% else %}
+                    A responsive grid with clear next steps.
+                    {% endif %}
+                </p>
             </div>
-            {% if total_results > 0 and (filters.search or filters.bhk != 'all' or filters.min_price or filters.max_price) %}
+            {% if page_listing_count > 0 and (filters.search or filters.bhk != 'all' or filters.min_price or filters.max_price) %}
             <a href="{{ url_for('flats') }}" class="btn-outline">Clear filters</a>
             {% endif %}
         </div>
@@ -121,6 +127,18 @@
                 </div>
             {% endif %}
         </div>
+
+        {% if has_prev or has_next %}
+        <div class="mt-10 flex items-center justify-center gap-4">
+            {% if has_prev %}
+            <a href="{{ prev_url }}" class="btn-outline">Previous</a>
+            {% endif %}
+            <span class="section-kicker">Page {{ page }}</span>
+            {% if has_next %}
+            <a href="{{ next_url }}" class="btn-outline">Next</a>
+            {% endif %}
+        </div>
+        {% endif %}
     </div>
 </section>
 {% endblock %}
