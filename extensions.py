@@ -5,10 +5,12 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_compress import Compress
 from flask_login import LoginManager
+from flask_mail import Mail
 
 csrf = CSRFProtect()
 compress = Compress()
 login_manager = LoginManager()
+mail = Mail()
 
 rate_limit_storage_uri = os.getenv('RATELIMIT_STORAGE_URI') or os.getenv('REDIS_URL') or 'memory://'
 limiter = Limiter(

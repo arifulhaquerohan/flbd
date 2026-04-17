@@ -12,3 +12,4 @@ wtforms
 email_validator
 Pillow
 redis
+Flask-Mail==0.10.0
