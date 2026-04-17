@@ -120,11 +120,12 @@
         {% if service.images %}
         <div class="grid md:grid-cols-2 gap-6">
             {% for image in service.images %}
-            <div class="hero-frame">
-                <img src="{{ image.image_url }}" alt="Studio portfolio" class="w-full h-full object-cover img-expand" loading="lazy" decoding="async">
+            <div class="hero-frame cursor-zoom-in">
+                <img src="{{ image.image_url }}" alt="Studio portfolio {{ loop.index }}" class="w-full h-full object-cover img-expand hover:scale-105 transition-transform duration-500" loading="lazy" decoding="async" title="Click to enlarge">
             </div>
             {% endfor %}
         </div>
+        <p class="text-xs text-brand-dark/40 mt-4 text-center"><i class="fas fa-expand-alt mr-1"></i>Click any photo to enlarge</p>
         {% else %}
         <div class="grid md:grid-cols-2 gap-6">
             <div class="hero-frame">
@@ -153,7 +154,7 @@
             </div>
         </div>
         <form action="{{ url_for('contact') }}" method="post" class="card-minimal p-8 md:p-10">
-            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token() }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="hidden" name="interest" value="Interior Service: {{ service.provider_name }}">
             <div class="grid md:grid-cols-2 gap-6">
                 <div>

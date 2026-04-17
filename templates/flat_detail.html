@@ -73,6 +73,11 @@
                 <p class="hero-lead">{{ flat.location }} • {{ flat.bhk }} BHK • {{ flat.area_sqft }} sqft</p>
                 <div class="flex flex-wrap gap-4">
                     <a href="#contact" class="btn-gold-tw">Schedule visit</a>
+                    <a href="https://wa.me/8801712458794?text={{ ('Hello FlatlandBD, I am interested in: ' + flat.title + ' at ' + flat.location) | urlencode }}"
+                       target="_blank" rel="noopener"
+                       class="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-emerald-500 text-white font-bold hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/20">
+                        <i class="fab fa-whatsapp text-lg"></i> WhatsApp
+                    </a>
                     <button onclick="shareListing()" class="btn-outline flex items-center gap-2">
                         <i class="fas fa-share-alt"></i> Share
                     </button>
@@ -80,6 +85,8 @@
                 <div class="flex flex-wrap gap-2 pt-4">
                     <span class="badge-soft">Verified listing</span>
                     <span class="badge-soft">Ready to move</span>
+                    <span class="badge-soft">{{ flat.bhk }} BHK</span>
+                    <span class="badge-soft">{{ flat.area_sqft }} sqft</span>
                 </div>
             </div>
             <div class="lg:col-span-5 reveal delay-1">
@@ -111,11 +118,12 @@
                     <h2 class="text-2xl font-display text-brand-dark mt-3">More photos</h2>
                     <div class="grid sm:grid-cols-2 gap-4 mt-6">
                         {% for image in flat.images %}
-                        <div class="rounded-2xl overflow-hidden border border-glass-border">
-                            <img src="{{ image.image_url }}" alt="{{ flat.title }} photo" class="w-full h-56 object-cover img-expand" loading="lazy" decoding="async">
+                        <div class="rounded-2xl overflow-hidden border border-glass-border cursor-zoom-in">
+                            <img src="{{ image.image_url }}" alt="{{ flat.title }} photo {{ loop.index }}" class="w-full h-56 object-cover img-expand hover:scale-105 transition-transform duration-500" loading="lazy" decoding="async" title="Click to enlarge">
                         </div>
                         {% endfor %}
                     </div>
+                    <p class="text-xs text-brand-dark/40 mt-4 text-center"><i class="fas fa-expand-alt mr-1"></i>Click any photo to enlarge</p>
                 </div>
                 {% endif %}
 
@@ -134,25 +142,63 @@
                 {% endif %}
 
                 <div class="card-minimal p-8">
-                    <p class="section-kicker">Amenities</p>
+                    <p class="section-kicker">Property Highlights</p>
                     <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
                         <div class="service-card">
-                            <span class="badge-soft">Parking</span>
-                            <p class="text-sm text-brand-dark/70 mt-3">Secure parking available</p>
+                            <i class="fas fa-bed text-brand-gold mb-3 text-xl"></i>
+                            <span class="badge-soft">Bedrooms</span>
+                            <p class="text-lg font-display text-brand-dark mt-2">{{ flat.bhk }} BHK</p>
                         </div>
                         <div class="service-card">
-                            <span class="badge-soft">Security</span>
-                            <p class="text-sm text-brand-dark/70 mt-3">24/7 guard service</p>
+                            <i class="fas fa-ruler-combined text-brand-gold mb-3 text-xl"></i>
+                            <span class="badge-soft">Area</span>
+                            <p class="text-lg font-display text-brand-dark mt-2">{{ flat.area_sqft }} sqft</p>
                         </div>
                         <div class="service-card">
-                            <span class="badge-soft">Backup</span>
-                            <p class="text-sm text-brand-dark/70 mt-3">Generator support</p>
+                            <i class="fas fa-map-marker-alt text-brand-gold mb-3 text-xl"></i>
+                            <span class="badge-soft">Location</span>
+                            <p class="text-sm font-display text-brand-dark mt-2">{{ flat.location }}</p>
                         </div>
                         <div class="service-card">
-                            <span class="badge-soft">Water</span>
-                            <p class="text-sm text-brand-dark/70 mt-3">WASA + deep supply</p>
+                            <i class="fas fa-tag text-brand-gold mb-3 text-xl"></i>
+                            <span class="badge-soft">Price</span>
+                            <p class="text-sm font-display text-brand-dark mt-2">{{ price_label }}</p>
                         </div>
                     </div>
+                </div>
+
+                <div class="card-minimal p-8">
+                    <p class="section-kicker">Standard Amenities</p>
+                    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+                        {% set amenities = [
+                            ('fa-car', 'Parking', 'Secure covered parking'),
+                            ('fa-shield-alt', 'Security', '24/7 guard service'),
+                            ('fa-bolt', 'Backup Power', 'Generator + UPS'),
+                            ('fa-tint', 'Water Supply', 'WASA + deep tube')
+                        ] %}
+                        {% for icon, title, desc in amenities %}
+                        <div class="service-card flex flex-col items-start">
+                            <i class="fas {{ icon }} text-brand-gold text-xl mb-3"></i>
+                            <span class="badge-soft">{{ title }}</span>
+                            <p class="text-sm text-brand-dark/70 mt-2">{{ desc }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Location Map -->
+                <div class="card-minimal p-8">
+                    <p class="section-kicker">Location</p>
+                    <h2 class="text-2xl font-display text-brand-dark mt-3">Find on map</h2>
+                    <div class="mt-6 rounded-2xl overflow-hidden border border-glass-border" style="height:300px;">
+                        <iframe
+                            src="https://www.google.com/maps?q={{ flat.location | urlencode }},+Bangladesh&output=embed"
+                            width="100%" height="100%" style="border:0;"
+                            allowfullscreen loading="lazy"
+                            title="Location map for {{ flat.title }}">
+                        </iframe>
+                    </div>
+                    <p class="text-sm text-brand-dark/60 mt-3"><i class="fas fa-map-pin text-brand-gold mr-1"></i>{{ flat.location }}</p>
                 </div>
             </div>
 
@@ -162,7 +208,7 @@
                     <h3 class="text-2xl font-display text-brand-dark mt-3">Book a visit</h3>
                     <p class="text-sm text-brand-dark/60 mt-3">Share your details and our team will confirm timing.</p>
                     <form action="{{ url_for('contact') }}" method="post" class="mt-6 space-y-4">
-                        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token() }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <input type="hidden" name="interest" value="Flat inquiry: {{ flat.title }}">
                         <div>
                             <label class="section-kicker" for="name">Name</label>
@@ -181,6 +227,11 @@
                             <textarea class="filter-input mt-3 h-28" id="message" name="message" placeholder="Preferred time, questions, or priorities" required></textarea>
                         </div>
                         <button type="submit" class="btn-gold-tw w-full">Request visit</button>
+                        <a href="https://wa.me/8801712458794?text={{ ('Hello FlatlandBD, I want to schedule a visit for: ' + flat.title + ' in ' + flat.location) | urlencode }}"
+                           target="_blank" rel="noopener"
+                           class="block w-full text-center py-3 rounded-2xl bg-emerald-500 text-white font-bold hover:bg-emerald-600 transition-all mt-3">
+                            <i class="fab fa-whatsapp mr-2"></i>WhatsApp us directly
+                        </a>
                     </form>
                 </div>
             </aside>

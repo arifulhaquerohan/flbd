@@ -454,10 +454,6 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-def require_admin():
-    # Legacy function for inline checks
-    if not current_user.is_authenticated or current_user.role != 'admin':
-        abort(404)
 
 @app.after_request
 def add_security_headers(response):
